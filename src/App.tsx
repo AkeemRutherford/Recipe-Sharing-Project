@@ -52,7 +52,7 @@ const mockRecipes = [
         id: 2,
         title: "Spicy Vegan Chili",
         author: { name: "Alex Chen", avatar: "https://api.dicebear.com/7.x/initials/svg?seed=Alex Chen&backgroundColor=B2D8D8" },
-        image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=800&auto=format&fit=crop",
+        image: "https://images.pexels.com/photos/34227755/pexels-photo-34227755.jpeg?auto=compress&cs=tinysrgb&w=800",
         description: "A hearty and flavorful vegan chili packed with beans, veggies, and a secret blend of spices. Perfect for a chilly day.",
         prepTime: "20 min",
         cookTime: "45 min",
