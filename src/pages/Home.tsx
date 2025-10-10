@@ -1,0 +1,261 @@
+import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase, Recipe } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+
+const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
+const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+
+function RecipeCard({ recipe, onLike, isLiked }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean }) {
+  const navigate = useNavigate();
+
+  return (
+    <div
+      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer"
+      onClick={() => navigate(`/recipe/${recipe.id}`)}
+    >
+      <div className="relative h-56">
+        {recipe.image_url ? (
+          <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
+            <span className="text-6xl">🍳</span>
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+        <div className="absolute top-3 right-3">
+          <button
+            onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
+            className={`p-2 rounded-full backdrop-blur-md ${isLiked ? 'bg-red-500 text-white' : 'bg-white/80 text-gray-700'} hover:scale-110 transition`}
+          >
+            <HeartIcon filled={isLiked} />
+          </button>
+        </div>
+        <div className="absolute bottom-3 left-3 right-3">
+          <h3 className="text-white text-xl font-bold mb-1 line-clamp-2">{recipe.title}</h3>
+          <div className="flex items-center">
+            {recipe.profiles?.avatar_url && (
+              <img src={recipe.profiles.avatar_url} alt={recipe.profiles.full_name || ''} className="w-6 h-6 rounded-full border-2 border-white" />
+            )}
+            <p className="text-white/90 text-sm ml-2 font-medium">{recipe.profiles?.full_name || 'Anonymous'}</p>
+          </div>
+        </div>
+      </div>
+      <div className="p-4">
+        <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+          <div className="flex items-center space-x-1">
+            <ClockIcon />
+            <span>{recipe.prep_time}</span>
+          </div>
+          <div className="flex items-center space-x-1">
+            <UsersIcon />
+            <span>{recipe.servings} servings</span>
+          </div>
+          <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">{recipe.difficulty}</span>
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {recipe.tags.slice(0, 3).map(tag => (
+            <span key={tag} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{tag}</span>
+          ))}
+        </div>
+        <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
+          <span className="flex items-center space-x-1">
+            <HeartIcon filled={false} />
+            <span>{recipe.likes_count}</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function Home() {
+  const { user } = useAuth();
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState(['all']);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadRecipes();
+    if (user) {
+      loadUserLikes();
+    }
+  }, [user]);
+
+  const loadRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select(`
+          *,
+          profiles!recipes_user_id_fkey(full_name, avatar_url)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setRecipes(data || []);
+    } catch (err) {
+      console.error('Error loading recipes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserLikes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('recipe_likes')
+        .select('recipe_id')
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      setUserLikes(new Set(data.map(like => like.recipe_id)));
+    } catch (err) {
+      console.error('Error loading likes:', err);
+    }
+  };
+
+  const toggleLike = async (recipeId: string) => {
+    if (!user) return;
+
+    try {
+      if (userLikes.has(recipeId)) {
+        await supabase
+          .from('recipe_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recipe_id', recipeId);
+
+        setUserLikes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(recipeId);
+          return newSet;
+        });
+      } else {
+        await supabase
+          .from('recipe_likes')
+          .insert({ user_id: user.id, recipe_id: recipeId });
+
+        setUserLikes(prev => new Set(prev).add(recipeId));
+      }
+
+      await loadRecipes();
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const handleFilterChange = (filterId: string) => {
+    if (filterId === 'all') {
+      setSelectedFilters(['all']);
+    } else {
+      const newFilters = selectedFilters.filter(f => f !== 'all');
+      if (selectedFilters.includes(filterId)) {
+        const updated = newFilters.filter(f => f !== filterId);
+        setSelectedFilters(updated.length === 0 ? ['all'] : updated);
+      } else {
+        setSelectedFilters([...newFilters, filterId]);
+      }
+    }
+  };
+
+  const filteredRecipes = useMemo(() => {
+    return recipes.filter(recipe => {
+      const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      if (!matchesSearch) return false;
+
+      if (selectedFilters.includes('all')) return true;
+
+      return selectedFilters.some(filter =>
+        recipe.tags.some(tag => tag.toLowerCase().includes(filter.toLowerCase()))
+      );
+    });
+  }, [recipes, searchQuery, selectedFilters]);
+
+  const filterOptions = [
+    { id: 'all', label: 'All Recipes' },
+    { id: 'vegan', label: 'Vegan' },
+    { id: 'kosher', label: 'Kosher' },
+    { id: 'weeknight', label: 'Weeknight' },
+    { id: 'holiday', label: 'Holiday' },
+    { id: 'quick', label: 'Quick' },
+  ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading recipes...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      <div className="mb-6">
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            placeholder="Search recipes, ingredients, occasions..."
+            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-md text-gray-800 placeholder-gray-500"
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
+            <SearchIcon />
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">Discover Recipes</h2>
+          <button className="flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition">
+            <FilterIcon />
+            <span>Filters</span>
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {filterOptions.map(filter => (
+            <button
+              key={filter.id}
+              onClick={() => handleFilterChange(filter.id)}
+              className={`px-5 py-2 rounded-full font-semibold transition-all ${
+                selectedFilters.includes(filter.id)
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
+                  : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filteredRecipes.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-2xl text-gray-500">No recipes found matching your criteria</p>
+          <p className="text-gray-400 mt-2">Try adjusting your filters or search terms</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredRecipes.map(recipe => (
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onLike={toggleLike}
+              isLiked={userLikes.has(recipe.id)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
