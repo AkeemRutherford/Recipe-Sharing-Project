@@ -342,7 +342,8 @@ export default function RecipeDetail() {
                         <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                         <div>
                           <span className="text-amber-700 font-bold">{ing.amount}</span>
-                          <span className="text-gray-700 ml-2">{ing.name}</span>
+                          {ing.unit && <span className="text-amber-600 ml-1">{ing.unit}</span>}
+                          <span className="text-gray-700 ml-2">{ing.ingredient || ing.name}</span>
                         </div>
                       </li>
                     ))}

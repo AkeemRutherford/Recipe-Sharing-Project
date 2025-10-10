@@ -19,6 +19,12 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const generateImageWithUnsplash = async () => {
+    const cleanTitle = recipeTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
+    const unsplashUrl = `https://source.unsplash.com/800x600/?${cleanTitle},food,recipe`;
+    onImageGenerated(unsplashUrl);
+  };
+
   const generateImage = async () => {
     if (!recipeTitle) {
       setError('Please enter a recipe title first');
@@ -34,6 +40,9 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
 
       const { data: { session } } = await supabase.auth.getSession();
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -43,11 +52,15 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
         body: JSON.stringify({
           prompt: recipeTitle,
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to generate image');
+        console.warn('HuggingFace API failed, using Unsplash fallback');
+        await generateImageWithUnsplash();
+        return;
       }
 
       const data = await response.json();
@@ -55,11 +68,16 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
       if (data.success && data.image) {
         onImageGenerated(data.image);
       } else {
-        throw new Error('No image received from API');
+        console.warn('No image from HuggingFace, using Unsplash fallback');
+        await generateImageWithUnsplash();
       }
     } catch (err: any) {
-      console.error('Error generating image:', err);
-      setError(err.message || 'Failed to generate image');
+      console.warn('Error with AI generation, using Unsplash fallback:', err.message);
+      try {
+        await generateImageWithUnsplash();
+      } catch (fallbackErr: any) {
+        setError('Failed to generate image. Please try again or use a direct URL.');
+      }
     } finally {
       setGenerating(false);
     }
