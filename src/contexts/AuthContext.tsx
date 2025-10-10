@@ -7,6 +7,7 @@ type AuthContextType = {
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithApple: () => Promise<void>;
+  signInWithTestAccount: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -52,13 +53,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
+  const signInWithTestAccount = async () => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: 'test@kollabkitchen.com',
+      password: 'TestAccount123!',
+    });
+    if (error) throw error;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithApple, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithApple, signInWithTestAccount, signOut }}>
       {children}
     </AuthContext.Provider>
   );

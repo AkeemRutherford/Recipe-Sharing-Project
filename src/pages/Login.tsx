@@ -24,7 +24,7 @@ const ChefHatIcon = () => (
 );
 
 export default function Login() {
-  const { signInWithGoogle, signInWithApple } = useAuth();
+  const { signInWithGoogle, signInWithApple, signInWithTestAccount } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +46,17 @@ export default function Login() {
       await signInWithApple();
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Apple');
+      setLoading(false);
+    }
+  };
+
+  const handleTestAccountSignIn = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await signInWithTestAccount();
+    } catch (err: any) {
+      setError(err.message || 'Failed to sign in with test account');
       setLoading(false);
     }
   };
@@ -88,6 +99,29 @@ export default function Login() {
               <AppleIcon />
               <span className="font-semibold">
                 {loading ? 'Signing in...' : 'Continue with Apple'}
+              </span>
+            </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handleTestAccountSignIn}
+              disabled={loading}
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span className="font-semibold">
+                {loading ? 'Signing in...' : 'Test Account (Demo)'}
               </span>
             </button>
           </div>
