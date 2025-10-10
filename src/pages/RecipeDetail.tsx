@@ -266,15 +266,27 @@ export default function RecipeDetail() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
             <div className="absolute bottom-8 left-8 right-8">
-              <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
-              <div className="flex items-center space-x-4 text-white">
-                {recipe.profiles?.profile_pic_url && (
-                  <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
-                )}
-                <div>
-                  <p className="text-sm opacity-90">Created by</p>
-                  <p className="font-semibold text-lg">{recipe.profiles?.username || 'Anonymous'}</p>
+              <div className="flex items-end justify-between">
+                <div className="flex-1">
+                  <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
+                  <div className="flex items-center space-x-4 text-white">
+                    {recipe.profiles?.profile_pic_url && (
+                      <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
+                    )}
+                    <div>
+                      <p className="text-sm opacity-90">Created by</p>
+                      <p className="font-semibold text-lg">{recipe.profiles?.username || 'Anonymous'}</p>
+                    </div>
+                  </div>
                 </div>
+                {user && recipe.user_id === user.id && (
+                  <button
+                    onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
+                    className="px-6 py-3 bg-white/90 hover:bg-white text-amber-700 font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                  >
+                    Edit Recipe
+                  </button>
+                )}
               </div>
             </div>
           </div>

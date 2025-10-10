@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 
@@ -12,10 +12,12 @@ const BackIcon = () => (
   </svg>
 );
 
-export default function AddRecipe() {
+export default function EditRecipe() {
+  const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [loadingRecipe, setLoadingRecipe] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -32,11 +34,61 @@ export default function AddRecipe() {
 
   const [ingredients, setIngredients] = useState<Array<{ amount: string; unit: string; ingredient: string }>>([]);
 
+  useEffect(() => {
+    if (id) {
+      loadRecipe();
+    }
+  }, [id]);
+
+  const loadRecipe = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('id', id!)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        setError('Recipe not found');
+        return;
+      }
+
+      if (data.user_id !== user?.id) {
+        setError('You do not have permission to edit this recipe');
+        return;
+      }
+
+      setFormData({
+        title: data.title,
+        description: data.description || '',
+        image_url: data.image_url || '',
+        prep_time: data.prep_time || '',
+        cook_time: data.cook_time || '',
+        servings: data.servings || 4,
+        difficulty: data.difficulty || 'Easy',
+        tags: data.tags?.join(', ') || '',
+        instructions: data.instructions?.join('\n') || '',
+      });
+
+      setIngredients(data.ingredients || []);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load recipe');
+    } finally {
+      setLoadingRecipe(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!user) {
-      setError('You must be logged in to add a recipe');
+      setError('You must be logged in to edit a recipe');
+      return;
+    }
+
+    if (ingredients.length === 0) {
+      setError('Please add at least one ingredient');
       return;
     }
 
@@ -44,12 +96,6 @@ export default function AddRecipe() {
     setError(null);
 
     try {
-      if (ingredients.length === 0) {
-        setError('Please add at least one ingredient');
-        setLoading(false);
-        return;
-      }
-
       const instructionsArray = formData.instructions
         .split('\n')
         .filter(line => line.trim());
@@ -59,10 +105,9 @@ export default function AddRecipe() {
         .map(tag => tag.trim())
         .filter(tag => tag);
 
-      const { data, error: insertError } = await supabase
+      const { error: updateError } = await supabase
         .from('recipes')
-        .insert({
-          user_id: user.id,
+        .update({
           title: formData.title,
           description: formData.description,
           image_url: formData.image_url,
@@ -73,19 +118,43 @@ export default function AddRecipe() {
           tags: tagsArray,
           ingredients: ingredients,
           instructions: instructionsArray,
+          edited_at: new Date().toISOString(),
         })
-        .select()
-        .single();
+        .eq('id', id!);
 
-      if (insertError) throw insertError;
+      if (updateError) throw updateError;
 
-      navigate('/my-recipes');
+      navigate(`/recipe/${id}`);
     } catch (err: any) {
-      setError(err.message || 'Failed to create recipe');
+      setError(err.message || 'Failed to update recipe');
     } finally {
       setLoading(false);
     }
   };
+
+  if (loadingRecipe) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading recipe...</div>
+      </div>
+    );
+  }
+
+  if (error && !formData.title) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-xl text-red-600 mb-4">{error}</p>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
@@ -99,7 +168,7 @@ export default function AddRecipe() {
         </button>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">Add New Recipe</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Edit Recipe</h1>
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -231,7 +300,7 @@ export default function AddRecipe() {
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 rows={10}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                placeholder="Enter each step on a new line...&#10;1. Preheat oven to 350°F&#10;2. Mix dry ingredients in a bowl&#10;3. Add wet ingredients and stir until combined"
+                placeholder="Enter each step on a new line..."
               />
               <p className="text-xs text-gray-500 mt-1">One step per line</p>
             </div>
@@ -249,7 +318,7 @@ export default function AddRecipe() {
                 disabled={loading}
                 className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Creating...' : 'Create Recipe'}
+                {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </form>

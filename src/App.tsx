@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import RecipeDetail from './pages/RecipeDetail';
 import AddRecipe from './pages/AddRecipe';
+import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import Header from './components/Header';
 
@@ -53,6 +54,7 @@ function AppRoutes() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
+          <Route path="/recipe/:id/edit" element={<EditRecipe />} />
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="*" element={<Navigate to="/" replace />} />
