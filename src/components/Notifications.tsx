@@ -56,7 +56,7 @@ export default function Notifications() {
         .select(`
           *,
           recipes!notifications_recipe_id_fkey(title),
-          profiles!notifications_actor_id_fkey(full_name, avatar_url)
+          profiles!notifications_actor_id_fkey(username, profile_pic_url)
         `)
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false })
@@ -168,9 +168,9 @@ export default function Notifications() {
                     >
                       <div className="flex items-start space-x-3">
                         <div className="flex-shrink-0 mt-1">
-                          {notification.profiles?.avatar_url ? (
+                          {notification.profiles?.profile_pic_url ? (
                             <img
-                              src={notification.profiles.avatar_url}
+                              src={notification.profiles.profile_pic_url}
                               alt=""
                               className="w-10 h-10 rounded-full"
                             />

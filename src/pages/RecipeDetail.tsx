@@ -75,7 +75,7 @@ export default function RecipeDetail() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(full_name, avatar_url)
+          profiles!recipes_user_id_fkey(username, profile_pic_url)
         `)
         .eq('id', id!)
         .maybeSingle();
@@ -98,7 +98,7 @@ export default function RecipeDetail() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(full_name, avatar_url)
+          profiles!recipe_modifications_user_id_fkey(username, profile_pic_url)
         `)
         .eq('recipe_id', id!)
         .order('created_at', { ascending: false });
@@ -205,7 +205,7 @@ export default function RecipeDetail() {
         aggregation[key] = { count: 0, users: [], modification: s };
       }
       aggregation[key].count++;
-      aggregation[key].users.push(s.profiles?.full_name || 'Anonymous');
+      aggregation[key].users.push(s.profiles?.username || 'Anonymous');
     });
 
     return Object.values(aggregation).sort((a: any, b: any) => b.count - a.count);
@@ -268,12 +268,12 @@ export default function RecipeDetail() {
             <div className="absolute bottom-8 left-8 right-8">
               <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
               <div className="flex items-center space-x-4 text-white">
-                {recipe.profiles?.avatar_url && (
-                  <img src={recipe.profiles.avatar_url} alt={recipe.profiles.full_name || ''} className="w-12 h-12 rounded-full border-3 border-white" />
+                {recipe.profiles?.profile_pic_url && (
+                  <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
                 )}
                 <div>
                   <p className="text-sm opacity-90">Created by</p>
-                  <p className="font-semibold text-lg">{recipe.profiles?.full_name || 'Anonymous'}</p>
+                  <p className="font-semibold text-lg">{recipe.profiles?.username || 'Anonymous'}</p>
                 </div>
               </div>
             </div>
@@ -455,15 +455,15 @@ export default function RecipeDetail() {
                   <div key={mod.id} className={`p-5 rounded-xl border-l-4 ${getCommentColor(mod.modification_type)} shadow-sm hover:shadow-md transition`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center">
-                        {mod.profiles?.avatar_url ? (
-                          <img src={mod.profiles.avatar_url} alt={mod.profiles.full_name || ''} className="w-10 h-10 rounded-full mr-3" />
+                        {mod.profiles?.profile_pic_url ? (
+                          <img src={mod.profiles.profile_pic_url} alt={mod.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
                         ) : (
                           <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
                             {getCommentIcon(mod.modification_type)}
                           </div>
                         )}
                         <div>
-                          <span className="font-bold text-gray-800">{mod.profiles?.full_name || 'Anonymous'}</span>
+                          <span className="font-bold text-gray-800">{mod.profiles?.username || 'Anonymous'}</span>
                           <span className="text-xs text-gray-500 ml-2">{new Date(mod.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
