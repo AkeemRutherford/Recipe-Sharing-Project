@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 const GoogleIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -27,6 +28,8 @@ export default function Login() {
   const { signInWithGoogle, signInWithGitHub, signInWithTestAccount } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showUsernameModal, setShowUsernameModal] = useState(false);
+  const [username, setUsername] = useState('');
 
   const handleGoogleSignIn = async () => {
     try {
@@ -57,6 +60,61 @@ export default function Login() {
       await signInWithTestAccount();
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with test account');
+      setLoading(false);
+    }
+  };
+
+  const handleUsernameLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!username.trim()) {
+      setError('Please enter a username');
+      return;
+    }
+
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
+      const demoEmail = `${cleanUsername}@demo.kollabkitchen.app`;
+      const demoPassword = `demo_${cleanUsername}_${Date.now()}`;
+
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: demoEmail,
+        password: demoPassword,
+        options: {
+          data: {
+            username: username.trim(),
+            is_demo_user: true,
+          },
+        },
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (data.user) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: data.user.id,
+            username: username.trim(),
+            bio: 'Demo user - testing KollabKitchen',
+            updated_at: new Date().toISOString(),
+          });
+
+        if (profileError) console.error('Profile creation error:', profileError);
+      }
+
+      setShowUsernameModal(false);
+      setUsername('');
+    } catch (err: any) {
+      setError(err.message || 'Failed to create demo account');
       setLoading(false);
     }
   };
@@ -124,6 +182,22 @@ export default function Login() {
                 {loading ? 'Signing in...' : 'Test Account (Demo)'}
               </span>
             </button>
+
+            <button
+              onClick={() => setShowUsernameModal(true)}
+              disabled={loading}
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="8.5" cy="7" r="4"></circle>
+                <line x1="20" y1="8" x2="20" y2="14"></line>
+                <line x1="23" y1="11" x2="17" y2="11"></line>
+              </svg>
+              <span className="font-semibold">
+                Quick Demo Login
+              </span>
+            </button>
           </div>
 
           <div className="mt-8 pt-6 border-t border-gray-200">
@@ -139,6 +213,59 @@ export default function Login() {
           </p>
         </div>
       </div>
+
+      {showUsernameModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Quick Demo Login</h2>
+            <p className="text-gray-600 mb-6">
+              Enter a username to create a temporary demo account. No password needed!
+            </p>
+
+            <form onSubmit={handleUsernameLogin}>
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g., chefmike, foodlover, testuser"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  autoFocus
+                  disabled={loading}
+                />
+                <p className="text-xs text-gray-500 mt-2">
+                  Min 3 characters. Letters, numbers, and underscores only.
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowUsernameModal(false);
+                    setUsername('');
+                    setError(null);
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading || !username.trim()}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Creating...' : 'Create & Login'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
