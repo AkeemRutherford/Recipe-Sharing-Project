@@ -82,8 +82,9 @@ export default function Login() {
       setError(null);
 
       const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
-      const demoEmail = `${cleanUsername}@demo.kollabkitchen.app`;
-      const demoPassword = `demo_${cleanUsername}_${Date.now()}`;
+      const randomSuffix = Math.floor(Math.random() * 10000);
+      const demoEmail = `${cleanUsername}_${randomSuffix}@demo.kollabkitchen.app`;
+      const demoPassword = `demo_${cleanUsername}_${Date.now()}_${Math.random().toString(36)}`;
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: demoEmail,
@@ -93,12 +94,19 @@ export default function Login() {
             username: username.trim(),
             is_demo_user: true,
           },
+          emailRedirectTo: undefined,
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        throw signUpError;
+      }
 
-      if (data.user) {
+      if (!data.user) {
+        throw new Error('Failed to create user account');
+      }
+
+      if (data.session) {
         const { error: profileError } = await supabase
           .from('profiles')
           .upsert({
@@ -108,12 +116,15 @@ export default function Login() {
             updated_at: new Date().toISOString(),
           });
 
-        if (profileError) console.error('Profile creation error:', profileError);
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+        }
       }
 
       setShowUsernameModal(false);
       setUsername('');
     } catch (err: any) {
+      console.error('Demo login error:', err);
       setError(err.message || 'Failed to create demo account');
       setLoading(false);
     }
