@@ -6,7 +6,7 @@ type AuthContextType = {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
+  signInWithGitHub: () => Promise<void>;
   signInWithTestAccount: () => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -43,9 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const signInWithApple = async () => {
+  const signInWithGitHub = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
+      provider: 'github',
       options: {
         redirectTo: window.location.origin,
       },
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithApple, signInWithTestAccount, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signInWithGoogle, signInWithGitHub, signInWithTestAccount, signOut }}>
       {children}
     </AuthContext.Provider>
   );
