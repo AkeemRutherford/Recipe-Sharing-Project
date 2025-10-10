@@ -22,7 +22,20 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
   const generateImageWithUnsplash = async () => {
     const cleanTitle = recipeTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
     const unsplashUrl = `https://source.unsplash.com/800x600/?${cleanTitle},food,recipe`;
-    onImageGenerated(unsplashUrl);
+
+    try {
+      const testResponse = await fetch(unsplashUrl, { method: 'HEAD' });
+      if (testResponse.ok) {
+        onImageGenerated(unsplashUrl);
+        return true;
+      }
+    } catch (err) {
+      console.warn('Unsplash failed, using placeholder');
+    }
+
+    const placeHolderUrl = `https://placehold.co/800x600/fbbf24/ffffff?text=${encodeURIComponent(recipeTitle)}`;
+    onImageGenerated(placeHolderUrl);
+    return false;
   };
 
   const generateImage = async () => {

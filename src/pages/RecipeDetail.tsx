@@ -159,17 +159,25 @@ export default function RecipeDetail() {
     if (!user || !newComment.trim()) return;
 
     try {
-      await supabase.from('recipe_modifications').insert({
+      const { data, error } = await supabase.from('recipe_modifications').insert({
         recipe_id: id!,
         user_id: user.id,
         modification_type: commentType,
         description: newComment,
       });
 
+      if (error) {
+        console.error('Error submitting comment:', error);
+        alert(`Failed to post comment: ${error.message}`);
+        return;
+      }
+
       setNewComment('');
       await loadModifications();
-    } catch (err) {
+      alert('Comment posted successfully!');
+    } catch (err: any) {
       console.error('Error submitting comment:', err);
+      alert(`Failed to post comment: ${err.message || 'Unknown error'}`);
     }
   };
 
