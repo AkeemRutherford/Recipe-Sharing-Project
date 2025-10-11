@@ -247,20 +247,41 @@ export default function RecipeDetail() {
   }, [recipe, scaleFactor, measurementSystem, originalSystem]);
 
   const aggregatedSuggestions = useMemo(() => {
-    const suggestions = modifications.filter(m => m.modification_type === 'substitution' || m.modification_type === 'addition');
-    const aggregation: any = {};
+    const suggestions = comments.filter(c => c.type === 'suggestion');
+    const groups: any[] = [];
 
-    suggestions.forEach(s => {
-      let key = s.description.substring(0, 50);
-      if (!aggregation[key]) {
-        aggregation[key] = { count: 0, users: [], modification: s };
+    suggestions.forEach(comment => {
+      const text = comment.text.toLowerCase();
+
+      let foundGroup = false;
+      for (const group of groups) {
+        const groupText = group.comment.text.toLowerCase();
+
+        const words1 = text.split(/\s+/).filter(w => w.length > 3);
+        const words2 = groupText.split(/\s+/).filter(w => w.length > 3);
+        const commonWords = words1.filter(w => words2.includes(w));
+
+        const similarity = commonWords.length / Math.max(words1.length, words2.length);
+
+        if (similarity > 0.4) {
+          group.count++;
+          group.users.push(comment.profiles?.username || 'Anonymous');
+          foundGroup = true;
+          break;
+        }
       }
-      aggregation[key].count++;
-      aggregation[key].users.push(s.profiles?.username || 'Anonymous');
+
+      if (!foundGroup) {
+        groups.push({
+          count: 1,
+          users: [comment.profiles?.username || 'Anonymous'],
+          comment: comment,
+        });
+      }
     });
 
-    return Object.values(aggregation).sort((a: any, b: any) => b.count - a.count);
-  }, [modifications]);
+    return groups.sort((a, b) => b.count - a.count);
+  }, [comments]);
 
   const getCommentIcon = (type: string) => {
     switch(type) {
@@ -484,25 +505,20 @@ export default function RecipeDetail() {
                   <div className="space-y-3">
                     {aggregatedSuggestions.map((agg: any, index: number) => (
                       <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition border border-purple-100">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-start">
+                          <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                            {agg.count}
+                          </span>
                           <div className="flex-1">
-                            <div className="flex items-center mb-2">
-                              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3">
-                                {agg.count}
-                              </span>
-                              <span className="font-semibold text-gray-800">{agg.modification.description}</span>
-                            </div>
-                            <p className="text-xs text-gray-500 ml-11">
-                              ✓ Tried by {agg.users.join(', ')}
+                            <p className="font-semibold text-gray-800 mb-2">{agg.comment.text}</p>
+                            <p className="text-xs text-gray-500">
+                              {agg.count === 1 ? (
+                                <>✓ Suggested by {agg.users[0]}</>
+                              ) : (
+                                <>✓ {agg.count} users suggest this: {agg.users.join(', ')}</>
+                              )}
                             </p>
                           </div>
-                          <button
-                            onClick={() => toggleModificationLike(agg.modification.id)}
-                            className="ml-4 flex items-center space-x-1 px-3 py-1 rounded-lg hover:bg-purple-100 transition"
-                          >
-                            <HeartIcon filled={modificationLikes.has(agg.modification.id)} />
-                            <span className="text-sm">{agg.modification.likes_count}</span>
-                          </button>
                         </div>
                       </div>
                     ))}
