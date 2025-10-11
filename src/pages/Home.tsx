@@ -301,9 +301,55 @@ export default function Home() {
 
       if (selectedFilters.includes('all')) return true;
 
-      return selectedFilters.some(filter =>
-        recipe.tags.some(tag => tag.toLowerCase().includes(filter.toLowerCase()))
-      );
+      return selectedFilters.some(filter => {
+        const filterLower = filter.toLowerCase();
+
+        if (filterLower === 'for-you' && userFavoriteTags.length > 0) {
+          return recipe.tags.some(tag =>
+            userFavoriteTags.some(favTag => favTag.toLowerCase() === tag.toLowerCase())
+          );
+        }
+
+        if (filterLower === 'trending') {
+          const daysSincePosted = (Date.now() - new Date(recipe.created_at).getTime()) / (1000 * 60 * 60 * 24);
+          return daysSincePosted <= 7 && (recipe.likes_count || 0) >= 3;
+        }
+
+        if (filterLower === 'easy') {
+          const totalTime = parseInt(recipe.prep_time) + parseInt(recipe.cook_time || '0');
+          return recipe.difficulty === 'Easy' && totalTime < 45;
+        }
+
+        if (filterLower === 'weekend') {
+          return recipe.difficulty === 'Intermediate' || recipe.difficulty === 'Advanced';
+        }
+
+        if (filterLower === 'healthy') {
+          return recipe.tags.some(tag =>
+            ['healthy', 'low-carb', 'gluten-free', 'low-calorie'].includes(tag.toLowerCase())
+          );
+        }
+
+        if (filterLower === 'comfort') {
+          return recipe.tags.some(tag =>
+            ['comfort food', 'family dinner', 'cozy', 'hearty'].includes(tag.toLowerCase())
+          );
+        }
+
+        if (filterLower === 'international') {
+          return recipe.tags.some(tag =>
+            ['italian', 'asian', 'mexican', 'french', 'indian', 'thai', 'chinese', 'japanese', 'mediterranean'].includes(tag.toLowerCase())
+          );
+        }
+
+        if (filterLower === 'desserts') {
+          return recipe.tags.some(tag =>
+            ['dessert', 'sweet', 'baking', 'cake', 'cookie', 'pie'].includes(tag.toLowerCase())
+          );
+        }
+
+        return recipe.tags.some(tag => tag.toLowerCase().includes(filterLower));
+      });
     });
 
     const sorted = [...filtered].sort((a, b) => {
@@ -336,7 +382,15 @@ export default function Home() {
   }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags, showFollowingOnly, followingUserIds]);
 
   const filterOptions = [
+    ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: '✨ For You' }] : []),
+    { id: 'trending', label: '🔥 Trending' },
     { id: 'all', label: 'All Recipes' },
+    { id: 'easy', label: '🌟 Easy Wins' },
+    { id: 'weekend', label: '🎯 Weekend Projects' },
+    { id: 'healthy', label: '🥗 Healthy' },
+    { id: 'comfort', label: '🍲 Comfort Food' },
+    { id: 'international', label: '🌍 International' },
+    { id: 'desserts', label: '🍰 Desserts' },
     { id: 'vegan', label: 'Vegan' },
     { id: 'kosher', label: 'Kosher' },
     { id: 'weeknight', label: 'Weeknight' },
@@ -411,20 +465,22 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2">
-          {filterOptions.map(filter => (
-            <button
-              key={filter.id}
-              onClick={() => handleFilterChange(filter.id)}
-              className={`px-5 py-2 rounded-full font-semibold transition-all ${
-                selectedFilters.includes(filter.id)
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                  : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
+        <div className="relative">
+          <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {filterOptions.map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => handleFilterChange(filter.id)}
+                className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedFilters.includes(filter.id)
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
+                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

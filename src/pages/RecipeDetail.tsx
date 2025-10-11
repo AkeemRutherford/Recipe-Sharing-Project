@@ -57,6 +57,7 @@ export default function RecipeDetail() {
   const [modifications, setModifications] = useState<RecipeModification[]>([]);
   const [comments, setComments] = useState<any[]>([]);
   const [modificationLikes, setModificationLikes] = useState<Set<string>>(new Set());
+  const [commentLikes, setCommentLikes] = useState<Set<string>>(new Set());
   const [currentServings, setCurrentServings] = useState(4);
   const [newComment, setNewComment] = useState('');
   const [commentType, setCommentType] = useState<'tip' | 'suggestion' | 'question'>('tip');
@@ -64,6 +65,8 @@ export default function RecipeDetail() {
   const [loading, setLoading] = useState(true);
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('imperial');
   const [originalSystem, setOriginalSystem] = useState<MeasurementSystem>('imperial');
+  const [commentSortBy, setCommentSortBy] = useState<'recent' | 'liked' | 'oldest'>('recent');
+  const [appliedModifications, setAppliedModifications] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (id) {
@@ -72,6 +75,7 @@ export default function RecipeDetail() {
       loadComments();
       if (user) {
         loadModificationLikes();
+        loadCommentLikes();
       }
     }
   }, [id, user]);
@@ -153,6 +157,20 @@ export default function RecipeDetail() {
     }
   };
 
+  const loadCommentLikes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('comment_likes')
+        .select('comment_id')
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      setCommentLikes(new Set(data.map(like => like.comment_id)));
+    } catch (err) {
+      console.error('Error loading comment likes:', err);
+    }
+  };
+
   const toggleModificationLike = async (modificationId: string) => {
     if (!user) return;
 
@@ -180,6 +198,36 @@ export default function RecipeDetail() {
       await loadModifications();
     } catch (err) {
       console.error('Error toggling modification like:', err);
+    }
+  };
+
+  const toggleCommentLike = async (commentId: string) => {
+    if (!user) return;
+
+    try {
+      if (commentLikes.has(commentId)) {
+        await supabase
+          .from('comment_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('comment_id', commentId);
+
+        setCommentLikes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(commentId);
+          return newSet;
+        });
+      } else {
+        await supabase
+          .from('comment_likes')
+          .insert({ user_id: user.id, comment_id: commentId });
+
+        setCommentLikes(prev => new Set(prev).add(commentId));
+      }
+
+      await loadComments();
+    } catch (err) {
+      console.error('Error toggling comment like:', err);
     }
   };
 
@@ -469,6 +517,55 @@ export default function RecipeDetail() {
                     ))}
                   </ul>
                 </div>
+
+                {recipe.nutrition_facts && (
+                  <div className="mt-6 bg-white rounded-xl p-6 border-2 border-gray-300 shadow-md">
+                    <h4 className="text-xl font-bold text-gray-800 mb-4">Nutrition Facts</h4>
+                    <p className="text-sm text-gray-600 mb-4">Per Serving</p>
+                    <div className="space-y-2">
+                      <div className="flex justify-between border-b-4 border-black pb-2">
+                        <span className="font-bold text-2xl">Calories</span>
+                        <span className="font-bold text-2xl">{recipe.nutrition_facts.per_serving.calories}</span>
+                      </div>
+                      <div className="text-right text-xs text-gray-600 border-b border-gray-300 pb-1">% Daily Value*</div>
+                      <div className="flex justify-between text-sm border-b border-gray-300 py-1">
+                        <span><span className="font-bold">Total Fat</span> {recipe.nutrition_facts.per_serving.total_fat}g</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.total_fat / 78) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-200 py-1 pl-4">
+                        <span>Saturated Fat {recipe.nutrition_facts.per_serving.saturated_fat}g</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.saturated_fat / 20) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-300 py-1">
+                        <span><span className="font-bold">Cholesterol</span> {recipe.nutrition_facts.per_serving.cholesterol}mg</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.cholesterol / 300) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-300 py-1">
+                        <span><span className="font-bold">Sodium</span> {recipe.nutrition_facts.per_serving.sodium}mg</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.sodium / 2300) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-300 py-1">
+                        <span><span className="font-bold">Total Carbohydrates</span> {recipe.nutrition_facts.per_serving.carbohydrates}g</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.carbohydrates / 275) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-200 py-1 pl-4">
+                        <span>Dietary Fiber {recipe.nutrition_facts.per_serving.fiber}g</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.fiber / 28) * 100)}%</span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b border-gray-300 py-1 pl-4">
+                        <span>Total Sugars {recipe.nutrition_facts.per_serving.sugar}g</span>
+                        <span></span>
+                      </div>
+                      <div className="flex justify-between text-sm border-b-4 border-black py-1">
+                        <span><span className="font-bold">Protein</span> {recipe.nutrition_facts.per_serving.protein}g</span>
+                        <span className="font-bold">{Math.round((recipe.nutrition_facts.per_serving.protein / 50) * 100)}%</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-4">
+                      ⚠️ {recipe.nutrition_facts.disclaimer || 'Estimated values based on ingredients. Actual nutrition may vary based on specific brands and preparation methods.'}
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="lg:col-span-2">
@@ -571,33 +668,104 @@ export default function RecipeDetail() {
               )}
 
               <div className="space-y-4">
-                <h4 className="text-xl font-semibold text-gray-800 mb-4">All Community Notes ({comments.length})</h4>
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-xl font-semibold text-gray-800">All Community Notes ({comments.length})</h4>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-gray-600">Sort by:</span>
+                    <select
+                      value={commentSortBy}
+                      onChange={(e) => setCommentSortBy(e.target.value as 'recent' | 'liked' | 'oldest')}
+                      className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    >
+                      <option value="recent">Most Recent</option>
+                      <option value="liked">Most Liked</option>
+                      <option value="oldest">Oldest</option>
+                    </select>
+                  </div>
+                </div>
                 {comments.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p>No comments yet. Be the first to share your thoughts!</p>
                   </div>
                 ) : (
-                  comments.map(comment => (
+                  [...comments].sort((a, b) => {
+                    if (commentSortBy === 'liked') {
+                      return (b.likes_count || 0) - (a.likes_count || 0);
+                    } else if (commentSortBy === 'oldest') {
+                      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                    } else {
+                      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+                    }
+                  }).map(comment => (
                     <div key={comment.id} className={`p-5 rounded-xl border-l-4 ${getCommentColor(comment.type)} shadow-sm hover:shadow-md transition`}>
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center">
-                          {comment.profiles?.profile_pic_url ? (
-                            <img src={comment.profiles.profile_pic_url} alt={comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
-                          ) : (
-                            <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
-                              {getCommentIcon(comment.type)}
+                      <div className="flex items-start mb-3">
+                        {comment.profiles?.profile_pic_url ? (
+                          <img src={comment.profiles.profile_pic_url} alt={comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
+                        ) : (
+                          <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
+                            {getCommentIcon(comment.type)}
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="font-bold text-gray-800">{comment.profiles?.username || 'Anonymous'}</span>
+                              <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
+                                {comment.type}
+                              </span>
+                              {(comment.likes_count || 0) >= 10 && (
+                                <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                  ⭐ Top Comment
+                                </span>
+                              )}
+                              {comment.user_id === recipe?.user_id && (
+                                <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                  👨‍🍳 Author
+                                </span>
+                              )}
+                              <span className="block text-xs text-gray-500 mt-1">{new Date(comment.created_at).toLocaleDateString()}</span>
                             </div>
-                          )}
-                          <div>
-                            <span className="font-bold text-gray-800">{comment.profiles?.username || 'Anonymous'}</span>
-                            <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
-                              {comment.type}
-                            </span>
-                            <span className="block text-xs text-gray-500 mt-1">{new Date(comment.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed mt-2">{comment.text}</p>
+                          <div className="flex items-center space-x-2 mt-3">
+                            {user && (
+                              <button
+                                onClick={() => toggleCommentLike(comment.id)}
+                                className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg transition text-sm font-semibold ${
+                                  commentLikes.has(comment.id)
+                                    ? 'bg-red-100 text-red-600'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                              >
+                                <span>{commentLikes.has(comment.id) ? '❤️' : '🤍'}</span>
+                                <span>{commentLikes.has(comment.id) ? 'Liked' : 'Like'} ({comment.likes_count || 0})</span>
+                              </button>
+                            )}
+                            {comment.type === 'suggestion' && user && (
+                              <button
+                                onClick={() => {
+                                  if (appliedModifications.has(comment.id)) {
+                                    setAppliedModifications(prev => {
+                                      const newSet = new Set(prev);
+                                      newSet.delete(comment.id);
+                                      return newSet;
+                                    });
+                                  } else {
+                                    setAppliedModifications(prev => new Set(prev).add(comment.id));
+                                  }
+                                }}
+                                className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg transition text-sm font-semibold ${
+                                  appliedModifications.has(comment.id)
+                                    ? 'bg-green-500 text-white'
+                                    : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
+                                }`}
+                              >
+                                <span>{appliedModifications.has(comment.id) ? '✓ Applied' : 'Apply to Recipe'}</span>
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">{comment.text}</p>
                     </div>
                   ))
                 )}
