@@ -152,13 +152,13 @@ export default function Users() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--gradient-background)' }}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-orange-600 mb-4">
-            KollabKitchen Community
+          <h1 className="text-5xl font-extrabold mb-4" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
+            Forklore Community
           </h1>
-          <p className="text-xl text-gray-700">Discover amazing cooks and their recipes</p>
+          <p className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Connect with fellow home cooks and discover their culinary journeys</p>
         </div>
 
         <div className="mb-8 bg-white rounded-2xl shadow-lg p-6">

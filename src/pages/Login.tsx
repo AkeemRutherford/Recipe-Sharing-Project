@@ -83,7 +83,7 @@ export default function Login() {
 
       const cleanUsername = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
       const randomSuffix = Math.floor(Math.random() * 10000);
-      const demoEmail = `${cleanUsername}_${randomSuffix}@demo.kollabkitchen.app`;
+      const demoEmail = `${cleanUsername}_${randomSuffix}@demo.forklore.app`;
       const demoPassword = `demo_${cleanUsername}_${Date.now()}_${Math.random().toString(36)}`;
 
       const { data, error: signUpError } = await supabase.auth.signUp({
