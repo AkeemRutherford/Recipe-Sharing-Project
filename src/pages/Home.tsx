@@ -477,7 +477,7 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex gap-2 items-start">
+        <div className="md:hidden flex gap-2 items-start">
           <button
             onClick={() => handleFilterChange('trending')}
             className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
@@ -548,6 +548,24 @@ export default function Home() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+
+        <div className="hidden md:block relative">
+          <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {allFilterOptions.map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => handleFilterChange(filter.id)}
+                className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                  selectedFilters.includes(filter.id)
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
+                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
+                }`}
+              >
+                {filter.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
