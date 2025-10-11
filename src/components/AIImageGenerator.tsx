@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import CookingModal from './CookingModal';
 
 interface AIImageGeneratorProps {
   recipeTitle: string;
@@ -110,27 +111,23 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
   };
 
   return (
-    <div className="w-full">
-      <button
-        type="button"
-        onClick={generateImage}
-        disabled={generating || !recipeTitle}
-        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-      >
-        <SparklesIcon />
-        <span>{generating ? 'Generating...' : 'Generate AI Image'}</span>
-      </button>
-      {error && (
-        <p className="text-red-600 text-sm mt-2">{error}</p>
-      )}
-      {generating && (
-        <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 h-full animate-pulse" style={{ width: '100%' }}></div>
-          </div>
-          <p className="text-gray-600 text-sm mt-2 font-medium">Generating Image... This may take 10-20 seconds</p>
-        </div>
-      )}
-    </div>
+    <>
+      <CookingModal isOpen={generating} />
+
+      <div className="w-full">
+        <button
+          type="button"
+          onClick={generateImage}
+          disabled={generating || !recipeTitle}
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        >
+          <SparklesIcon />
+          <span>{generating ? 'Generating...' : 'Generate AI Image'}</span>
+        </button>
+        {error && (
+          <p className="text-red-600 text-sm mt-2">{error}</p>
+        )}
+      </div>
+    </>
   );
 }

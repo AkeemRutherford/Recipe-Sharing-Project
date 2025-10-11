@@ -52,55 +52,42 @@ Deno.serve(async (req: Request) => {
     
     prompt += ' in 4:5 ratio';
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${GOOGLE_AI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          instances: [{
-            prompt: prompt
-          }],
-          parameters: {
-            sampleCount: 1,
-            aspectRatio: '4:5'
-          }
-        }),
-      }
+    console.log('Attempting to generate image with prompt:', prompt);
+
+    // Use Pollinations AI which is free and reliable
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
+      `Professional food photography of ${recipeName}, appetizing, high quality, well-lit, 4:5 aspect ratio`
+    )}?width=800&height=1000&nologo=true&enhance=true`;
+
+    console.log('Fetching image from Pollinations...');
+
+    // Fetch the image
+    const imageResponse = await fetch(pollinationsUrl);
+
+    if (!imageResponse.ok) {
+      console.error('Pollinations API error:', imageResponse.statusText);
+      return new Response(
+        JSON.stringify({ error: 'Failed to generate image', details: imageResponse.statusText }),
+        {
+          status: imageResponse.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    // Convert to base64
+    const imageBlob = await imageResponse.blob();
+    const arrayBuffer = await imageBlob.arrayBuffer();
+    const base64Image = btoa(
+      String.fromCharCode(...new Uint8Array(arrayBuffer))
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Google Imagen API error:', errorText);
-      return new Response(
-        JSON.stringify({ error: 'Failed to generate image', details: errorText }),
-        {
-          status: response.status,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const result = await response.json();
-    
-    if (!result.predictions || result.predictions.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No image generated' }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    const imageData = result.predictions[0].bytesBase64Encoded;
+    console.log('Image generated successfully, size:', arrayBuffer.byteLength);
 
     return new Response(
       JSON.stringify({
         success: true,
-        image: `data:image/png;base64,${imageData}`,
+        image: `data:image/jpeg;base64,${base64Image}`,
         prompt: prompt
       }),
       {
