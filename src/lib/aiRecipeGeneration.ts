@@ -24,10 +24,6 @@ export interface GeneratedRecipe {
 }
 
 export async function analyzeImage(imageFile: File): Promise<string> {
-  if (!HF_API_KEY || HF_API_KEY === 'undefined' || HF_API_KEY.length < 10) {
-    throw new Error('Hugging Face API key not configured. Get your FREE API key at https://huggingface.co/settings/tokens and add it to .env as VITE_HUGGINGFACE_API_KEY');
-  }
-
   const base64Image = await fileToBase64(imageFile);
 
   const response = await fetch(
@@ -45,23 +41,8 @@ export async function analyzeImage(imageFile: File): Promise<string> {
   );
 
   if (!response.ok) {
-    let errorMessage = `Image analysis failed (${response.status})`;
-    try {
-      const error = await response.json();
-      errorMessage = error.error || error.message || errorMessage;
-
-      if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Invalid Hugging Face API key. Please get a valid FREE API key at https://huggingface.co/settings/tokens';
-      }
-    } catch {
-      const text = await response.text();
-      if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Invalid Hugging Face API key. Please get a valid FREE API key at https://huggingface.co/settings/tokens';
-      } else {
-        errorMessage = text || errorMessage;
-      }
-    }
-    throw new Error(errorMessage);
+    const error = await response.json();
+    throw new Error(`Image analysis failed: ${error.error || response.statusText}`);
   }
 
   const result = await response.json();
@@ -72,10 +53,6 @@ export async function generateRecipeFromDescription(
   description: string,
   source: 'voice' | 'image'
 ): Promise<GeneratedRecipe> {
-  if (!HF_API_KEY || HF_API_KEY === 'undefined' || HF_API_KEY.length < 10) {
-    throw new Error('Hugging Face API key not configured. Get your FREE API key at https://huggingface.co/settings/tokens and add it to .env as VITE_HUGGINGFACE_API_KEY');
-  }
-
   const prompt = `You are a professional chef and recipe creator. ${
     source === 'image'
       ? `Based on this food image description: "${description}"`
@@ -96,7 +73,7 @@ Return ONLY valid JSON in this exact format, with no additional text:
     {"amount": "1", "unit": "tsp", "name": "salt"}
   ],
   "instructions": [
-    "Preheat oven to 350�F",
+    "Preheat oven to 350°F",
     "Mix dry ingredients in a bowl"
   ],
   "tags": ["comfort food", "family friendly", "dinner"]
@@ -109,7 +86,7 @@ Important:
 - Choose difficulty based on technique complexity
 - Include 3-5 relevant tags
 - Make servings realistic (typically 4-8)
-${source === 'voice' ? '- Extract amounts from spoken numbers (e.g., "two cups" � "2 cups")' : ''}
+${source === 'voice' ? '- Extract amounts from spoken numbers (e.g., "two cups" → "2 cups")' : ''}
 ${source === 'voice' ? '- Convert conversational language to precise cooking steps' : ''}`;
 
   const response = await fetch(
@@ -132,32 +109,14 @@ ${source === 'voice' ? '- Convert conversational language to precise cooking ste
   );
 
   if (!response.ok) {
-    let errorMessage = `Recipe generation failed (${response.status})`;
-    try {
-      const error = await response.json();
-      errorMessage = error.error || error.message || errorMessage;
-
-      if (errorMessage.includes('loading') || errorMessage.includes('currently loading')) {
-        errorMessage = 'AI model is loading. Please wait 20 seconds and try again.';
-      }
-
-      if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Invalid Hugging Face API key. Please get a valid FREE API key at https://huggingface.co/settings/tokens';
-      }
-    } catch {
-      const text = await response.text();
-      if (response.status === 401 || response.status === 403) {
-        errorMessage = 'Invalid Hugging Face API key. Please get a valid FREE API key at https://huggingface.co/settings/tokens';
-      } else {
-        errorMessage = text || errorMessage;
-      }
-    }
-    throw new Error(errorMessage);
+    const error = await response.json();
+    throw new Error(`Recipe generation failed: ${error.error || response.statusText}`);
   }
 
   const data = await response.json();
   const responseText = data[0]?.generated_text || '';
 
+  // Extract JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('Could not parse recipe from AI response. Please try again.');
@@ -166,13 +125,15 @@ ${source === 'voice' ? '- Convert conversational language to precise cooking ste
   try {
     const recipe = JSON.parse(jsonMatch[0]);
 
+    // Validate required fields
     if (!recipe.title || !recipe.ingredients || !recipe.instructions) {
       throw new Error('Incomplete recipe generated. Please try again.');
     }
 
+    // Add metadata
     recipe.ai_generated = true;
     recipe.generation_method = source;
-    recipe.ai_confidence_score = 0.75;
+    recipe.ai_confidence_score = 0.75; // Default confidence
 
     if (source === 'voice') {
       recipe.original_transcript = description;
@@ -186,8 +147,12 @@ ${source === 'voice' ? '- Convert conversational language to precise cooking ste
 }
 
 export async function generateRecipeFromImage(imageFile: File): Promise<GeneratedRecipe> {
+  // Step 1: Analyze image
   const description = await analyzeImage(imageFile);
+
+  // Step 2: Generate recipe from description
   const recipe = await generateRecipeFromDescription(description, 'image');
+
   return recipe;
 }
 
