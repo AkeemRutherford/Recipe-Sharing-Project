@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Recipe, RecipeModification } from '../lib/supabase';
 import { formatIngredientAmount } from '../lib/fractions';
+import { convertIngredient, detectCurrentSystem, MeasurementSystem } from '../lib/unitConversion';
 
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
@@ -61,6 +62,8 @@ export default function RecipeDetail() {
   const [commentType, setCommentType] = useState<'tip' | 'suggestion' | 'question'>('tip');
   const [useFractions, setUseFractions] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('imperial');
+  const [originalSystem, setOriginalSystem] = useState<MeasurementSystem>('imperial');
 
   useEffect(() => {
     if (id) {
@@ -106,6 +109,10 @@ export default function RecipeDetail() {
       if (data) {
         setRecipe(data);
         setCurrentServings(data.servings);
+
+        const detectedSystem = detectCurrentSystem(data.ingredients);
+        setOriginalSystem(detectedSystem);
+        setMeasurementSystem(detectedSystem);
       }
     } catch (err) {
       console.error('Error loading recipe:', err);
@@ -219,11 +226,25 @@ export default function RecipeDetail() {
         }
         const scaledNum = num * scaleFactor;
         const scaledAmount = ing.amount.replace(/[\d.\/]+/, scaledNum % 1 === 0 ? scaledNum : scaledNum.toFixed(2));
+
+        if (measurementSystem !== originalSystem) {
+          const converted = convertIngredient(scaledAmount, ing.unit || '', measurementSystem);
+          if (converted) {
+            return {
+              ...ing,
+              amount: converted.amount,
+              unit: converted.unit,
+              originalAmount: converted.originalAmount,
+              originalUnit: converted.originalUnit,
+            };
+          }
+        }
+
         return { ...ing, amount: scaledAmount };
       }
       return ing;
     });
-  }, [recipe, scaleFactor]);
+  }, [recipe, scaleFactor, measurementSystem, originalSystem]);
 
   const aggregatedSuggestions = useMemo(() => {
     const suggestions = modifications.filter(m => m.modification_type === 'substitution' || m.modification_type === 'addition');
@@ -372,6 +393,28 @@ export default function RecipeDetail() {
               onServingsChange={setCurrentServings}
             />
 
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200 mt-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+                  </svg>
+                  <span className="font-semibold text-gray-700">Unit System</span>
+                </div>
+                <button
+                  onClick={() => setMeasurementSystem(measurementSystem === 'imperial' ? 'metric' : 'imperial')}
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition font-semibold shadow-md"
+                >
+                  {measurementSystem === 'imperial' ? 'Convert to Metric' : 'Convert to Imperial'}
+                </button>
+              </div>
+              {measurementSystem !== originalSystem && (
+                <p className="text-sm text-gray-600 mt-2">
+                  Showing {measurementSystem === 'metric' ? 'metric' : 'imperial'} units (original: {originalSystem === 'metric' ? 'metric' : 'imperial'})
+                </p>
+              )}
+            </div>
+
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
                 <div className="flex items-center justify-between mb-4">
@@ -394,6 +437,11 @@ export default function RecipeDetail() {
                         <div>
                           <span className="text-amber-700 font-bold">{formatIngredientAmount(ing.amount, useFractions)}</span>
                           {ing.unit && <span className="text-amber-600 ml-1">{ing.unit}</span>}
+                          {ing.originalAmount && ing.originalUnit && (
+                            <span className="text-gray-500 text-sm ml-1">
+                              ({ing.originalAmount} {ing.originalUnit})
+                            </span>
+                          )}
                           <span className="text-gray-700 ml-2">{ing.ingredient || ing.name}</span>
                         </div>
                       </li>
