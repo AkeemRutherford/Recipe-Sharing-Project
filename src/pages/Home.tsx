@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,7 +9,7 @@ const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
 
-function RecipeCard({ recipe, onLike, isLiked }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean }) {
+function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onTagClick: (tag: string) => void }) {
   const navigate = useNavigate();
 
   return (
@@ -40,7 +40,17 @@ function RecipeCard({ recipe, onLike, isLiked }: { recipe: Recipe; onLike: (reci
             {recipe.profiles?.profile_pic_url && (
               <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-6 h-6 rounded-full border-2 border-white" />
             )}
-            <p className="text-white/90 text-sm ml-2 font-medium">{recipe.profiles?.username || 'Anonymous'}</p>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (recipe.profiles?.username) {
+                  navigate(`/profile/${recipe.profiles.username}`);
+                }
+              }}
+              className="text-white/90 text-sm ml-2 font-medium hover:underline"
+            >
+              {recipe.profiles?.username || 'Anonymous'}
+            </button>
           </div>
         </div>
       </div>
@@ -58,7 +68,13 @@ function RecipeCard({ recipe, onLike, isLiked }: { recipe: Recipe; onLike: (reci
         </div>
         <div className="flex flex-wrap gap-1">
           {recipe.tags.slice(0, 3).map(tag => (
-            <span key={tag} className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">{tag}</span>
+            <button
+              key={tag}
+              onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-amber-100 hover:text-amber-700 transition"
+            >
+              {tag}
+            </button>
           ))}
         </div>
         <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
@@ -78,7 +94,9 @@ export default function Home() {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(['all']);
+  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent');
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
     loadRecipes();
@@ -86,6 +104,18 @@ export default function Home() {
       loadUserLikes();
     }
   }, [user]);
+
+  useEffect(() => {
+    const tagsParam = searchParams.get('tags');
+    if (tagsParam) {
+      const tags = tagsParam.split(',').map(t => t.trim().toLowerCase());
+      setSelectedFilters(tags);
+    }
+    const sortParam = searchParams.get('sort');
+    if (sortParam && ['recent', 'popular', 'trending'].includes(sortParam)) {
+      setSortBy(sortParam as 'recent' | 'popular' | 'trending');
+    }
+  }, [searchParams]);
 
   const loadRecipes = async () => {
     try {
@@ -151,21 +181,63 @@ export default function Home() {
   };
 
   const handleFilterChange = (filterId: string) => {
+    let newFilters: string[];
     if (filterId === 'all') {
-      setSelectedFilters(['all']);
+      newFilters = ['all'];
+      setSearchParams({});
     } else {
-      const newFilters = selectedFilters.filter(f => f !== 'all');
+      const current = selectedFilters.filter(f => f !== 'all');
       if (selectedFilters.includes(filterId)) {
-        const updated = newFilters.filter(f => f !== filterId);
-        setSelectedFilters(updated.length === 0 ? ['all'] : updated);
+        const updated = current.filter(f => f !== filterId);
+        newFilters = updated.length === 0 ? ['all'] : updated;
       } else {
-        setSelectedFilters([...newFilters, filterId]);
+        newFilters = [...current, filterId];
       }
+
+      if (newFilters.includes('all')) {
+        setSearchParams({});
+      } else {
+        setSearchParams({ tags: newFilters.join(',') });
+      }
+    }
+    setSelectedFilters(newFilters);
+  };
+
+  const handleTagClick = (tag: string) => {
+    const tagLower = tag.toLowerCase();
+    const current = selectedFilters.filter(f => f !== 'all');
+
+    if (selectedFilters.includes(tagLower)) {
+      const updated = current.filter(f => f !== tagLower);
+      const newFilters = updated.length === 0 ? ['all'] : updated;
+      setSelectedFilters(newFilters);
+
+      if (newFilters.includes('all')) {
+        setSearchParams({});
+      } else {
+        setSearchParams({ tags: newFilters.join(',') });
+      }
+    } else {
+      const newFilters = [...current, tagLower];
+      setSelectedFilters(newFilters);
+      setSearchParams({ tags: newFilters.join(',') });
     }
   };
 
+  const clearFilters = () => {
+    setSelectedFilters(['all']);
+    setSearchParams({});
+  };
+
+  const handleSortChange = (newSort: 'recent' | 'popular' | 'trending') => {
+    setSortBy(newSort);
+    const params = new URLSearchParams(searchParams);
+    params.set('sort', newSort);
+    setSearchParams(params);
+  };
+
   const filteredRecipes = useMemo(() => {
-    return recipes.filter(recipe => {
+    let filtered = recipes.filter(recipe => {
       const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -178,7 +250,22 @@ export default function Home() {
         recipe.tags.some(tag => tag.toLowerCase().includes(filter.toLowerCase()))
       );
     });
-  }, [recipes, searchQuery, selectedFilters]);
+
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === 'recent') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      } else if (sortBy === 'popular') {
+        return (b.likes_count || 0) - (a.likes_count || 0);
+      } else if (sortBy === 'trending') {
+        const aScore = (a.likes_count || 0) * 2 + (new Date(a.created_at).getTime() / 1000000000);
+        const bScore = (b.likes_count || 0) * 2 + (new Date(b.created_at).getTime() / 1000000000);
+        return bScore - aScore;
+      }
+      return 0;
+    });
+
+    return sorted;
+  }, [recipes, searchQuery, selectedFilters, sortBy]);
 
   const filterOptions = [
     { id: 'all', label: 'All Recipes' },
@@ -217,11 +304,31 @@ export default function Home() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-800">Discover Recipes</h2>
-          <button className="flex items-center space-x-2 text-gray-600 hover:text-amber-600 transition">
-            <FilterIcon />
-            <span>Filters</span>
-          </button>
+          {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
+            <button
+              onClick={clearFilters}
+              className="flex items-center space-x-2 text-amber-600 hover:text-amber-700 transition font-semibold"
+            >
+              <span>Clear Filters</span>
+              <span className="text-xl">×</span>
+            </button>
+          )}
         </div>
+
+        {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
+          <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm text-gray-700 mb-2">Active filters:</p>
+            <div className="flex flex-wrap gap-2">
+              {selectedFilters.map(filter => (
+                <span key={filter} className="px-3 py-1 bg-amber-200 text-amber-800 rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
+                  <span>{filter}</span>
+                  <button onClick={() => handleTagClick(filter)} className="ml-1 hover:text-amber-900">×</button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
           {filterOptions.map(filter => (
             <button
@@ -239,6 +346,47 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="mb-6 flex items-center justify-between">
+        <div className="text-gray-700">
+          <span className="font-semibold">{filteredRecipes.length}</span> recipes found
+        </div>
+        <div className="flex items-center space-x-3">
+          <span className="text-sm text-gray-600 font-medium">Sort by:</span>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handleSortChange('recent')}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                sortBy === 'recent'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
+              }`}
+            >
+              Recent
+            </button>
+            <button
+              onClick={() => handleSortChange('popular')}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                sortBy === 'popular'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
+              }`}
+            >
+              Popular
+            </button>
+            <button
+              onClick={() => handleSortChange('trending')}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                sortBy === 'trending'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
+              }`}
+            >
+              Trending
+            </button>
+          </div>
+        </div>
+      </div>
+
       {filteredRecipes.length === 0 ? (
         <div className="text-center py-20">
           <p className="text-2xl text-gray-500">No recipes found matching your criteria</p>
@@ -252,6 +400,7 @@ export default function Home() {
               recipe={recipe}
               onLike={toggleLike}
               isLiked={userLikes.has(recipe.id)}
+              onTagClick={handleTagClick}
             />
           ))}
         </div>

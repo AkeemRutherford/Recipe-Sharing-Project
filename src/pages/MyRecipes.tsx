@@ -137,9 +137,16 @@ export default function MyRecipes() {
 
                         <div className="flex flex-wrap gap-2 mb-4">
                           {recipe.tags.slice(0, 3).map(tag => (
-                            <span key={tag} className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full">
+                            <button
+                              key={tag}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/?tags=${tag.toLowerCase()}`);
+                              }}
+                              className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full hover:bg-amber-200 transition"
+                            >
                               {tag}
-                            </span>
+                            </button>
                           ))}
                         </div>
 

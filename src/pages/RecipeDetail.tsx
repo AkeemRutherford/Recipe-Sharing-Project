@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Recipe, RecipeModification } from '../lib/supabase';
+import { formatIngredientAmount } from '../lib/fractions';
 
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
@@ -57,6 +58,7 @@ export default function RecipeDetail() {
   const [currentServings, setCurrentServings] = useState(4);
   const [newComment, setNewComment] = useState('');
   const [commentType, setCommentType] = useState<'substitution' | 'addition' | 'tip' | 'question'>('tip');
+  const [useFractions, setUseFractions] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -283,7 +285,16 @@ export default function RecipeDetail() {
                     )}
                     <div>
                       <p className="text-sm opacity-90">Created by</p>
-                      <p className="font-semibold text-lg">{recipe.profiles?.username || 'Anonymous'}</p>
+                      <button
+                        onClick={() => {
+                          if (recipe.profiles?.username) {
+                            navigate(`/profile/${recipe.profiles.username}`);
+                          }
+                        }}
+                        className="font-semibold text-lg hover:underline"
+                      >
+                        {recipe.profiles?.username || 'Anonymous'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -327,7 +338,13 @@ export default function RecipeDetail() {
 
             <div className="flex flex-wrap gap-2 mb-8">
               {recipe.tags.map(tag => (
-                <span key={tag} className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-semibold px-4 py-2 rounded-full border border-amber-200">{tag}</span>
+                <button
+                  key={tag}
+                  onClick={() => navigate(`/?tags=${tag.toLowerCase()}`)}
+                  className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-semibold px-4 py-2 rounded-full border border-amber-200 hover:from-amber-200 hover:to-orange-200 hover:scale-105 transition"
+                >
+                  {tag}
+                </button>
               ))}
             </div>
 
@@ -339,17 +356,25 @@ export default function RecipeDetail() {
 
             <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-1">
-                <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center">
-                  <span className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full mr-3"></span>
-                  Ingredients
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-2xl font-bold text-gray-800 flex items-center">
+                    <span className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full mr-3"></span>
+                    Ingredients
+                  </h3>
+                  <button
+                    onClick={() => setUseFractions(!useFractions)}
+                    className="text-sm px-3 py-1 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition font-semibold"
+                  >
+                    {useFractions ? '1.5' : '1½'}
+                  </button>
+                </div>
                 <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
                   <ul className="space-y-3">
                     {scaledIngredients.map((ing: any, idx: number) => (
                       <li key={idx} className="flex items-start">
                         <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                         <div>
-                          <span className="text-amber-700 font-bold">{ing.amount}</span>
+                          <span className="text-amber-700 font-bold">{formatIngredientAmount(ing.amount, useFractions)}</span>
                           {ing.unit && <span className="text-amber-600 ml-1">{ing.unit}</span>}
                           <span className="text-gray-700 ml-2">{ing.ingredient || ing.name}</span>
                         </div>

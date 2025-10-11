@@ -7,6 +7,7 @@ import RecipeDetail from './pages/RecipeDetail';
 import AddRecipe from './pages/AddRecipe';
 import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
+import Profile from './pages/Profile';
 import Header from './components/Header';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -57,6 +58,7 @@ function AppRoutes() {
           <Route path="/recipe/:id/edit" element={<EditRecipe />} />
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
+          <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

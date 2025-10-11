@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import Notifications from './Notifications';
 
 const ChefHatIcon = () => (
@@ -36,8 +37,32 @@ const LogoutIcon = () => (
 export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signOut } = useAuth();
-  const [showUserMenu, setShowUserMenu] = React.useState(false);
+  const { user, signOut } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      loadUsername();
+    }
+  }, [user]);
+
+  const loadUsername = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user!.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data) {
+        setUsername(data.username);
+      }
+    } catch (err) {
+      console.error('Error loading username:', err);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -103,6 +128,17 @@ export default function Header() {
                     onClick={() => setShowUserMenu(false)}
                   />
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        if (username) {
+                          navigate(`/profile/${username}`);
+                        }
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100"
+                    >
+                      Profile
+                    </button>
                     <button
                       onClick={() => {
                         setShowUserMenu(false);

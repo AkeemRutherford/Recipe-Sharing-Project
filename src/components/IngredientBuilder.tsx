@@ -12,6 +12,8 @@ interface IngredientBuilderProps {
 }
 
 const COMMON_UNITS = [
+  { value: '', label: '(none - e.g., eggs, cloves)', category: 'none' },
+  { value: 'whole', label: 'whole', category: 'count' },
   { value: 'cup', label: 'cup(s)', category: 'volume' },
   { value: 'tbsp', label: 'tablespoon(s)', category: 'volume' },
   { value: 'tsp', label: 'teaspoon(s)', category: 'volume' },
@@ -21,7 +23,6 @@ const COMMON_UNITS = [
   { value: 'lb', label: 'pound(s)', category: 'weight' },
   { value: 'g', label: 'gram(s)', category: 'weight' },
   { value: 'kg', label: 'kilogram(s)', category: 'weight' },
-  { value: 'piece(s)', label: 'piece(s)', category: 'count' },
   { value: 'clove(s)', label: 'clove(s)', category: 'count' },
   { value: 'can', label: 'can(s)', category: 'count' },
   { value: 'pinch', label: 'pinch', category: 'count' },
@@ -77,7 +78,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
   const [convertTo, setConvertTo] = useState('');
 
   const addIngredient = () => {
-    onChange([...ingredients, { amount: '', unit: 'cup', ingredient: '' }]);
+    onChange([...ingredients, { amount: '', unit: '', ingredient: '' }]);
   };
 
   const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
