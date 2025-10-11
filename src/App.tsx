@@ -6,7 +6,6 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import RecipeDetail from './pages/RecipeDetail';
 import AddRecipe from './pages/AddRecipe';
-import CreateRecipeMethod from './pages/CreateRecipeMethod';
 import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import Profile from './pages/Profile';
@@ -19,7 +18,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
@@ -64,8 +63,8 @@ function AppRoutes() {
 
   if (loading || checkingOnboarding) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-background)' }}>
-        <div className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-xl text-gray-600">Loading...</div>
       </div>
     );
   }
@@ -83,13 +82,11 @@ function AppRoutes() {
     <>
       {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
       <Header />
-      <main style={{ background: 'var(--gradient-background)', minHeight: '100vh' }}>
+      <main className="bg-white min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/recipe/:id/edit" element={<EditRecipe />} />
-          <Route path="/create-recipe-method" element={<CreateRecipeMethod />} />
-          <Route path="/add-recipe/:method" element={<AddRecipe />} />
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/users" element={<Users />} />
