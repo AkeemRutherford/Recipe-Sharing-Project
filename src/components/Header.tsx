@@ -93,6 +93,14 @@ export default function Header() {
               Browse Recipes
             </button>
             <button
+              onClick={() => navigate('/users')}
+              className={`text-white font-semibold transition ${
+                isActive('/users') ? 'underline' : 'hover:underline'
+              }`}
+            >
+              Community
+            </button>
+            <button
               onClick={() => navigate('/my-recipes')}
               className={`text-white font-semibold transition ${
                 isActive('/my-recipes') ? 'underline' : 'hover:underline'
@@ -100,6 +108,16 @@ export default function Header() {
             >
               My Recipes
             </button>
+            {username && (
+              <button
+                onClick={() => navigate(`/profile/${username}`)}
+                className={`text-white font-semibold transition ${
+                  isActive(`/profile/${username}`) ? 'underline' : 'hover:underline'
+                }`}
+              >
+                My Profile
+              </button>
+            )}
           </nav>
 
           <div className="flex items-center space-x-4">

@@ -54,10 +54,11 @@ export default function RecipeDetail() {
 
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [modifications, setModifications] = useState<RecipeModification[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [modificationLikes, setModificationLikes] = useState<Set<string>>(new Set());
   const [currentServings, setCurrentServings] = useState(4);
   const [newComment, setNewComment] = useState('');
-  const [commentType, setCommentType] = useState<'substitution' | 'addition' | 'tip' | 'question'>('tip');
+  const [commentType, setCommentType] = useState<'tip' | 'suggestion' | 'question'>('tip');
   const [useFractions, setUseFractions] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -65,11 +66,30 @@ export default function RecipeDetail() {
     if (id) {
       loadRecipe();
       loadModifications();
+      loadComments();
       if (user) {
         loadModificationLikes();
       }
     }
   }, [id, user]);
+
+  const loadComments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profiles!comments_user_id_fkey(username, profile_pic_url)
+        `)
+        .eq('recipe_id', id!)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setComments(data || []);
+    } catch (err) {
+      console.error('Error loading comments:', err);
+    }
+  };
 
   const loadRecipe = async () => {
     try {
@@ -161,11 +181,11 @@ export default function RecipeDetail() {
     if (!user || !newComment.trim()) return;
 
     try {
-      const { data, error } = await supabase.from('recipe_modifications').insert({
+      const { error } = await supabase.from('comments').insert({
         recipe_id: id!,
         user_id: user.id,
-        modification_type: commentType,
-        description: newComment,
+        type: commentType,
+        text: newComment,
       });
 
       if (error) {
@@ -175,7 +195,7 @@ export default function RecipeDetail() {
       }
 
       setNewComment('');
-      await loadModifications();
+      await loadComments();
       alert('Comment posted successfully!');
     } catch (err: any) {
       console.error('Error submitting comment:', err);
@@ -223,8 +243,7 @@ export default function RecipeDetail() {
 
   const getCommentIcon = (type: string) => {
     switch(type) {
-      case 'substitution': return '🔄';
-      case 'addition': return '➕';
+      case 'suggestion': return '💡';
       case 'tip': return '⭐';
       case 'question': return '❓';
       default: return '💬';
@@ -233,8 +252,7 @@ export default function RecipeDetail() {
 
   const getCommentColor = (type: string) => {
     switch(type) {
-      case 'substitution': return 'border-blue-400 bg-blue-50';
-      case 'addition': return 'border-green-400 bg-green-50';
+      case 'suggestion': return 'border-blue-400 bg-blue-50';
       case 'tip': return 'border-yellow-400 bg-yellow-50';
       case 'question': return 'border-purple-400 bg-purple-50';
       default: return 'border-gray-200 bg-white';
@@ -457,17 +475,10 @@ export default function RecipeDetail() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setCommentType('substitution')}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'substitution' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
+                      onClick={() => setCommentType('suggestion')}
+                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'suggestion' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
                     >
-                      🔄 Substitution
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCommentType('addition')}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'addition' ? 'bg-green-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
-                    >
-                      ➕ Addition
+                      💡 Suggestion
                     </button>
                     <button
                       type="button"
@@ -496,34 +507,36 @@ export default function RecipeDetail() {
               )}
 
               <div className="space-y-4">
-                <h4 className="text-xl font-semibold text-gray-800 mb-4">All Community Notes ({modifications.length})</h4>
-                {modifications.map(mod => (
-                  <div key={mod.id} className={`p-5 rounded-xl border-l-4 ${getCommentColor(mod.modification_type)} shadow-sm hover:shadow-md transition`}>
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center">
-                        {mod.profiles?.profile_pic_url ? (
-                          <img src={mod.profiles.profile_pic_url} alt={mod.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
-                        ) : (
-                          <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
-                            {getCommentIcon(mod.modification_type)}
+                <h4 className="text-xl font-semibold text-gray-800 mb-4">All Community Notes ({comments.length})</h4>
+                {comments.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No comments yet. Be the first to share your thoughts!</p>
+                  </div>
+                ) : (
+                  comments.map(comment => (
+                    <div key={comment.id} className={`p-5 rounded-xl border-l-4 ${getCommentColor(comment.type)} shadow-sm hover:shadow-md transition`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center">
+                          {comment.profiles?.profile_pic_url ? (
+                            <img src={comment.profiles.profile_pic_url} alt={comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
+                          ) : (
+                            <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
+                              {getCommentIcon(comment.type)}
+                            </div>
+                          )}
+                          <div>
+                            <span className="font-bold text-gray-800">{comment.profiles?.username || 'Anonymous'}</span>
+                            <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700">
+                              {comment.type}
+                            </span>
+                            <span className="block text-xs text-gray-500 mt-1">{new Date(comment.created_at).toLocaleDateString()}</span>
                           </div>
-                        )}
-                        <div>
-                          <span className="font-bold text-gray-800">{mod.profiles?.username || 'Anonymous'}</span>
-                          <span className="text-xs text-gray-500 ml-2">{new Date(mod.created_at).toLocaleDateString()}</span>
                         </div>
                       </div>
-                      <button
-                        onClick={() => toggleModificationLike(mod.id)}
-                        className="flex items-center space-x-1 px-3 py-1 rounded-lg hover:bg-white transition"
-                      >
-                        <HeartIcon filled={modificationLikes.has(mod.id)} />
-                        <span className="text-sm">{mod.likes_count}</span>
-                      </button>
+                      <p className="text-gray-700 leading-relaxed">{comment.text}</p>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">{mod.description}</p>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
