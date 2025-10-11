@@ -4,6 +4,12 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import Notifications from './Notifications';
 
+const ChefHatIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
+    <line x1="6" y1="17" x2="18" y2="17"/>
+  </svg>
+);
 
 const UploadIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -66,56 +72,61 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-4">
+    <header className="shadow-lg sticky top-0 z-50" style={{ background: 'var(--forklore-forest-green)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div
             onClick={() => navigate('/')}
             className="cursor-pointer hover:opacity-90 transition"
           >
-            <div className="flex flex-col items-start">
-              <img
-                src="/forklore-logo.png"
-                alt="Forklore"
-                className="h-12 w-auto"
-              />
-              <p className="forklore-tagline text-airbnb-foggy mt-1">
-                Share Your Culinary Journey
-              </p>
+            <div className="flex items-center space-x-3">
+              <ChefHatIcon />
+              <div>
+                <h1 className="forklore-logo text-3xl" style={{ color: 'var(--forklore-cream)' }}>
+                  Forklore
+                </h1>
+                <p className="forklore-tagline" style={{ color: 'var(--forklore-golden-yellow)' }}>
+                  Share Your Culinary Journey
+                </p>
+              </div>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             <button
               onClick={() => navigate('/')}
-              className={`font-medium transition ${
-                isActive('/') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
+              className={`font-semibold transition ${
+                isActive('/') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               Explore Recipes
             </button>
             <button
               onClick={() => navigate('/users')}
-              className={`font-medium transition ${
-                isActive('/users') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
+              className={`font-semibold transition ${
+                isActive('/users') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/users') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               Community
             </button>
             <button
               onClick={() => navigate('/my-recipes')}
-              className={`font-medium transition ${
-                isActive('/my-recipes') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
+              className={`font-semibold transition ${
+                isActive('/my-recipes') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/my-recipes') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               My Recipes
             </button>
             {username && (
               <button
                 onClick={() => navigate(`/profile/${username}`)}
-                className={`font-medium transition ${
-                  isActive(`/profile/${username}`) ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
+                className={`font-semibold transition ${
+                  isActive(`/profile/${username}`) ? 'underline' : 'hover:underline'
                 }`}
+                style={{ color: isActive(`/profile/${username}`) ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
               >
                 My Profile
               </button>
@@ -124,7 +135,7 @@ export default function Header() {
 
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => navigate('/add-recipe')}
+              onClick={() => navigate('/create-recipe-method')}
               className="btn-primary flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold"
             >
               <UploadIcon />
@@ -136,7 +147,10 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 rounded-full p-2 border border-gray-300 hover:shadow-md transition text-airbnb-dark-gray hover:text-airbnb-black bg-white"
+                className="flex items-center space-x-2 rounded-lg p-2 transition"
+                style={{ color: 'var(--forklore-cream)', background: 'rgba(255, 255, 255, 0.1)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
               >
                 <UserIcon />
               </button>

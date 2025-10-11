@@ -8,14 +8,13 @@ const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" heigh
 const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
-const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
 
 function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onTagClick: (tag: string) => void }) {
   const navigate = useNavigate();
 
   return (
     <div
-      className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-airbnb-hover transition-all duration-300 cursor-pointer"
+      className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-105 hover:shadow-2xl transition-all duration-300 cursor-pointer"
       onClick={() => navigate(`/recipe/${recipe.id}`)}
     >
       <div className="relative h-56">
@@ -30,7 +29,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         <div className="absolute top-3 right-3">
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
-            className={`p-2 rounded-full ${isLiked ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            className={`p-2 rounded-full backdrop-blur-md ${isLiked ? 'bg-red-500 text-white' : 'bg-white/80 text-gray-700'} hover:scale-110 transition`}
           >
             <HeartIcon filled={isLiked} />
           </button>
@@ -39,11 +38,19 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
           <h3 className="text-white text-xl font-bold mb-1 line-clamp-2">{recipe.title}</h3>
           <div className="flex items-center">
             {recipe.profiles?.profile_pic_url && (
-              <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.full_name || ''} className="w-6 h-6 rounded-full border-2 border-white" />
+              <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-6 h-6 rounded-full border-2 border-white" />
             )}
-            <span className="text-white/90 text-sm ml-2 font-medium">
-              {recipe.profiles?.full_name || 'Anonymous'}
-            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (recipe.profiles?.username) {
+                  navigate(`/profile/${recipe.profiles.username}`);
+                }
+              }}
+              className="text-white/90 text-sm ml-2 font-medium hover:underline"
+            >
+              {recipe.profiles?.username || 'Anonymous'}
+            </button>
           </div>
         </div>
       </div>
@@ -57,14 +64,14 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
             <UsersIcon />
             <span>{recipe.servings} servings</span>
           </div>
-          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{recipe.difficulty}</span>
+          <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">{recipe.difficulty}</span>
         </div>
         <div className="flex flex-wrap gap-1">
           {recipe.tags.slice(0, 3).map(tag => (
             <button
               key={tag}
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-airbnb-hof hover:text-airbnb-rausch transition"
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-amber-100 hover:text-amber-700 transition"
             >
               {tag}
             </button>
@@ -93,8 +100,6 @@ export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [userFavoriteTags, setUserFavoriteTags] = useState<string[]>([]);
   const [followingUserIds, setFollowingUserIds] = useState<Set<string>>(new Set());
-  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
-  const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
   useEffect(() => {
     loadRecipes();
@@ -107,12 +112,39 @@ export default function Home() {
 
   const loadFollowing = async () => {
     if (!user) return;
-    setFollowingUserIds(new Set());
+
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id);
+
+      if (error) throw error;
+      setFollowingUserIds(new Set(data.map(f => f.following_id)));
+    } catch (err) {
+      console.error('Error loading following:', err);
+    }
   };
 
   const loadUserFavoriteTags = async () => {
     if (!user) return;
-    setUserFavoriteTags([]);
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('favorite_tags')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUserFavoriteTags(data?.favorite_tags || []);
+
+      if (data?.favorite_tags && data.favorite_tags.length > 0) {
+        setSortBy('recommended');
+      }
+    } catch (err) {
+      console.error('Error loading user favorite tags:', err);
+    }
   };
 
   useEffect(() => {
@@ -133,7 +165,7 @@ export default function Home() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(full_name, profile_pic_url, email)
+          profiles!recipes_user_id_fkey(username, profile_pic_url)
         `)
         .order('created_at', { ascending: false });
 
@@ -257,7 +289,7 @@ export default function Home() {
       const matchesTitle = recipe.title.toLowerCase().includes(searchLower);
       const matchesDescription = recipe.description.toLowerCase().includes(searchLower);
       const matchesTags = recipe.tags.some(tag => tag.toLowerCase().includes(searchLower));
-      const matchesAuthor = recipe.profiles?.full_name?.toLowerCase().includes(searchLower);
+      const matchesAuthor = recipe.profiles?.username?.toLowerCase().includes(searchLower);
 
       const matchesIngredients = recipe.ingredients?.some((ing: any) =>
         ing.ingredient?.toLowerCase().includes(searchLower)
@@ -349,7 +381,7 @@ export default function Home() {
     return sorted;
   }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags, showFollowingOnly, followingUserIds]);
 
-  const allFilterOptions = [
+  const filterOptions = [
     ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: '✨ For You' }] : []),
     { id: 'trending', label: '🔥 Trending' },
     { id: 'all', label: 'All Recipes' },
@@ -366,19 +398,10 @@ export default function Home() {
     { id: 'quick', label: 'Quick' },
   ];
 
-  const trendingFilter = allFilterOptions.find(f => f.id === 'trending')!;
-  const otherCategories = allFilterOptions.filter(f => f.id !== 'trending');
-
-  const filteredCategories = categorySearchQuery
-    ? otherCategories.filter(cat =>
-        cat.label.toLowerCase().includes(categorySearchQuery.toLowerCase())
-      )
-    : otherCategories;
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl text-airbnb-dark-gray">Loading culinary stories...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-background)' }}>
+        <div className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Loading culinary stories...</div>
       </div>
     );
   }
@@ -391,7 +414,7 @@ export default function Home() {
             type="text"
             value={searchQuery}
             placeholder="Search recipes, ingredients, occasions..."
-            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent shadow-sm text-gray-800 placeholder-gray-500"
+            className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent shadow-md text-gray-800 placeholder-gray-500"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
@@ -403,14 +426,14 @@ export default function Home() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-bold text-airbnb-black">Discover Recipes</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--forklore-forest-green)' }}>Discover Recipes</h2>
             {user && followingUserIds.size > 0 && (
               <button
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   showFollowingOnly
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-400'
                 }`}
               >
                 {showFollowingOnly ? '✓ ' : ''}Following
@@ -420,7 +443,7 @@ export default function Home() {
           {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark transition font-semibold"
+              className="flex items-center space-x-2 text-amber-600 hover:text-amber-700 transition font-semibold"
             >
               <span>Clear Filters</span>
               <span className="text-xl">×</span>
@@ -429,103 +452,29 @@ export default function Home() {
         </div>
 
         {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
-          <div className="mb-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-gray-700 mb-2">Active filters:</p>
             <div className="flex flex-wrap gap-2">
               {selectedFilters.map(filter => (
-                <span key={filter} className="px-3 py-1 bg-airbnb-rausch text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
+                <span key={filter} className="px-3 py-1 bg-amber-200 text-amber-800 rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
                   <span>{filter}</span>
-                  <button onClick={() => handleTagClick(filter)} className="ml-1 hover:opacity-80">×</button>
+                  <button onClick={() => handleTagClick(filter)} className="ml-1 hover:text-amber-900">×</button>
                 </span>
               ))}
             </div>
           </div>
         )}
 
-        <div className="md:hidden flex gap-2 items-start">
-          <button
-            onClick={() => handleFilterChange('trending')}
-            className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
-              selectedFilters.includes('trending')
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
-            }`}
-          >
-            {trendingFilter.label}
-          </button>
-
-          <div className="relative flex-1">
-            <button
-              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full px-5 py-2 rounded-full font-semibold transition-all bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400 flex items-center justify-between"
-            >
-              <span>Categories</span>
-              <ChevronDownIcon />
-            </button>
-
-            {showCategoryDropdown && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowCategoryDropdown(false)}
-                />
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border-2 border-gray-200 z-20 max-h-96 overflow-hidden">
-                  <div className="p-3 border-b border-gray-200 sticky top-0 bg-white">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={categorySearchQuery}
-                        onChange={(e) => setCategorySearchQuery(e.target.value)}
-                        placeholder="Search categories..."
-                        className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                        <SearchIcon />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto p-2">
-                    {filteredCategories.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        No categories found
-                      </div>
-                    ) : (
-                      filteredCategories.map(filter => (
-                        <button
-                          key={filter.id}
-                          onClick={() => {
-                            handleFilterChange(filter.id);
-                            setShowCategoryDropdown(false);
-                            setCategorySearchQuery('');
-                          }}
-                          className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-colors ${
-                            selectedFilters.includes(filter.id)
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                              : 'text-gray-700 hover:bg-amber-50'
-                          }`}
-                        >
-                          {filter.label}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="hidden md:block relative">
+        <div className="relative">
           <div className="flex overflow-x-auto gap-2 pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {allFilterOptions.map(filter => (
+            {filterOptions.map(filter => (
               <button
                 key={filter.id}
                 onClick={() => handleFilterChange(filter.id)}
                 className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                   selectedFilters.includes(filter.id)
-                    ? 'bg-airbnb-rausch text-white shadow-md scale-105'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:border-airbnb-rausch'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
+                    : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
                 }`}
               >
                 {filter.label}
@@ -547,8 +496,8 @@ export default function Home() {
                 onClick={() => handleSortChange('recommended')}
                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                   sortBy === 'recommended'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
                 }`}
               >
                 Recommended
@@ -558,8 +507,8 @@ export default function Home() {
               onClick={() => handleSortChange('recent')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'recent'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
               }`}
             >
               Recent
@@ -568,8 +517,8 @@ export default function Home() {
               onClick={() => handleSortChange('popular')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'popular'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
               }`}
             >
               Popular
@@ -578,8 +527,8 @@ export default function Home() {
               onClick={() => handleSortChange('trending')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'trending'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-amber-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
               }`}
             >
               Trending
@@ -590,7 +539,7 @@ export default function Home() {
 
       {filteredRecipes.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-2xl text-airbnb-dark-gray">No recipes found - your culinary journey awaits!</p>
+          <p className="text-2xl" style={{ color: 'var(--forklore-warm-brown)' }}>No recipes found - your culinary journey awaits!</p>
           <p className="text-gray-400 mt-2">Try adjusting your filters or search terms</p>
         </div>
       ) : (

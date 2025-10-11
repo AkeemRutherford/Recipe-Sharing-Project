@@ -14,7 +14,7 @@ const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3
 
 function RecipeScaler({ originalServings, currentServings, onServingsChange }: { originalServings: number; currentServings: number; onServingsChange: (n: number) => void }) {
   return (
-    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+    <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-200">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <ScaleIcon />
@@ -23,17 +23,17 @@ function RecipeScaler({ originalServings, currentServings, onServingsChange }: {
         <div className="flex items-center space-x-3">
           <button
             onClick={() => onServingsChange(Math.max(1, currentServings - 1))}
-            className="w-8 h-8 rounded-full bg-white border-2 border-airbnb-rausch text-airbnb-rausch font-bold hover:bg-gray-50 transition"
+            className="w-8 h-8 rounded-full bg-white border-2 border-amber-400 text-amber-600 font-bold hover:bg-amber-50 transition"
           >
             -
           </button>
           <div className="text-center">
-            <div className="text-2xl font-bold text-airbnb-rausch">{currentServings}</div>
+            <div className="text-2xl font-bold text-amber-700">{currentServings}</div>
             <div className="text-xs text-gray-500">servings</div>
           </div>
           <button
             onClick={() => onServingsChange(currentServings + 1)}
-            className="w-8 h-8 rounded-full bg-white border-2 border-airbnb-rausch text-airbnb-rausch font-bold hover:bg-gray-50 transition"
+            className="w-8 h-8 rounded-full bg-white border-2 border-amber-400 text-amber-600 font-bold hover:bg-amber-50 transition"
           >
             +
           </button>
@@ -82,7 +82,17 @@ export default function RecipeDetail() {
 
   const loadComments = async () => {
     try {
-      setComments([]);
+      const { data, error } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profiles!comments_user_id_fkey(username, profile_pic_url)
+        `)
+        .eq('recipe_id', id!)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setComments(data || []);
     } catch (err) {
       console.error('Error loading comments:', err);
     }
@@ -94,7 +104,7 @@ export default function RecipeDetail() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(full_name, profile_pic_url, email)
+          profiles!recipes_user_id_fkey(username, profile_pic_url)
         `)
         .eq('id', id!)
         .maybeSingle();
@@ -121,10 +131,10 @@ export default function RecipeDetail() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(full_name, profile_pic_url, email)
+          profiles!recipe_modifications_user_id_fkey(username, profile_pic_url)
         `)
         .eq('recipe_id', id!)
-        .order('created_at', { ascending: false});
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setModifications(data || []);
@@ -341,7 +351,7 @@ export default function RecipeDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
         <div className="text-xl text-gray-600">Loading recipe...</div>
       </div>
     );
@@ -349,16 +359,16 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
         <div className="text-xl text-gray-600">Recipe not found</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
       <div className="max-w-6xl mx-auto p-4 md:p-8">
-        <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6 group">
+        <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-amber-700 hover:text-amber-900 font-semibold mb-6 group">
           <BackIcon />
           <span className="group-hover:underline">Back</span>
         </button>
@@ -368,7 +378,7 @@ export default function RecipeDetail() {
             {recipe.image_url ? (
               <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
                 <span className="text-9xl">🍳</span>
               </div>
             )}
@@ -379,20 +389,27 @@ export default function RecipeDetail() {
                   <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
                   <div className="flex items-center space-x-4 text-white">
                     {recipe.profiles?.profile_pic_url && (
-                      <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.full_name || ''} className="w-12 h-12 rounded-full border-3 border-white" />
+                      <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
                     )}
                     <div>
                       <p className="text-sm opacity-90">Created by</p>
-                      <span className="font-semibold text-lg">
-                        {recipe.profiles?.full_name || 'Anonymous'}
-                      </span>
+                      <button
+                        onClick={() => {
+                          if (recipe.profiles?.username) {
+                            navigate(`/profile/${recipe.profiles.username}`);
+                          }
+                        }}
+                        className="font-semibold text-lg hover:underline"
+                      >
+                        {recipe.profiles?.username || 'Anonymous'}
+                      </button>
                     </div>
                   </div>
                 </div>
                 {user && recipe.user_id === user.id && (
                   <button
                     onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
-                    className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                    className="px-6 py-3 bg-white/90 hover:bg-white text-amber-700 font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
                   >
                     Edit Recipe
                   </button>
@@ -403,12 +420,12 @@ export default function RecipeDetail() {
 
           <div className="p-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-center p-4 bg-amber-50 rounded-lg">
                 <ClockIcon />
                 <div className="mt-2 text-sm text-gray-600">Prep Time</div>
                 <div className="font-bold text-lg text-gray-800">{recipe.prep_time}</div>
               </div>
-              <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <div className="text-center p-4 bg-orange-50 rounded-lg">
                 <ClockIcon />
                 <div className="mt-2 text-sm text-gray-600">Cook Time</div>
                 <div className="font-bold text-lg text-gray-800">{recipe.cook_time}</div>
@@ -432,7 +449,7 @@ export default function RecipeDetail() {
                 <button
                   key={tag}
                   onClick={() => navigate(`/?tags=${tag.toLowerCase()}`)}
-                  className="bg-gradient-to-r from-gray-100 to-gray-100 text-gray-800 text-sm font-semibold px-4 py-2 rounded-full border border-gray-200 hover:from-gray-200 hover:to-gray-200 hover:scale-105 transition"
+                  className="bg-gradient-to-r from-amber-100 to-orange-100 text-amber-800 text-sm font-semibold px-4 py-2 rounded-full border border-amber-200 hover:from-amber-200 hover:to-orange-200 hover:scale-105 transition"
                 >
                   {tag}
                 </button>
@@ -471,23 +488,23 @@ export default function RecipeDetail() {
               <div className="lg:col-span-1">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-2xl font-bold text-gray-800 flex items-center">
-                    <span className="w-1 h-8 bg-gradient-to-b from-gray-500 to-gray-500 rounded-full mr-3"></span>
+                    <span className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full mr-3"></span>
                     Ingredients
                   </h3>
                   <button
                     onClick={() => setUseFractions(!useFractions)}
-                    className="text-sm px-3 py-1 bg-gray-100 text-airbnb-rausch rounded-lg hover:bg-gray-200 transition font-semibold"
+                    className="text-sm px-3 py-1 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition font-semibold"
                   >
                     {useFractions ? '1.5' : '1½'}
                   </button>
                 </div>
-                <div className="bg-gradient-to-br from-gray-50 to-gray-50 rounded-xl p-6 border border-gray-200">
+                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-200">
                   <ul className="space-y-3">
                     {scaledIngredients.map((ing: any, idx: number) => (
                       <li key={idx} className="flex items-start">
-                        <span className="inline-block w-2 h-2 bg-gray-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                         <div>
-                          <span className="text-airbnb-rausch font-bold">{formatIngredientAmount(ing.amount, useFractions)}</span>
+                          <span className="text-amber-700 font-bold">{formatIngredientAmount(ing.amount, useFractions)}</span>
                           {ing.unit && <span className="text-amber-600 ml-1">{ing.unit}</span>}
                           {ing.originalAmount && ing.originalUnit && (
                             <span className="text-gray-500 text-sm ml-1">
@@ -553,13 +570,13 @@ export default function RecipeDetail() {
 
               <div className="lg:col-span-2">
                 <h3 className="text-2xl font-bold mb-4 text-gray-800 flex items-center">
-                  <span className="w-1 h-8 bg-gradient-to-b from-gray-500 to-gray-500 rounded-full mr-3"></span>
+                  <span className="w-1 h-8 bg-gradient-to-b from-amber-500 to-orange-500 rounded-full mr-3"></span>
                   Instructions
                 </h3>
                 <div className="space-y-4">
                   {recipe.instructions.map((step, index) => (
                     <div key={index} className="flex">
-                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-500 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-full flex items-center justify-center font-bold text-lg mr-4">
                         {index + 1}
                       </div>
                       <p className="text-gray-700 leading-relaxed pt-2">{step}</p>
@@ -569,7 +586,7 @@ export default function RecipeDetail() {
               </div>
             </div>
 
-            <div className="mt-12 border-t-4 border-gray-200 pt-8">
+            <div className="mt-12 border-t-4 border-amber-200 pt-8">
               <h3 className="text-3xl font-bold mb-2 text-gray-800 flex items-center">
                 <span className="text-4xl mr-3">👥</span>
                 Community Kitchen
@@ -577,7 +594,7 @@ export default function RecipeDetail() {
               <p className="text-gray-600 mb-6">See how others have adapted this recipe</p>
 
               {aggregatedSuggestions.length > 0 && (
-                <div className="mb-8 p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-gray-50 rounded-xl border-2 border-purple-200 shadow-lg">
+                <div className="mb-8 p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 rounded-xl border-2 border-purple-200 shadow-lg">
                   <h4 className="text-2xl font-bold text-purple-900 mb-4 flex items-center">
                     <span className="text-3xl mr-2">🔥</span>
                     Popular Modifications
@@ -635,14 +652,14 @@ export default function RecipeDetail() {
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
+                    className="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     rows={4}
                     placeholder="Share a substitution, scaling tip, or ask a question..."
                   />
                   <div className="flex justify-end mt-3">
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-airbnb-rausch text-white font-bold rounded-lg hover:bg-airbnb-rausch-dark transition shadow-sm"
+                      className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md"
                     >
                       Post Community Note
                     </button>
@@ -685,7 +702,7 @@ export default function RecipeDetail() {
                         {comment.profiles?.profile_pic_url ? (
                           <img src={comment.profiles.profile_pic_url} alt={comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
                         ) : (
-                          <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 text-xl">
+                          <div className="w-10 h-10 bg-amber-200 rounded-full flex items-center justify-center mr-3 text-xl">
                             {getCommentIcon(comment.type)}
                           </div>
                         )}
