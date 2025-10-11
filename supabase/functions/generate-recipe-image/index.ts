@@ -6,7 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
-const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
+const HUGGINGFACE_API_KEY = Deno.env.get('HUGGINGFACE_API_KEY');
+const HF_MODEL = 'black-forest-labs/FLUX.1-schnell';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -17,11 +18,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { recipeName, description, ingredients } = await req.json();
+    const { prompt } = await req.json();
 
-    if (!recipeName) {
+    if (!prompt) {
       return new Response(
-        JSON.stringify({ error: 'Recipe name is required' }),
+        JSON.stringify({ error: 'Prompt is required' }),
         {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -29,9 +30,9 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (!GOOGLE_AI_API_KEY) {
+    if (!HUGGINGFACE_API_KEY) {
       return new Response(
-        JSON.stringify({ error: 'Google AI API key not configured' }),
+        JSON.stringify({ error: 'Hugging Face API key not configured' }),
         {
           status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -39,56 +40,45 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    let prompt = `Create a photorealistic appetizing image of ${recipeName}`;
-    
-    if (description) {
-      prompt += `, ${description}`;
-    }
-    
-    if (ingredients && ingredients.length > 0) {
-      const mainIngredients = ingredients.slice(0, 3).join(', ');
-      prompt += `, featuring ${mainIngredients}`;
-    }
-    
-    prompt += ' in 4:5 ratio';
+    const enhancedPrompt = `Food photography: ${prompt}, professional food styling, appetizing, high quality, well-lit`;
 
-    console.log('Attempting to generate image with prompt:', prompt);
+    const response = await fetch(
+      `https://api-inference.huggingface.co/models/${HF_MODEL}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${HUGGINGFACE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: enhancedPrompt,
+        }),
+      }
+    );
 
-    // Use Pollinations AI which is free and reliable
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(
-      `Professional food photography of ${recipeName}, appetizing, high quality, well-lit, 4:5 aspect ratio`
-    )}?width=800&height=1000&nologo=true&enhance=true`;
-
-    console.log('Fetching image from Pollinations...');
-
-    // Fetch the image
-    const imageResponse = await fetch(pollinationsUrl);
-
-    if (!imageResponse.ok) {
-      console.error('Pollinations API error:', imageResponse.statusText);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Hugging Face API error:', errorText);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate image', details: imageResponse.statusText }),
+        JSON.stringify({ error: 'Failed to generate image', details: errorText }),
         {
-          status: imageResponse.status,
+          status: response.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
     }
 
-    // Convert to base64
-    const imageBlob = await imageResponse.blob();
+    const imageBlob = await response.blob();
     const arrayBuffer = await imageBlob.arrayBuffer();
     const base64Image = btoa(
       String.fromCharCode(...new Uint8Array(arrayBuffer))
     );
 
-    console.log('Image generated successfully, size:', arrayBuffer.byteLength);
-
     return new Response(
       JSON.stringify({
         success: true,
         image: `data:image/jpeg;base64,${base64Image}`,
-        prompt: prompt
+        prompt: enhancedPrompt,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
