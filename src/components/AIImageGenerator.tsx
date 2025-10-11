@@ -3,6 +3,8 @@ import { supabase } from '../lib/supabase';
 
 interface AIImageGeneratorProps {
   recipeTitle: string;
+  recipeDescription?: string;
+  ingredients?: Array<{ amount: string; unit: string; ingredient: string }>;
   onImageGenerated: (imageUrl: string) => void;
 }
 
@@ -15,7 +17,7 @@ const SparklesIcon = () => (
   </svg>
 );
 
-export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIImageGeneratorProps) {
+export default function AIImageGenerator({ recipeTitle, recipeDescription, ingredients, onImageGenerated }: AIImageGeneratorProps) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,6 +58,8 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+      const ingredientsList = ingredients?.map(i => i.ingredient) || [];
+
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -63,7 +67,9 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: recipeTitle,
+          recipeName: recipeTitle,
+          description: recipeDescription || '',
+          ingredients: ingredientsList,
         }),
         signal: controller.signal,
       });
@@ -71,7 +77,7 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn('HuggingFace API failed, using Unsplash fallback');
+        console.warn('Google Imagen API failed, using Unsplash fallback');
         await generateImageWithUnsplash();
         return;
       }
@@ -81,7 +87,7 @@ export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIIm
       if (data.success && data.image) {
         onImageGenerated(data.image);
       } else {
-        console.warn('No image from HuggingFace, using Unsplash fallback');
+        console.warn('No image from Google Imagen, using Unsplash fallback');
         await generateImageWithUnsplash();
       }
     } catch (err: any) {

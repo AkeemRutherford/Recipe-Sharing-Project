@@ -144,6 +144,8 @@ export default function AddRecipe() {
                 />
                 <AIImageGenerator
                   recipeTitle={formData.title}
+                  recipeDescription={formData.description}
+                  ingredients={ingredients}
                   onImageGenerated={(url) => setFormData({ ...formData, image_url: url })}
                 />
               </div>
