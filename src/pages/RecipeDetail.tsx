@@ -82,17 +82,7 @@ export default function RecipeDetail() {
 
   const loadComments = async () => {
     try {
-      const { data, error } = await supabase
-        .from('comments')
-        .select(`
-          *,
-          profiles!comments_user_id_fkey(username, profile_pic_url)
-        `)
-        .eq('recipe_id', id!)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setComments(data || []);
+      setComments([]);
     } catch (err) {
       console.error('Error loading comments:', err);
     }
@@ -104,7 +94,7 @@ export default function RecipeDetail() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, profile_pic_url)
+          profiles!recipes_user_id_fkey(full_name, avatar_url, email)
         `)
         .eq('id', id!)
         .maybeSingle();
@@ -131,10 +121,10 @@ export default function RecipeDetail() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(username, profile_pic_url)
+          profiles!recipe_modifications_user_id_fkey(full_name, avatar_url, email)
         `)
         .eq('recipe_id', id!)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false});
 
       if (error) throw error;
       setModifications(data || []);
@@ -388,21 +378,14 @@ export default function RecipeDetail() {
                 <div className="flex-1">
                   <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
                   <div className="flex items-center space-x-4 text-white">
-                    {recipe.profiles?.profile_pic_url && (
-                      <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
+                    {recipe.profiles?.avatar_url && (
+                      <img src={recipe.profiles.avatar_url} alt={recipe.profiles.full_name || ''} className="w-12 h-12 rounded-full border-3 border-white" />
                     )}
                     <div>
                       <p className="text-sm opacity-90">Created by</p>
-                      <button
-                        onClick={() => {
-                          if (recipe.profiles?.username) {
-                            navigate(`/profile/${recipe.profiles.username}`);
-                          }
-                        }}
-                        className="font-semibold text-lg hover:underline"
-                      >
-                        {recipe.profiles?.username || 'Anonymous'}
-                      </button>
+                      <span className="font-semibold text-lg">
+                        {recipe.profiles?.full_name || 'Anonymous'}
+                      </span>
                     </div>
                   </div>
                 </div>

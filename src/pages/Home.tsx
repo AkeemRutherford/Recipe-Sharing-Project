@@ -38,20 +38,12 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         <div className="absolute bottom-3 left-3 right-3">
           <h3 className="text-white text-xl font-bold mb-1 line-clamp-2">{recipe.title}</h3>
           <div className="flex items-center">
-            {recipe.profiles?.profile_pic_url && (
-              <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.username || ''} className="w-6 h-6 rounded-full border-2 border-white" />
+            {recipe.profiles?.avatar_url && (
+              <img src={recipe.profiles.avatar_url} alt={recipe.profiles.full_name || ''} className="w-6 h-6 rounded-full border-2 border-white" />
             )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (recipe.profiles?.username) {
-                  navigate(`/profile/${recipe.profiles.username}`);
-                }
-              }}
-              className="text-white/90 text-sm ml-2 font-medium hover:underline"
-            >
-              {recipe.profiles?.username || 'Anonymous'}
-            </button>
+            <span className="text-white/90 text-sm ml-2 font-medium">
+              {recipe.profiles?.full_name || 'Anonymous'}
+            </span>
           </div>
         </div>
       </div>
@@ -115,39 +107,12 @@ export default function Home() {
 
   const loadFollowing = async () => {
     if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', user.id);
-
-      if (error) throw error;
-      setFollowingUserIds(new Set(data.map(f => f.following_id)));
-    } catch (err) {
-      console.error('Error loading following:', err);
-    }
+    setFollowingUserIds(new Set());
   };
 
   const loadUserFavoriteTags = async () => {
     if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('favorite_tags')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      setUserFavoriteTags(data?.favorite_tags || []);
-
-      if (data?.favorite_tags && data.favorite_tags.length > 0) {
-        setSortBy('recommended');
-      }
-    } catch (err) {
-      console.error('Error loading user favorite tags:', err);
-    }
+    setUserFavoriteTags([]);
   };
 
   useEffect(() => {
@@ -168,7 +133,7 @@ export default function Home() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, profile_pic_url)
+          profiles!recipes_user_id_fkey(full_name, avatar_url, email)
         `)
         .order('created_at', { ascending: false });
 
