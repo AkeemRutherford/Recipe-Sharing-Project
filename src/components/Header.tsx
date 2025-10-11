@@ -75,7 +75,7 @@ export default function Header() {
           >
             <div className="flex flex-col items-start">
               <img
-                src="/forklore-logo.png"
+                src="/Screenshot 2025-10-11 152406.png"
                 alt="Forklore"
                 className="h-12 w-auto"
               />
@@ -167,25 +167,6 @@ export default function Header() {
                       className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100"
                     >
                       My Recipes
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        navigate('/site-assets');
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 text-sm"
-                    >
-                      Site Assets
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        navigate('/initialize-assets');
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 text-sm"
-                      style={{ color: 'var(--forklore-warm-red)' }}
-                    >
-                      Initialize Assets
                     </button>
                     <button
                       onClick={handleSignOut}
