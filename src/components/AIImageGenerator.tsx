@@ -6,6 +6,8 @@ interface AIImageGeneratorProps {
   recipeDescription?: string;
   ingredients?: Array<{ amount: string; unit: string; ingredient: string }>;
   onImageGenerated: (imageUrl: string) => void;
+  isGenerating?: boolean;
+  onGeneratingChange?: (generating: boolean) => void;
 }
 
 const SparklesIcon = () => (
@@ -17,9 +19,14 @@ const SparklesIcon = () => (
   </svg>
 );
 
-export default function AIImageGenerator({ recipeTitle, recipeDescription, ingredients, onImageGenerated }: AIImageGeneratorProps) {
+export default function AIImageGenerator({ recipeTitle, recipeDescription, ingredients, onImageGenerated, onGeneratingChange }: AIImageGeneratorProps) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const updateGenerating = (value: boolean) => {
+    setGenerating(value);
+    onGeneratingChange?.(value);
+  };
 
   const generateImageWithUnsplash = async () => {
     const cleanTitle = recipeTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
@@ -46,7 +53,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
       return;
     }
 
-    setGenerating(true);
+    updateGenerating(true);
     setError(null);
 
     try {
@@ -98,12 +105,12 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
         setError('Failed to generate image. Please try again or use a direct URL.');
       }
     } finally {
-      setGenerating(false);
+      updateGenerating(false);
     }
   };
 
   return (
-    <div>
+    <div className="w-full">
       <button
         type="button"
         onClick={generateImage}
@@ -117,7 +124,12 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
         <p className="text-red-600 text-sm mt-2">{error}</p>
       )}
       {generating && (
-        <p className="text-gray-500 text-sm mt-2">This may take 10-20 seconds...</p>
+        <div className="mt-3">
+          <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 h-full animate-pulse" style={{ width: '100%' }}></div>
+          </div>
+          <p className="text-gray-600 text-sm mt-2 font-medium">Generating Image... This may take 10-20 seconds</p>
+        </div>
       )}
     </div>
   );

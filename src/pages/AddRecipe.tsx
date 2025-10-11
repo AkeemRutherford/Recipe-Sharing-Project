@@ -31,6 +31,7 @@ export default function AddRecipe() {
   });
 
   const [ingredients, setIngredients] = useState<Array<{ amount: string; unit: string; ingredient: string }>>([]);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,12 +148,14 @@ export default function AddRecipe() {
                   recipeDescription={formData.description}
                   ingredients={ingredients}
                   onImageGenerated={(url) => setFormData({ ...formData, image_url: url })}
+                  onGeneratingChange={setIsGeneratingImage}
                 />
               </div>
               <p className="text-xs text-gray-500">Use Pexels/Unsplash for images, or generate one with AI</p>
-              {formData.image_url && formData.image_url.startsWith('data:image') && (
-                <div className="mt-3">
-                  <img src={formData.image_url} alt="Preview" className="w-48 h-48 object-cover rounded-lg border-2 border-gray-300" />
+              {formData.image_url && !isGeneratingImage && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Image Preview:</p>
+                  <img src={formData.image_url} alt="Preview" className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-300 shadow-md" />
                 </div>
               )}
             </div>
