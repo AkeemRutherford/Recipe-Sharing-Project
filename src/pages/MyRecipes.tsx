@@ -92,7 +92,7 @@ export default function MyRecipes() {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">My Recipes</h1>
           <button
-            onClick={() => navigate('/add-recipe')}
+            onClick={() => navigate('/create-recipe-method')}
             className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md"
           >
             + Add Recipe
@@ -107,7 +107,7 @@ export default function MyRecipes() {
               <div className="bg-white rounded-xl shadow-lg p-12 text-center">
                 <p className="text-xl text-gray-500 mb-4">You haven't created any recipes yet</p>
                 <button
-                  onClick={() => navigate('/add-recipe')}
+                  onClick={() => navigate('/create-recipe-method')}
                   className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition"
                 >
                   Create Your First Recipe

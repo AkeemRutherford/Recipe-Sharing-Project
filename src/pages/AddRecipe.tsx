@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 
@@ -88,58 +88,70 @@ export default function AddRecipe() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
+    <div className="min-h-screen py-8 px-4" style={{ background: 'var(--gradient-background)' }}>
+      <div className="max-w-4xl mx-auto">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-amber-700 hover:text-amber-900 font-semibold mb-6"
+          className="flex items-center space-x-2 font-semibold mb-6 hover:opacity-70 transition"
+          style={{ color: 'var(--forklore-warm-brown)' }}
         >
           <BackIcon />
           <span>Back</span>
         </button>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">Add New Recipe</h1>
+        <div className="bg-white rounded-2xl shadow-2xl p-8" style={{ border: '2px solid var(--forklore-warm-brown)' }}>
+          <h1 className="text-3xl font-bold mb-6" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
+            Add New Recipe
+          </h1>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700">{error}</p>
+            <div className="mb-6 p-4 rounded-lg" style={{ background: 'rgba(196, 69, 54, 0.1)', border: '1px solid var(--forklore-warm-red)' }}>
+              <p style={{ color: 'var(--forklore-warm-red)' }}>{error}</p>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Recipe Title *</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                Recipe Title *
+              </label>
               <input
                 type="text"
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 placeholder="e.g., Grandma's Classic Lasagna"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                Description *
+              </label>
               <textarea
                 required
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 placeholder="A brief description of your recipe..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                Image URL
+              </label>
               <div className="flex items-start space-x-3 mb-2">
                 <input
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--forklore-warm-brown)' }}
                   placeholder="https://example.com/image.jpg"
                 />
                 <AIImageGenerator
@@ -147,58 +159,65 @@ export default function AddRecipe() {
                   onImageGenerated={(url) => setFormData({ ...formData, image_url: url })}
                 />
               </div>
-              <p className="text-xs text-gray-500">Use Pexels/Unsplash for images, or generate one with AI</p>
-              {formData.image_url && formData.image_url.startsWith('data:image') && (
-                <div className="mt-3">
-                  <img src={formData.image_url} alt="Preview" className="w-48 h-48 object-cover rounded-lg border-2 border-gray-300" />
-                </div>
-              )}
+              <p className="text-xs" style={{ color: 'var(--forklore-warm-brown)' }}>Use Pexels/Unsplash for images, or generate one with AI</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Prep Time *</label>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                  Prep Time *
+                </label>
                 <input
                   type="text"
                   required
                   value={formData.prep_time}
                   onChange={(e) => setFormData({ ...formData, prep_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--forklore-warm-brown)' }}
                   placeholder="20 min"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Cook Time *</label>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                  Cook Time *
+                </label>
                 <input
                   type="text"
                   required
                   value={formData.cook_time}
                   onChange={(e) => setFormData({ ...formData, cook_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--forklore-warm-brown)' }}
                   placeholder="45 min"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Servings *</label>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                  Servings *
+                </label>
                 <input
                   type="number"
                   required
                   min="1"
                   value={formData.servings}
                   onChange={(e) => setFormData({ ...formData, servings: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Difficulty *</label>
+                <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                  Difficulty *
+                </label>
                 <select
                   required
                   value={formData.difficulty}
                   onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                  style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 >
                   <option value="Easy">Easy</option>
                   <option value="Intermediate">Intermediate</option>
@@ -208,12 +227,15 @@ export default function AddRecipe() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                Tags
+              </label>
               <input
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 placeholder="Italian, Comfort Food, Vegetarian (comma-separated)"
               />
             </div>
@@ -224,30 +246,33 @@ export default function AddRecipe() {
             />
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Instructions *</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+                Instructions *
+              </label>
               <textarea
                 required
                 value={formData.instructions}
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 rows={10}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none focus:ring-2"
+                style={{ borderColor: 'var(--forklore-warm-brown)' }}
                 placeholder="Enter each step on a new line...&#10;1. Preheat oven to 350°F&#10;2. Mix dry ingredients in a bowl&#10;3. Add wet ingredients and stir until combined"
               />
-              <p className="text-xs text-gray-500 mt-1">One step per line</p>
+              <p className="text-xs mt-1" style={{ color: 'var(--forklore-warm-brown)' }}>One step per line</p>
             </div>
 
             <div className="flex justify-end space-x-4 pt-6">
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+                className="btn-secondary px-6 py-3 rounded-lg font-semibold"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary px-6 py-3 rounded-lg font-semibold"
               >
                 {loading ? 'Creating...' : 'Create Recipe'}
               </button>

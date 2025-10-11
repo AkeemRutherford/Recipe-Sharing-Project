@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatTimeAgo, groupActivitiesByDate } from '../lib/timeAgo';
+import EditProfile from '../components/EditProfile';
 
 const HeartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
@@ -444,7 +445,7 @@ export default function Profile() {
                   <p className="text-xl text-gray-500">No recipes yet</p>
                   {isOwnProfile && (
                     <button
-                      onClick={() => navigate('/add-recipe')}
+                      onClick={() => navigate('/create-recipe-method')}
                       className="mt-4 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
                     >
                       Create Your First Recipe
@@ -653,74 +654,13 @@ export default function Profile() {
 
       {/* Edit Profile Modal */}
       {editModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Profile</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Picture URL</label>
-                <input
-                  type="text"
-                  value={editProfilePic}
-                  onChange={(e) => setEditProfilePic(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
-                <textarea
-                  value={editBio}
-                  onChange={(e) => setEditBio(e.target.value)}
-                  maxLength={500}
-                  rows={4}
-                  placeholder="Tell us about yourself..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-                <p className="text-sm text-gray-500 mt-1">{editBio.length}/500 characters</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Favorite Tags</label>
-                <p className="text-xs text-gray-600 mb-3">Select tags to personalize your feed</p>
-                <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-2 border border-gray-200 rounded-lg">
-                  {availableTags.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => toggleFavoriteTag(tag)}
-                      className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
-                        editFavoriteTags.includes(tag)
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500 mt-2">{editFavoriteTags.length} tags selected</p>
-              </div>
-            </div>
-
-            <div className="flex space-x-4 mt-8">
-              <button
-                onClick={handleSaveProfile}
-                className="flex-1 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
-              >
-                Save Changes
-              </button>
-              <button
-                onClick={() => setEditModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditProfile
+          onClose={() => setEditModalOpen(false)}
+          onSaved={() => {
+            loadProfile();
+            setEditModalOpen(false);
+          }}
+        />
       )}
     </div>
   );

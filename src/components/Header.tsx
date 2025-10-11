@@ -135,7 +135,7 @@ export default function Header() {
 
           <div className="flex items-center space-x-4">
             <button
-              onClick={() => navigate('/add-recipe')}
+              onClick={() => navigate('/create-recipe-method')}
               className="btn-primary flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold"
             >
               <UploadIcon />

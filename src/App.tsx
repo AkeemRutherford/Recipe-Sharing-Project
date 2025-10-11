@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import RecipeDetail from './pages/RecipeDetail';
 import AddRecipe from './pages/AddRecipe';
+import CreateRecipeMethod from './pages/CreateRecipeMethod';
 import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import Profile from './pages/Profile';
@@ -87,6 +88,8 @@ function AppRoutes() {
           <Route path="/" element={<Home />} />
           <Route path="/recipe/:id" element={<RecipeDetail />} />
           <Route path="/recipe/:id/edit" element={<EditRecipe />} />
+          <Route path="/create-recipe-method" element={<CreateRecipeMethod />} />
+          <Route path="/add-recipe/:method" element={<AddRecipe />} />
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/users" element={<Users />} />
