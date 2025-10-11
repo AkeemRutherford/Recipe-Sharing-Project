@@ -92,43 +92,40 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(44, 85, 48, 0.95)' }}>
-      <div className="w-full max-w-2xl rounded-xl shadow-2xl p-8" style={{ background: 'var(--forklore-cream)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
+      <div className="w-full max-w-2xl rounded-lg shadow-2xl p-8 bg-white">
         <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
+          <h2 className="text-3xl font-bold mb-2 text-airbnb-black font-circular">
             Welcome to Forklore! 🍴
           </h2>
-          <p style={{ color: 'var(--forklore-warm-brown)' }}>Let's personalize your culinary journey</p>
+          <p className="text-airbnb-dark-gray">Let's personalize your culinary journey</p>
         </div>
 
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm" style={{ color: 'var(--forklore-warm-brown)' }}>Step {step} of {totalSteps}</span>
-            <span className="text-sm" style={{ color: 'var(--forklore-warm-brown)' }}>{Math.round((step / totalSteps) * 100)}%</span>
+            <span className="text-sm text-airbnb-dark-gray">Step {step} of {totalSteps}</span>
+            <span className="text-sm text-airbnb-dark-gray">{Math.round((step / totalSteps) * 100)}%</span>
           </div>
-          <div className="w-full h-2 rounded-full" style={{ background: 'rgba(139, 111, 71, 0.2)' }}>
+          <div className="w-full h-2 rounded-full bg-gray-200">
             <div
-              className="h-full rounded-full transition-all duration-300"
-              style={{
-                width: `${(step / totalSteps) * 100}%`,
-                background: 'var(--gradient-accent)'
-              }}
+              className="h-full rounded-full transition-all duration-300 bg-airbnb-rausch"
+              style={{ width: `${(step / totalSteps) * 100}%` }}
             />
           </div>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg" style={{ background: 'rgba(196, 69, 54, 0.1)', border: '1px solid var(--forklore-warm-red)' }}>
-            <p style={{ color: 'var(--forklore-warm-red)' }}>{error}</p>
+          <div className="mb-4 p-3 rounded-lg bg-red-50 border border-red-200">
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
         {step === 1 && (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--forklore-forest-green)' }}>Tell us about yourself</h3>
+            <h3 className="text-xl font-semibold mb-4 text-airbnb-black">Tell us about yourself</h3>
 
             <div>
-              <label className="block mb-2 font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+              <label className="block mb-2 font-medium text-airbnb-black">
                 Display Name *
               </label>
               <input
@@ -136,13 +133,12 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 value={data.display_name}
                 onChange={(e) => setData({ ...data, display_name: e.target.value })}
                 placeholder="How you'll appear to other cooks"
-                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2"
-                style={{ borderColor: 'var(--forklore-warm-brown)', background: 'white' }}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-airbnb-rausch bg-white"
               />
             </div>
 
             <div>
-              <label className="block mb-2 font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+              <label className="block mb-2 font-medium text-airbnb-black">
                 Username *
               </label>
               <input
@@ -150,13 +146,12 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 value={data.username}
                 onChange={(e) => setData({ ...data, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                 placeholder="unique_handle"
-                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2"
-                style={{ borderColor: 'var(--forklore-warm-brown)', background: 'white' }}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-airbnb-rausch bg-white"
               />
             </div>
 
             <div>
-              <label className="block mb-2 font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+              <label className="block mb-2 font-medium text-airbnb-black">
                 Profile Picture URL (optional)
               </label>
               <input
@@ -164,8 +159,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 value={data.profile_pic_url}
                 onChange={(e) => setData({ ...data, profile_pic_url: e.target.value })}
                 placeholder="https://..."
-                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2"
-                style={{ borderColor: 'var(--forklore-warm-brown)', background: 'white' }}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-airbnb-rausch bg-white"
               />
             </div>
           </div>
@@ -173,10 +167,10 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
 
         {step === 2 && (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--forklore-forest-green)' }}>Share your cooking story</h3>
+            <h3 className="text-xl font-semibold mb-4 text-airbnb-black">Share your cooking story</h3>
 
             <div>
-              <label className="block mb-2 font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+              <label className="block mb-2 font-medium text-airbnb-black">
                 Short Bio (optional)
               </label>
               <textarea
@@ -185,14 +179,13 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 placeholder="Tell other cooks about your culinary background..."
                 maxLength={500}
                 rows={4}
-                className="w-full px-4 py-3 rounded-lg border-2 focus:outline-none focus:ring-2 resize-none"
-                style={{ borderColor: 'var(--forklore-warm-brown)', background: 'white' }}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-airbnb-rausch resize-none bg-white"
               />
-              <p className="text-sm mt-1" style={{ color: 'var(--forklore-warm-brown)' }}>{data.bio.length}/500 characters</p>
+              <p className="text-sm mt-1 text-gray-600">{data.bio.length}/500 characters</p>
             </div>
 
             <div>
-              <label className="block mb-3 font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+              <label className="block mb-3 font-medium text-airbnb-black">
                 Cooking Experience
               </label>
               <div className="space-y-2">
@@ -203,7 +196,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   { value: 'seasoned', label: 'Seasoned cook (10+ years)' },
                   { value: 'professional', label: 'Professional chef' },
                 ].map((option) => (
-                  <label key={option.value} className="flex items-center p-3 rounded-lg cursor-pointer transition hover:bg-white">
+                  <label key={option.value} className="flex items-center p-3 rounded-lg cursor-pointer transition hover:bg-gray-50">
                     <input
                       type="radio"
                       name="cooking_experience"
@@ -212,7 +205,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       onChange={(e) => setData({ ...data, cooking_experience: e.target.value })}
                       className="mr-3"
                     />
-                    <span style={{ color: 'var(--forklore-forest-green)' }}>{option.label}</span>
+                    <span className="text-gray-700">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -222,11 +215,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
 
         {step === 3 && (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--forklore-forest-green)' }}>Your dietary preferences</h3>
-            <p className="text-sm mb-4" style={{ color: 'var(--forklore-warm-brown)' }}>Select all that apply - helps us recommend recipes</p>
+            <h3 className="text-xl font-semibold mb-4 text-airbnb-black">Your dietary preferences</h3>
+            <p className="text-sm mb-4 text-gray-600">Select all that apply - helps us recommend recipes</p>
 
             <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--forklore-forest-green)' }}>Dietary Practices</h4>
+              <h4 className="font-medium mb-3 text-airbnb-black">Dietary Practices</h4>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {['Vegan', 'Vegetarian', 'Pescatarian', 'Kosher', 'Halal', 'Paleo', 'Keto', 'Low-carb', 'Mediterranean'].map((item) => (
                   <button
@@ -280,8 +273,8 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
 
         {step === 4 && (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--forklore-forest-green)' }}>What kind of recipes interest you?</h3>
-            <p className="text-sm mb-4" style={{ color: 'var(--forklore-warm-brown)' }}>Select 3-10 tags to personalize your feed</p>
+            <h3 className="text-xl font-semibold mb-4 text-airbnb-black">What kind of recipes interest you?</h3>
+            <p className="text-sm mb-4 text-gray-600">Select 3-10 tags to personalize your feed</p>
 
             <div>
               <h4 className="font-medium mb-3" style={{ color: 'var(--forklore-forest-green)' }}>Cooking Style</h4>
@@ -334,7 +327,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
               </div>
             </div>
 
-            <p className="text-sm" style={{ color: 'var(--forklore-warm-brown)' }}>
+            <p className="text-sm text-gray-600">
               Selected: {data.favorite_cooking_styles.length + data.favorite_cuisines.length + data.favorite_meal_types.length} tags
             </p>
           </div>
@@ -342,71 +335,71 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
 
         {step === 5 && (
           <div className="space-y-4">
-            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--forklore-forest-green)' }}>Join the Forklore community</h3>
+            <h3 className="text-xl font-semibold mb-4 text-airbnb-black">Join the Forklore community</h3>
 
             <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--forklore-forest-green)' }}>I'm here to:</h4>
+              <h4 className="font-medium mb-3 text-airbnb-black">I'm here to:</h4>
               <div className="space-y-2">
                 {['Share my family recipes', 'Discover new recipes', 'Learn cooking techniques', 'Connect with other home cooks', 'Preserve culinary traditions'].map((item) => (
-                  <label key={item} className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                  <label key={item} className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                     <input
                       type="checkbox"
                       checked={data.community_goals.includes(item)}
                       onChange={() => toggleArrayItem('community_goals', item)}
                       className="mr-3"
                     />
-                    <span style={{ color: 'var(--forklore-forest-green)' }}>{item}</span>
+                    <span className="text-gray-700">{item}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--forklore-forest-green)' }}>Notification Preferences</h4>
+              <h4 className="font-medium mb-3 text-airbnb-black">Notification Preferences</h4>
               <div className="space-y-2">
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="checkbox"
                     checked={data.email_notifications}
                     onChange={(e) => setData({ ...data, email_notifications: e.target.checked })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Email me weekly recipe recommendations</span>
+                  <span className="text-gray-700">Email me weekly recipe recommendations</span>
                 </label>
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="checkbox"
                     checked={data.comment_notifications}
                     onChange={(e) => setData({ ...data, comment_notifications: e.target.checked })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Notify me when someone comments on my recipes</span>
+                  <span className="text-gray-700">Notify me when someone comments on my recipes</span>
                 </label>
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="checkbox"
                     checked={data.follower_notifications}
                     onChange={(e) => setData({ ...data, follower_notifications: e.target.checked })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Notify me when someone follows me</span>
+                  <span className="text-gray-700">Notify me when someone follows me</span>
                 </label>
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="checkbox"
                     checked={data.trending_notifications}
                     onChange={(e) => setData({ ...data, trending_notifications: e.target.checked })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Send me trending recipes in my favorite categories</span>
+                  <span className="text-gray-700">Send me trending recipes in my favorite categories</span>
                 </label>
               </div>
             </div>
 
             <div>
-              <h4 className="font-medium mb-3" style={{ color: 'var(--forklore-forest-green)' }}>Privacy</h4>
+              <h4 className="font-medium mb-3 text-airbnb-black">Privacy</h4>
               <div className="space-y-2">
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="radio"
                     name="privacy"
@@ -415,9 +408,9 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                     onChange={(e) => setData({ ...data, profile_privacy: e.target.value })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Public profile (anyone can see my recipes)</span>
+                  <span className="text-gray-700">Public profile (anyone can see my recipes)</span>
                 </label>
-                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-white transition">
+                <label className="flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition">
                   <input
                     type="radio"
                     name="privacy"
@@ -426,7 +419,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                     onChange={(e) => setData({ ...data, profile_privacy: e.target.value })}
                     className="mr-3"
                   />
-                  <span style={{ color: 'var(--forklore-forest-green)' }}>Private profile (only followers see my recipes)</span>
+                  <span className="text-gray-700">Private profile (only followers see my recipes)</span>
                 </label>
               </div>
             </div>
@@ -450,8 +443,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 {step > 2 && (
                   <button
                     onClick={() => setStep(step + 1)}
-                    className="px-6 py-3 rounded-lg font-semibold"
-                    style={{ color: 'var(--forklore-warm-brown)', background: 'transparent' }}
+                    className="px-6 py-3 rounded-lg font-semibold text-gray-600 bg-transparent hover:bg-gray-50"
                   >
                     Skip
                   </button>

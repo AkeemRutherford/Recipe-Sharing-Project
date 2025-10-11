@@ -131,16 +131,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-background)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
       <div className="max-w-md w-full">
-        <div className="rounded-2xl shadow-2xl p-8" style={{ background: 'var(--forklore-cream)', border: '2px solid var(--forklore-warm-brown)' }}>
+        <div className="rounded-lg shadow-lg p-8 bg-white border border-gray-200">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4" style={{ color: 'var(--forklore-burnt-orange)' }}>
+            <div className="flex justify-center mb-4 text-airbnb-rausch">
               <ChefHatIcon />
             </div>
-            <h1 className="forklore-logo text-4xl mb-1" style={{ color: 'var(--forklore-forest-green)' }}>Forklore</h1>
-            <p className="forklore-tagline mb-3" style={{ color: 'var(--forklore-golden-yellow)' }}>Share Your Culinary Journey</p>
-            <p className="text-sm" style={{ color: 'var(--forklore-warm-brown)' }}>Join the Forklore community and discover family recipes passed down through generations</p>
+            <h1 className="forklore-logo text-4xl mb-1 text-airbnb-black">Forklore</h1>
+            <p className="forklore-tagline mb-3 text-airbnb-foggy">Share Your Culinary Journey</p>
+            <p className="text-sm text-airbnb-dark-gray">Join the Forklore community and discover family recipes passed down through generations</p>
           </div>
 
           {error && (
@@ -153,10 +153,10 @@ export default function Login() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-white border-2 border-gray-300 rounded-xl hover:border-amber-400 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-white border border-gray-300 rounded-lg hover:border-gray-400 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
             >
               <GoogleIcon />
-              <span className="font-semibold text-gray-700 group-hover:text-amber-700">
+              <span className="font-semibold text-gray-700 group-hover:text-gray-900">
                 {loading ? 'Signing in...' : 'Continue with Google'}
               </span>
             </button>
@@ -164,7 +164,7 @@ export default function Login() {
             <button
               onClick={handleGitHubSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gray-800 text-white rounded-xl hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <GitHubIcon />
               <span className="font-semibold">
@@ -184,7 +184,7 @@ export default function Login() {
             <button
               onClick={handleTestAccountSignIn}
               disabled={loading}
-              className="btn-primary w-full flex items-center justify-center space-x-3 px-6 py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+              className="btn-primary w-full flex items-center justify-center space-x-3 px-6 py-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -198,7 +198,7 @@ export default function Login() {
             <button
               onClick={() => setShowUsernameModal(true)}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-600 hover:to-emerald-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-airbnb-dark-gray text-white rounded-lg hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -228,7 +228,7 @@ export default function Login() {
 
       {showUsernameModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full">
+          <div className="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Quick Demo Login</h2>
             <p className="text-gray-600 mb-6">
               Enter a username to create a temporary demo account. No password needed!
@@ -244,7 +244,7 @@ export default function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="e.g., chefmike, foodlover, testuser"
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   autoFocus
                   disabled={loading}
                 />
@@ -262,14 +262,14 @@ export default function Login() {
                     setError(null);
                   }}
                   disabled={loading}
-                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || !username.trim()}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-600 hover:to-emerald-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-airbnb-rausch text-white font-semibold rounded-lg hover:bg-airbnb-rausch-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Creating...' : 'Create & Login'}
                 </button>

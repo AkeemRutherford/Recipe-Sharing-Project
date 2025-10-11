@@ -652,14 +652,14 @@ export default function RecipeDetail() {
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full p-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                     rows={4}
                     placeholder="Share a substitution, scaling tip, or ask a question..."
                   />
                   <div className="flex justify-end mt-3">
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-bold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md"
+                      className="px-6 py-3 bg-airbnb-rausch text-white font-bold rounded-lg hover:bg-airbnb-rausch-dark transition shadow-sm"
                     >
                       Post Community Note
                     </button>

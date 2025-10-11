@@ -72,8 +72,8 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="shadow-lg sticky top-0 z-50" style={{ background: 'var(--forklore-forest-green)' }}>
-      <div className="max-w-7xl mx-auto px-4 py-3">
+    <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div
             onClick={() => navigate('/')}
@@ -82,51 +82,47 @@ export default function Header() {
             <div className="flex items-center space-x-3">
               <ChefHatIcon />
               <div>
-                <h1 className="forklore-logo text-3xl" style={{ color: 'var(--forklore-cream)' }}>
+                <h1 className="forklore-logo text-3xl text-airbnb-rausch">
                   Forklore
                 </h1>
-                <p className="forklore-tagline" style={{ color: 'var(--forklore-golden-yellow)' }}>
+                <p className="forklore-tagline text-airbnb-foggy">
                   Share Your Culinary Journey
                 </p>
               </div>
             </div>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-6">
+          <nav className="hidden md:flex items-center space-x-8">
             <button
               onClick={() => navigate('/')}
-              className={`font-semibold transition ${
-                isActive('/') ? 'underline' : 'hover:underline'
+              className={`font-medium transition ${
+                isActive('/') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
               }`}
-              style={{ color: isActive('/') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               Explore Recipes
             </button>
             <button
               onClick={() => navigate('/users')}
-              className={`font-semibold transition ${
-                isActive('/users') ? 'underline' : 'hover:underline'
+              className={`font-medium transition ${
+                isActive('/users') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
               }`}
-              style={{ color: isActive('/users') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               Community
             </button>
             <button
               onClick={() => navigate('/my-recipes')}
-              className={`font-semibold transition ${
-                isActive('/my-recipes') ? 'underline' : 'hover:underline'
+              className={`font-medium transition ${
+                isActive('/my-recipes') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
               }`}
-              style={{ color: isActive('/my-recipes') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               My Recipes
             </button>
             {username && (
               <button
                 onClick={() => navigate(`/profile/${username}`)}
-                className={`font-semibold transition ${
-                  isActive(`/profile/${username}`) ? 'underline' : 'hover:underline'
+                className={`font-medium transition ${
+                  isActive(`/profile/${username}`) ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
                 }`}
-                style={{ color: isActive(`/profile/${username}`) ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
               >
                 My Profile
               </button>
@@ -147,10 +143,7 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 rounded-lg p-2 transition"
-                style={{ color: 'var(--forklore-cream)', background: 'rgba(255, 255, 255, 0.1)' }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                className="flex items-center space-x-2 rounded-full p-2 border border-gray-300 hover:shadow-md transition text-airbnb-dark-gray hover:text-airbnb-black bg-white"
               >
                 <UserIcon />
               </button>
