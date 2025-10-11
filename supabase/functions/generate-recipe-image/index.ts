@@ -6,8 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
-const GOOGLE_AI_API_KEY = Deno.env.get('GOOGLE_AI_API_KEY');
-
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, {
@@ -24,16 +22,6 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: 'Recipe name is required' }),
         {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        }
-      );
-    }
-
-    if (!GOOGLE_AI_API_KEY) {
-      return new Response(
-        JSON.stringify({ error: 'Google AI API key not configured' }),
-        {
-          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         }
       );
