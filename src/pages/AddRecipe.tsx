@@ -31,6 +31,7 @@ export default function AddRecipe() {
   });
 
   const [ingredients, setIngredients] = useState<Array<{ amount: string; unit: string; ingredient: string }>>([]);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +45,18 @@ export default function AddRecipe() {
     setError(null);
 
     try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        setError('Profile not found. Please try logging in again.');
+        setLoading(false);
+        return;
+      }
+
       if (ingredients.length === 0) {
         setError('Please add at least one ingredient');
         setLoading(false);
@@ -88,11 +101,11 @@ export default function AddRecipe() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-amber-700 hover:text-amber-900 font-semibold mb-6"
+          className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6"
         >
           <BackIcon />
           <span>Back</span>
@@ -115,7 +128,7 @@ export default function AddRecipe() {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="e.g., Grandma's Classic Lasagna"
               />
             </div>
@@ -127,7 +140,7 @@ export default function AddRecipe() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="A brief description of your recipe..."
               />
             </div>
@@ -139,18 +152,22 @@ export default function AddRecipe() {
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="https://example.com/image.jpg"
                 />
                 <AIImageGenerator
                   recipeTitle={formData.title}
+                  recipeDescription={formData.description}
+                  ingredients={ingredients}
                   onImageGenerated={(url) => setFormData({ ...formData, image_url: url })}
+                  onGeneratingChange={setIsGeneratingImage}
                 />
               </div>
               <p className="text-xs text-gray-500">Use Pexels/Unsplash for images, or generate one with AI</p>
-              {formData.image_url && formData.image_url.startsWith('data:image') && (
-                <div className="mt-3">
-                  <img src={formData.image_url} alt="Preview" className="w-48 h-48 object-cover rounded-lg border-2 border-gray-300" />
+              {formData.image_url && !isGeneratingImage && (
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-gray-700 mb-2">Image Preview:</p>
+                  <img src={formData.image_url} alt="Preview" className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-300 shadow-md" />
                 </div>
               )}
             </div>
@@ -163,7 +180,7 @@ export default function AddRecipe() {
                   required
                   value={formData.prep_time}
                   onChange={(e) => setFormData({ ...formData, prep_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="20 min"
                 />
               </div>
@@ -175,7 +192,7 @@ export default function AddRecipe() {
                   required
                   value={formData.cook_time}
                   onChange={(e) => setFormData({ ...formData, cook_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="45 min"
                 />
               </div>
@@ -188,7 +205,7 @@ export default function AddRecipe() {
                   min="1"
                   value={formData.servings}
                   onChange={(e) => setFormData({ ...formData, servings: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 />
               </div>
 
@@ -198,7 +215,7 @@ export default function AddRecipe() {
                   required
                   value={formData.difficulty}
                   onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 >
                   <option value="Easy">Easy</option>
                   <option value="Intermediate">Intermediate</option>
@@ -213,7 +230,7 @@ export default function AddRecipe() {
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="Italian, Comfort Food, Vegetarian (comma-separated)"
               />
             </div>
@@ -230,7 +247,7 @@ export default function AddRecipe() {
                 value={formData.instructions}
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 rows={10}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="Enter each step on a new line...&#10;1. Preheat oven to 350°F&#10;2. Mix dry ingredients in a bowl&#10;3. Add wet ingredients and stir until combined"
               />
               <p className="text-xs text-gray-500 mt-1">One step per line</p>
@@ -247,7 +264,7 @@ export default function AddRecipe() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary px-6 py-3 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating...' : 'Create Recipe'}
               </button>

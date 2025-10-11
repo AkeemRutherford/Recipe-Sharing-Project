@@ -27,7 +27,7 @@ export type Recipe = {
   updated_at: string;
   profiles?: {
     full_name: string;
-    avatar_url: string;
+    profile_pic_url: string;
   };
 };
 
@@ -48,7 +48,7 @@ export type RecipeModification = {
   created_at: string;
   profiles?: {
     full_name: string;
-    avatar_url: string;
+    profile_pic_url: string;
   };
 };
 
@@ -67,6 +67,6 @@ export type Notification = {
   };
   profiles?: {
     full_name: string;
-    avatar_url: string;
+    profile_pic_url: string;
   };
 };
