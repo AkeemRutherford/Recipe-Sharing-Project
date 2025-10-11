@@ -95,17 +95,36 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(['all']);
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending' | 'recommended'>('recent');
+  const [showFollowingOnly, setShowFollowingOnly] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [userFavoriteTags, setUserFavoriteTags] = useState<string[]>([]);
+  const [followingUserIds, setFollowingUserIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     loadRecipes();
     if (user) {
       loadUserLikes();
       loadUserFavoriteTags();
+      loadFollowing();
     }
   }, [user]);
+
+  const loadFollowing = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id);
+
+      if (error) throw error;
+      setFollowingUserIds(new Set(data.map(f => f.following_id)));
+    } catch (err) {
+      console.error('Error loading following:', err);
+    }
+  };
 
   const loadUserFavoriteTags = async () => {
     if (!user) return;
@@ -261,6 +280,10 @@ export default function Home() {
 
   const filteredRecipes = useMemo(() => {
     let filtered = recipes.filter(recipe => {
+      if (showFollowingOnly && !followingUserIds.has(recipe.user_id)) {
+        return false;
+      }
+
       const searchLower = searchQuery.toLowerCase();
 
       const matchesTitle = recipe.title.toLowerCase().includes(searchLower);
@@ -310,7 +333,7 @@ export default function Home() {
     });
 
     return sorted;
-  }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags]);
+  }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags, showFollowingOnly, followingUserIds]);
 
   const filterOptions = [
     { id: 'all', label: 'All Recipes' },
@@ -348,7 +371,21 @@ export default function Home() {
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-800">Discover Recipes</h2>
+          <div className="flex items-center space-x-4">
+            <h2 className="text-2xl font-bold text-gray-800">Discover Recipes</h2>
+            {user && followingUserIds.size > 0 && (
+              <button
+                onClick={() => setShowFollowingOnly(!showFollowingOnly)}
+                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                  showFollowingOnly
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-400'
+                }`}
+              >
+                {showFollowingOnly ? '✓ ' : ''}Following
+              </button>
+            )}
+          </div>
           {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
             <button
               onClick={clearFilters}

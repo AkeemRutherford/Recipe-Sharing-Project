@@ -105,7 +105,12 @@ export default function Notifications() {
   const handleNotificationClick = async (notification: Notification) => {
     await markAsRead(notification.id);
     setShowDropdown(false);
-    navigate(`/recipe/${notification.recipe_id}`);
+
+    if (notification.notification_type === 'follow' && notification.profiles?.username) {
+      navigate(`/profile/${notification.profiles.username}`);
+    } else if (notification.recipe_id) {
+      navigate(`/recipe/${notification.recipe_id}`);
+    }
   };
 
   const getNotificationIcon = (type: string) => {
@@ -113,6 +118,7 @@ export default function Notifications() {
       case 'modification': return '💡';
       case 'like': return '❤️';
       case 'comment': return '💬';
+      case 'follow': return '👤';
       default: return '🔔';
     }
   };
@@ -184,9 +190,11 @@ export default function Notifications() {
                           <p className="text-sm text-gray-800 mb-1">
                             {notification.message}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {notification.recipes?.title}
-                          </p>
+                          {notification.recipes?.title && (
+                            <p className="text-xs text-gray-500">
+                              {notification.recipes.title}
+                            </p>
+                          )}
                           <p className="text-xs text-gray-400 mt-1">
                             {new Date(notification.created_at).toLocaleString()}
                           </p>
