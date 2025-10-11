@@ -238,9 +238,18 @@ export default function Home() {
 
   const filteredRecipes = useMemo(() => {
     let filtered = recipes.filter(recipe => {
-      const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      const searchLower = searchQuery.toLowerCase();
+
+      const matchesTitle = recipe.title.toLowerCase().includes(searchLower);
+      const matchesDescription = recipe.description.toLowerCase().includes(searchLower);
+      const matchesTags = recipe.tags.some(tag => tag.toLowerCase().includes(searchLower));
+      const matchesAuthor = recipe.profiles?.username?.toLowerCase().includes(searchLower);
+
+      const matchesIngredients = recipe.ingredients?.some((ing: any) =>
+        ing.ingredient?.toLowerCase().includes(searchLower)
+      );
+
+      const matchesSearch = matchesTitle || matchesDescription || matchesTags || matchesAuthor || matchesIngredients;
 
       if (!matchesSearch) return false;
 

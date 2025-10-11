@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { formatTimeAgo, groupActivitiesByDate } from '../lib/timeAgo';
 
 const HeartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
@@ -41,9 +42,12 @@ export default function Profile() {
   });
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recipes' | 'activity'>('recipes');
+  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following'>('recipes');
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [followers, setFollowers] = useState<any[]>([]);
+  const [following, setFollowing] = useState<any[]>([]);
 
   const [editBio, setEditBio] = useState('');
   const [editProfilePic, setEditProfilePic] = useState('');
@@ -146,6 +150,54 @@ export default function Profile() {
       setIsFollowing(!!data);
     } catch (err) {
       console.error('Error loading follow status:', err);
+    }
+  };
+
+  const loadActivities = async (profileId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('activities')
+        .select(`
+          *,
+          recipes(title),
+          profiles!activities_target_user_id_fkey(username)
+        `)
+        .eq('user_id', profileId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setActivities(data || []);
+    } catch (err) {
+      console.error('Error loading activities:', err);
+    }
+  };
+
+  const loadFollowers = async (profileId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('follower_id, profiles!follows_follower_id_fkey(id, username, profile_pic_url, bio)')
+        .eq('following_id', profileId);
+
+      if (error) throw error;
+      setFollowers(data?.map(f => f.profiles) || []);
+    } catch (err) {
+      console.error('Error loading followers:', err);
+    }
+  };
+
+  const loadFollowing = async (profileId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('follows')
+        .select('following_id, profiles!follows_following_id_fkey(id, username, profile_pic_url, bio)')
+        .eq('follower_id', profileId);
+
+      if (error) throw error;
+      setFollowing(data?.map(f => f.profiles) || []);
+    } catch (err) {
+      console.error('Error loading following:', err);
     }
   };
 
