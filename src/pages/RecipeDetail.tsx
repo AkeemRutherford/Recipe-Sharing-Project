@@ -318,10 +318,21 @@ export default function RecipeDetail() {
   }, [recipe, scaleFactor, measurementSystem, originalSystem]);
 
   const aggregatedSuggestions = useMemo(() => {
-    const suggestions = comments.filter(c => c.type === 'suggestion');
+    const allSuggestions = [
+      ...comments.filter(c => c.type === 'suggestion').map(c => ({ ...c, isModification: false })),
+      ...modifications.map(m => ({
+        id: m.id,
+        text: m.description,
+        type: m.modification_type,
+        profiles: m.profiles,
+        likes_count: m.likes_count,
+        created_at: m.created_at,
+        isModification: true
+      }))
+    ];
     const groups: any[] = [];
 
-    suggestions.forEach(comment => {
+    allSuggestions.forEach(comment => {
       const text = comment.text.toLowerCase();
 
       let foundGroup = false;
@@ -352,11 +363,13 @@ export default function RecipeDetail() {
     });
 
     return groups.sort((a, b) => b.count - a.count);
-  }, [comments]);
+  }, [comments, modifications]);
 
   const getCommentIcon = (type: string) => {
     switch(type) {
       case 'suggestion': return '💡';
+      case 'substitution': return '🔄';
+      case 'addition': return '➕';
       case 'tip': return '⭐';
       case 'question': return '❓';
       default: return '💬';
@@ -366,6 +379,8 @@ export default function RecipeDetail() {
   const getCommentColor = (type: string) => {
     switch(type) {
       case 'suggestion': return 'border-blue-400 bg-blue-50';
+      case 'substitution': return 'border-orange-400 bg-orange-50';
+      case 'addition': return 'border-green-400 bg-green-50';
       case 'tip': return 'border-yellow-400 bg-yellow-50';
       case 'question': return 'border-purple-400 bg-purple-50';
       default: return 'border-gray-200 bg-white';
@@ -693,7 +708,7 @@ export default function RecipeDetail() {
 
               <div className="space-y-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-xl font-semibold text-gray-800">All Community Notes ({comments.length})</h4>
+                  <h4 className="text-xl font-semibold text-gray-800">All Community Notes ({comments.length + modifications.length})</h4>
                   <div className="flex items-center space-x-2">
                     <span className="text-sm text-gray-600">Sort by:</span>
                     <select
@@ -707,12 +722,21 @@ export default function RecipeDetail() {
                     </select>
                   </div>
                 </div>
-                {comments.length === 0 ? (
+                {comments.length === 0 && modifications.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     <p>No comments yet. Be the first to share your thoughts!</p>
                   </div>
                 ) : (
-                  [...comments].sort((a, b) => {
+                  [...comments.map(c => ({ ...c, isModification: false })), ...modifications.map(m => ({
+                    id: m.id,
+                    text: m.description,
+                    type: m.modification_type,
+                    profiles: m.profiles,
+                    likes_count: m.likes_count,
+                    created_at: m.created_at,
+                    user_id: m.user_id,
+                    isModification: true
+                  }))].sort((a, b) => {
                     if (commentSortBy === 'liked') {
                       return (b.likes_count || 0) - (a.likes_count || 0);
                     } else if (commentSortBy === 'oldest') {
@@ -754,15 +778,15 @@ export default function RecipeDetail() {
                           <div className="flex items-center space-x-2 mt-3">
                             {user && (
                               <button
-                                onClick={() => toggleCommentLike(comment.id)}
+                                onClick={() => (comment as any).isModification ? toggleModificationLike(comment.id) : toggleCommentLike(comment.id)}
                                 className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg transition text-sm font-semibold ${
-                                  commentLikes.has(comment.id)
+                                  ((comment as any).isModification ? modificationLikes : commentLikes).has(comment.id)
                                     ? 'bg-red-100 text-red-600'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                               >
-                                <span>{commentLikes.has(comment.id) ? '❤️' : '🤍'}</span>
-                                <span>{commentLikes.has(comment.id) ? 'Liked' : 'Like'} ({comment.likes_count || 0})</span>
+                                <span>{((comment as any).isModification ? modificationLikes : commentLikes).has(comment.id) ? '❤️' : '🤍'}</span>
+                                <span>{((comment as any).isModification ? modificationLikes : commentLikes).has(comment.id) ? 'Liked' : 'Like'} ({comment.likes_count || 0})</span>
                               </button>
                             )}
                             {comment.type === 'suggestion' && user && (
