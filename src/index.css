@@ -15,6 +15,12 @@
   --airbnb-white: #FFFFFF;
   --airbnb-black: #222222;
 
+  --forklore-cream: #FFF8F0;
+  --forklore-forest-green: #2C5530;
+  --forklore-warm-brown: #8B6F47;
+  --forklore-burnt-orange: #D97135;
+  --forklore-warm-red: #C44536;
+
   --primary-color: var(--airbnb-rausch);
   --secondary-color: var(--airbnb-dark-gray);
   --accent-color: var(--airbnb-rausch);
