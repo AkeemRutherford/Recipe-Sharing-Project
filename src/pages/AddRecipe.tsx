@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
+import VoiceInput from '../components/VoiceInput';
 
 const BackIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -134,11 +135,14 @@ export default function AddRecipe() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-              <textarea
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Description *
+                <span className="text-xs font-normal text-gray-500 ml-2">(Type or use voice input)</span>
+              </label>
+              <VoiceInput
                 required
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(value) => setFormData({ ...formData, description: value })}
                 rows={3}
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="A brief description of your recipe..."

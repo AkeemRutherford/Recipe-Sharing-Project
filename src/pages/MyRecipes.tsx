@@ -21,6 +21,7 @@ export default function MyRecipes() {
   const [myRecipes, setMyRecipes] = useState<Recipe[]>([]);
   const [recentModifications, setRecentModifications] = useState<(RecipeModification & { recipes?: { title: string } })[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -75,6 +76,44 @@ export default function MyRecipes() {
       case 'tip': return '⭐';
       case 'question': return '❓';
       default: return '💡';
+    }
+  };
+
+  const handleDeleteRecipe = async (recipeId: string, recipeTitle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${recipeTitle}"?\n\nThis action cannot be undone. All comments, likes, and saves will also be removed.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeletingId(recipeId);
+
+    try {
+      const recipe = myRecipes.find(r => r.id === recipeId);
+
+      const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', recipeId)
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+
+      if (recipe?.image_url && recipe.image_url.includes('supabase')) {
+        const imagePath = recipe.image_url.split('/').slice(-2).join('/');
+        await supabase.storage
+          .from('recipe-images')
+          .remove([imagePath]);
+      }
+
+      await loadMyRecipes();
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      alert('Failed to delete recipe. Please try again.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -150,16 +189,36 @@ export default function MyRecipes() {
                           ))}
                         </div>
 
-                        <div className="flex items-center space-x-6 text-sm text-gray-500">
-                          <span className="flex items-center space-x-1">
-                            <HeartIcon />
-                            <span>{recipe.likes_count} likes</span>
-                          </span>
-                          <span>{recipe.prep_time} prep</span>
-                          <span>{recipe.servings} servings</span>
-                          <span className="text-xs text-gray-400">
-                            Created {new Date(recipe.created_at).toLocaleDateString()}
-                          </span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-6 text-sm text-gray-500">
+                            <span className="flex items-center space-x-1">
+                              <HeartIcon />
+                              <span>{recipe.likes_count} likes</span>
+                            </span>
+                            <span>{recipe.prep_time} prep</span>
+                            <span>{recipe.servings} servings</span>
+                            <span className="text-xs text-gray-400">
+                              Created {new Date(recipe.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/recipe/${recipe.id}/edit`);
+                              }}
+                              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition text-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteRecipe(recipe.id, recipe.title, e)}
+                              disabled={deletingId === recipe.id}
+                              className="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 font-medium rounded-lg transition text-sm disabled:opacity-50"
+                            >
+                              {deletingId === recipe.id ? 'Deleting...' : 'Delete'}
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -67,6 +67,8 @@ export default function RecipeDetail() {
   const [originalSystem, setOriginalSystem] = useState<MeasurementSystem>('imperial');
   const [commentSortBy, setCommentSortBy] = useState<'recent' | 'liked' | 'oldest'>('recent');
   const [appliedModifications, setAppliedModifications] = useState<Set<string>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -248,6 +250,37 @@ export default function RecipeDetail() {
     }
   };
 
+  const handleDeleteRecipe = async () => {
+    if (!user || !recipe || recipe.user_id !== user.id) return;
+
+    setDeleting(true);
+
+    try {
+      const { error } = await supabase
+        .from('recipes')
+        .delete()
+        .eq('id', recipe.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      if (recipe.image_url && recipe.image_url.includes('supabase')) {
+        const imagePath = recipe.image_url.split('/').slice(-2).join('/');
+        await supabase.storage
+          .from('recipe-images')
+          .remove([imagePath]);
+      }
+
+      navigate('/my-recipes');
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      alert('Failed to delete recipe. Please try again.');
+    } finally {
+      setDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };
+
   const scaleFactor = recipe ? currentServings / recipe.servings : 1;
 
   const scaledIngredients = useMemo(() => {
@@ -390,12 +423,20 @@ export default function RecipeDetail() {
                   </div>
                 </div>
                 {user && recipe.user_id === user.id && (
-                  <button
-                    onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
-                    className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
-                  >
-                    Edit Recipe
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
+                      className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                    >
+                      📝 Edit Recipe
+                    </button>
+                    <button
+                      onClick={() => setShowDeleteModal(true)}
+                      className="px-6 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -757,6 +798,44 @@ export default function RecipeDetail() {
           </div>
         </div>
       </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4">Delete Recipe?</h3>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete "<strong>{recipe?.title}</strong>"?
+            </p>
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+              <p className="text-sm text-yellow-800 font-semibold mb-2">This will permanently remove:</p>
+              <ul className="text-sm text-yellow-700 space-y-1 ml-4">
+                <li>• The recipe and all its content</li>
+                <li>• All comments and suggestions</li>
+                <li>• All likes and saves</li>
+              </ul>
+            </div>
+            <p className="text-red-600 font-semibold text-sm mb-6">
+              ⚠️ This action cannot be undone.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleting}
+                className="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteRecipe}
+                disabled={deleting}
+                className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Yes, Delete Recipe'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
