@@ -17,12 +17,6 @@ const GitHubIcon = () => (
   </svg>
 );
 
-const ChefHatIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
-    <line x1="6" y1="17" x2="18" y2="17"/>
-  </svg>
-);
 
 export default function Login() {
   const { signInWithGoogle, signInWithGitHub, signInWithTestAccount } = useAuth();
@@ -135,10 +129,13 @@ export default function Login() {
       <div className="max-w-md w-full">
         <div className="rounded-lg shadow-lg p-8 bg-white border border-gray-200">
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4 text-airbnb-rausch">
-              <ChefHatIcon />
+            <div className="flex justify-center mb-4">
+              <img
+                src="/forklore-logo.png"
+                alt="Forklore"
+                className="h-16 w-auto"
+              />
             </div>
-            <h1 className="forklore-logo text-4xl mb-1 text-airbnb-black">Forklore</h1>
             <p className="forklore-tagline mb-3 text-airbnb-foggy">Share Your Culinary Journey</p>
             <p className="text-sm text-airbnb-dark-gray">Join the Forklore community and discover family recipes passed down through generations</p>
           </div>

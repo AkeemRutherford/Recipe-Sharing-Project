@@ -4,12 +4,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import Notifications from './Notifications';
 
-const ChefHatIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/>
-    <line x1="6" y1="17" x2="18" y2="17"/>
-  </svg>
-);
 
 const UploadIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -79,16 +73,15 @@ export default function Header() {
             onClick={() => navigate('/')}
             className="cursor-pointer hover:opacity-90 transition"
           >
-            <div className="flex items-center space-x-3">
-              <ChefHatIcon />
-              <div>
-                <h1 className="forklore-logo text-3xl text-airbnb-rausch">
-                  Forklore
-                </h1>
-                <p className="forklore-tagline text-airbnb-foggy">
-                  Share Your Culinary Journey
-                </p>
-              </div>
+            <div className="flex flex-col items-start">
+              <img
+                src="/forklore-logo.png"
+                alt="Forklore"
+                className="h-12 w-auto"
+              />
+              <p className="forklore-tagline text-airbnb-foggy mt-1">
+                Share Your Culinary Journey
+              </p>
             </div>
           </div>
 

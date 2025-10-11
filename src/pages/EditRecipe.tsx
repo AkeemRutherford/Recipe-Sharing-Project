@@ -134,7 +134,7 @@ export default function EditRecipe() {
 
   if (loadingRecipe) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-xl text-gray-600">Loading recipe...</div>
       </div>
     );
@@ -142,12 +142,12 @@ export default function EditRecipe() {
 
   if (error && !formData.title) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-xl text-red-600 mb-4">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition"
+            className="px-6 py-3 btn-primary text-white rounded-lg transition"
           >
             Go Back
           </button>
@@ -157,11 +157,11 @@ export default function EditRecipe() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-amber-700 hover:text-amber-900 font-semibold mb-6"
+          className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6"
         >
           <BackIcon />
           <span>Back</span>
@@ -184,7 +184,7 @@ export default function EditRecipe() {
                 required
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="e.g., Grandma's Classic Lasagna"
               />
             </div>
@@ -196,7 +196,7 @@ export default function EditRecipe() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="A brief description of your recipe..."
               />
             </div>
@@ -208,7 +208,7 @@ export default function EditRecipe() {
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="https://example.com/image.jpg"
                 />
                 <AIImageGenerator
@@ -232,7 +232,7 @@ export default function EditRecipe() {
                   required
                   value={formData.prep_time}
                   onChange={(e) => setFormData({ ...formData, prep_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="20 min"
                 />
               </div>
@@ -244,7 +244,7 @@ export default function EditRecipe() {
                   required
                   value={formData.cook_time}
                   onChange={(e) => setFormData({ ...formData, cook_time: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                   placeholder="45 min"
                 />
               </div>
@@ -257,7 +257,7 @@ export default function EditRecipe() {
                   min="1"
                   value={formData.servings}
                   onChange={(e) => setFormData({ ...formData, servings: parseInt(e.target.value) })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 />
               </div>
 
@@ -267,7 +267,7 @@ export default function EditRecipe() {
                   required
                   value={formData.difficulty}
                   onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 >
                   <option value="Easy">Easy</option>
                   <option value="Intermediate">Intermediate</option>
@@ -282,7 +282,7 @@ export default function EditRecipe() {
                 type="text"
                 value={formData.tags}
                 onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="Italian, Comfort Food, Vegetarian (comma-separated)"
               />
             </div>
@@ -299,7 +299,7 @@ export default function EditRecipe() {
                 value={formData.instructions}
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 rows={10}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                 placeholder="Enter each step on a new line..."
               />
               <p className="text-xs text-gray-500 mt-1">One step per line</p>
