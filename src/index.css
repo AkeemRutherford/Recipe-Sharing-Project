@@ -1,3 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --forklore-forest-green: #2C5530;
+  --forklore-warm-brown: #8B6F47;
+  --forklore-cream: #F5E6D3;
+  --forklore-burnt-orange: #D4764A;
+  --forklore-golden-yellow: #E6C068;
+  --forklore-sage-green: #94A89A;
+  --forklore-warm-red: #C44536;
+
+  --primary-color: var(--forklore-forest-green);
+  --secondary-color: var(--forklore-burnt-orange);
+  --accent-color: var(--forklore-golden-yellow);
+  --background-color: var(--forklore-cream);
+  --text-color: var(--forklore-forest-green);
+  --border-color: var(--forklore-warm-brown);
+
+  --gradient-primary: linear-gradient(135deg, #2C5530 0%, #94A89A 100%);
+  --gradient-accent: linear-gradient(135deg, #D4764A 0%, #E6C068 100%);
+  --gradient-background: linear-gradient(180deg, #F5E6D3 0%, #EAE0CF 100%);
+
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lato', 'Open Sans', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--gradient-background);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.forklore-logo {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.forklore-tagline {
+  font-family: var(--font-body);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.btn-primary {
+  background: var(--forklore-burnt-orange);
+  color: var(--forklore-cream);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #C1653D;
+  box-shadow: 0 4px 12px rgba(212, 118, 74, 0.3);
+}
+
+.btn-secondary {
+  border: 2px solid var(--forklore-warm-brown);
+  color: var(--forklore-forest-green);
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--forklore-cream);
+  border-color: var(--forklore-burnt-orange);
+}
+
+.card-forklore {
+  background: var(--forklore-cream);
+  border: 1px solid rgba(139, 111, 71, 0.2);
+  transition: all 0.3s ease;
+}
+
+.card-forklore:hover {
+  box-shadow: 0 8px 20px rgba(44, 85, 48, 0.15);
+  border-color: var(--forklore-golden-yellow);
+}
+
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.text-brand {
+  color: var(--forklore-forest-green);
+}
+
+.bg-brand {
+  background: var(--forklore-forest-green);
+}
+
+.border-brand {
+  border-color: var(--forklore-warm-brown);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

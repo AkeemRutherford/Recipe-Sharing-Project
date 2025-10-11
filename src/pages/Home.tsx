@@ -400,8 +400,8 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading recipes...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--gradient-background)' }}>
+        <div className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Loading culinary stories...</div>
       </div>
     );
   }
@@ -426,7 +426,7 @@ export default function Home() {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-bold text-gray-800">Discover Recipes</h2>
+            <h2 className="text-2xl font-bold" style={{ color: 'var(--forklore-forest-green)' }}>Discover Recipes</h2>
             {user && followingUserIds.size > 0 && (
               <button
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
@@ -539,7 +539,7 @@ export default function Home() {
 
       {filteredRecipes.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-2xl text-gray-500">No recipes found matching your criteria</p>
+          <p className="text-2xl" style={{ color: 'var(--forklore-warm-brown)' }}>No recipes found - your culinary journey awaits!</p>
           <p className="text-gray-400 mt-2">Try adjusting your filters or search terms</p>
         </div>
       ) : (

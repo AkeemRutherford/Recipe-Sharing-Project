@@ -112,7 +112,7 @@ export default function Login() {
           .upsert({
             id: data.user.id,
             username: username.trim(),
-            bio: 'Demo user - testing KollabKitchen',
+            bio: 'Demo user - exploring Forklore',
             updated_at: new Date().toISOString(),
           });
 
@@ -131,15 +131,16 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--gradient-background)' }}>
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        <div className="rounded-2xl shadow-2xl p-8" style={{ background: 'var(--forklore-cream)', border: '2px solid var(--forklore-warm-brown)' }}>
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-4 text-amber-600">
+            <div className="flex justify-center mb-4" style={{ color: 'var(--forklore-burnt-orange)' }}>
               <ChefHatIcon />
             </div>
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">KollabKitchen</h1>
-            <p className="text-gray-600">Collaborate on recipes with your team</p>
+            <h1 className="forklore-logo text-4xl mb-1" style={{ color: 'var(--forklore-forest-green)' }}>Forklore</h1>
+            <p className="forklore-tagline mb-3" style={{ color: 'var(--forklore-golden-yellow)' }}>Share Your Culinary Journey</p>
+            <p className="text-sm" style={{ color: 'var(--forklore-warm-brown)' }}>Join the Forklore community and discover family recipes passed down through generations</p>
           </div>
 
           {error && (
@@ -183,7 +184,7 @@ export default function Login() {
             <button
               onClick={handleTestAccountSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full flex items-center justify-center space-x-3 px-6 py-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>

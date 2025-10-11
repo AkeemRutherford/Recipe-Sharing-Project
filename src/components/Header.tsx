@@ -72,48 +72,61 @@ export default function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="bg-gradient-to-r from-amber-600 to-orange-500 shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4">
+    <header className="shadow-lg sticky top-0 z-50" style={{ background: 'var(--forklore-forest-green)' }}>
+      <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition"
+            className="cursor-pointer hover:opacity-90 transition"
           >
-            <ChefHatIcon />
-            <h1 className="text-3xl font-bold text-white">KollabKitchen</h1>
+            <div className="flex items-center space-x-3">
+              <ChefHatIcon />
+              <div>
+                <h1 className="forklore-logo text-3xl" style={{ color: 'var(--forklore-cream)' }}>
+                  Forklore
+                </h1>
+                <p className="forklore-tagline" style={{ color: 'var(--forklore-golden-yellow)' }}>
+                  Share Your Culinary Journey
+                </p>
+              </div>
+            </div>
           </div>
 
           <nav className="hidden md:flex items-center space-x-6">
             <button
               onClick={() => navigate('/')}
-              className={`text-white font-semibold transition ${
+              className={`font-semibold transition ${
                 isActive('/') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
-              Browse Recipes
+              Explore Recipes
             </button>
             <button
               onClick={() => navigate('/users')}
-              className={`text-white font-semibold transition ${
+              className={`font-semibold transition ${
                 isActive('/users') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/users') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               Community
             </button>
             <button
               onClick={() => navigate('/my-recipes')}
-              className={`text-white font-semibold transition ${
+              className={`font-semibold transition ${
                 isActive('/my-recipes') ? 'underline' : 'hover:underline'
               }`}
+              style={{ color: isActive('/my-recipes') ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
             >
               My Recipes
             </button>
             {username && (
               <button
                 onClick={() => navigate(`/profile/${username}`)}
-                className={`text-white font-semibold transition ${
+                className={`font-semibold transition ${
                   isActive(`/profile/${username}`) ? 'underline' : 'hover:underline'
                 }`}
+                style={{ color: isActive(`/profile/${username}`) ? 'var(--forklore-golden-yellow)' : 'var(--forklore-cream)' }}
               >
                 My Profile
               </button>
@@ -123,10 +136,10 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => navigate('/add-recipe')}
-              className="flex items-center space-x-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition backdrop-blur-sm"
+              className="btn-primary flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold"
             >
               <UploadIcon />
-              <span className="hidden md:inline">Add Recipe</span>
+              <span className="hidden md:inline">Share Recipe</span>
             </button>
 
             <Notifications />
@@ -134,7 +147,10 @@ export default function Header() {
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 text-white hover:bg-white/20 rounded-lg p-2 transition"
+                className="flex items-center space-x-2 rounded-lg p-2 transition"
+                style={{ color: 'var(--forklore-cream)', background: 'rgba(255, 255, 255, 0.1)' }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
               >
                 <UserIcon />
               </button>
