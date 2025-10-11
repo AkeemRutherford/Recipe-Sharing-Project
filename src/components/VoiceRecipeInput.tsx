@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { parseVoiceToRecipe } from '../lib/aiRecipeGeneration';
 
 interface VoiceRecipeInputProps {
   onRecipeGenerated: (recipe: any) => void;
@@ -110,22 +111,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
     setError(null);
 
     try {
-      const recipe = {
-        title: 'Voice Dictated Recipe',
-        description: transcript.substring(0, 200),
-        servings: 4,
-        prep_time: '15 min',
-        cook_time: '30 min',
-        difficulty: 'Easy',
-        tags: ['voice-recipe'],
-        instructions: transcript.split('.').filter(s => s.trim()).map(s => s.trim()),
-        ingredients: [],
-        ai_generated: true,
-        generation_method: 'voice',
-        original_transcript: transcript,
-        ai_confidence_score: 0.7
-      };
-
+      const recipe = await parseVoiceToRecipe(transcript);
       onRecipeGenerated(recipe);
     } catch (err: any) {
       setError(err.message || 'Failed to process recipe. Please try again.');
