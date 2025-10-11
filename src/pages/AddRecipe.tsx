@@ -45,6 +45,18 @@ export default function AddRecipe() {
     setError(null);
 
     try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile) {
+        setError('Profile not found. Please try logging in again.');
+        setLoading(false);
+        return;
+      }
+
       if (ingredients.length === 0) {
         setError('Please add at least one ingredient');
         setLoading(false);
