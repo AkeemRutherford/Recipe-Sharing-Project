@@ -94,7 +94,7 @@ export default function RecipeDetail() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, display_name, profile_picture_url)
+          profiles!recipes_user_id_fkey(username, display_name, profile_pic_url)
         `)
         .eq('id', id!)
         .maybeSingle();
@@ -121,7 +121,7 @@ export default function RecipeDetail() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(username, display_name, profile_picture_url)
+          profiles!recipe_modifications_user_id_fkey(username, display_name, profile_pic_url)
         `)
         .eq('recipe_id', id!)
         .order('created_at', { ascending: false});
@@ -378,8 +378,8 @@ export default function RecipeDetail() {
                 <div className="flex-1">
                   <h2 className="text-5xl font-bold text-white mb-4">{recipe.title}</h2>
                   <div className="flex items-center space-x-4 text-white">
-                    {recipe.profiles?.profile_picture_url && (
-                      <img src={recipe.profiles.profile_picture_url} alt={recipe.profiles.display_name || recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
+                    {recipe.profiles?.profile_pic_url && (
+                      <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.display_name || recipe.profiles.username || ''} className="w-12 h-12 rounded-full border-3 border-white" />
                     )}
                     <div>
                       <p className="text-sm opacity-90">Created by</p>
@@ -682,8 +682,8 @@ export default function RecipeDetail() {
                   }).map(comment => (
                     <div key={comment.id} className={`p-5 rounded-xl border-l-4 ${getCommentColor(comment.type)} shadow-sm hover:shadow-md transition`}>
                       <div className="flex items-start mb-3">
-                        {comment.profiles?.profile_picture_url ? (
-                          <img src={comment.profiles.profile_picture_url} alt={comment.profiles.display_name || comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
+                        {comment.profiles?.profile_pic_url ? (
+                          <img src={comment.profiles.profile_pic_url} alt={comment.profiles.display_name || comment.profiles.username || ''} className="w-10 h-10 rounded-full mr-3" />
                         ) : (
                           <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3 text-xl">
                             {getCommentIcon(comment.type)}

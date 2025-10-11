@@ -38,8 +38,8 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         <div className="absolute bottom-3 left-3 right-3">
           <h3 className="text-white text-xl font-bold mb-1 line-clamp-2">{recipe.title}</h3>
           <div className="flex items-center">
-            {recipe.profiles?.profile_picture_url && (
-              <img src={recipe.profiles.profile_picture_url} alt={recipe.profiles.display_name || recipe.profiles.username || ''} className="w-6 h-6 rounded-full border-2 border-white" />
+            {recipe.profiles?.profile_pic_url && (
+              <img src={recipe.profiles.profile_pic_url} alt={recipe.profiles.display_name || recipe.profiles.username || ''} className="w-6 h-6 rounded-full border-2 border-white" />
             )}
             <span className="text-white/90 text-sm ml-2 font-medium">
               {recipe.profiles?.display_name || recipe.profiles?.username || 'Unknown Cook'}
@@ -133,7 +133,7 @@ export default function Home() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, display_name, profile_picture_url)
+          profiles!recipes_user_id_fkey(username, display_name, profile_pic_url)
         `)
         .order('created_at', { ascending: false });
 
