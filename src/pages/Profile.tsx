@@ -51,6 +51,9 @@ export default function Profile() {
 
   const [editBio, setEditBio] = useState('');
   const [editProfilePic, setEditProfilePic] = useState('');
+  const [editFavoriteTags, setEditFavoriteTags] = useState<string[]>([]);
+
+  const availableTags = ['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Quick', 'Easy', 'Healthy', 'Comfort Food', 'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Holiday', 'Weeknight', 'Kosher'];
 
   const isOwnProfile = user && profile && user.id === profile.id;
 
@@ -80,6 +83,7 @@ export default function Profile() {
       setProfile(profileData);
       setEditBio(profileData.bio || '');
       setEditProfilePic(profileData.profile_pic_url || '');
+      setEditFavoriteTags(profileData.favorite_tags || []);
 
       await Promise.all([
         loadRecipes(profileData.id),
@@ -234,19 +238,28 @@ export default function Profile() {
         .update({
           bio: editBio,
           profile_pic_url: editProfilePic,
+          favorite_tags: editFavoriteTags,
           updated_at: new Date().toISOString(),
         })
         .eq('id', user.id);
 
       if (error) throw error;
 
-      setProfile({ ...profile, bio: editBio, profile_pic_url: editProfilePic });
+      setProfile({ ...profile, bio: editBio, profile_pic_url: editProfilePic, favorite_tags: editFavoriteTags });
       setEditModalOpen(false);
       alert('Profile updated successfully!');
     } catch (err: any) {
       console.error('Error updating profile:', err);
       alert(`Failed to update profile: ${err.message}`);
     }
+  };
+
+  const toggleFavoriteTag = (tag: string) => {
+    setEditFavoriteTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
   };
 
   if (loading) {
@@ -333,10 +346,13 @@ export default function Profile() {
 
         {/* Stats Section */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 text-center shadow-md">
+          <button
+            onClick={() => setActiveTab('recipes')}
+            className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
+          >
             <div className="text-3xl font-bold text-amber-600">{stats.recipesCount}</div>
             <div className="text-sm text-gray-600 mt-1">Recipes</div>
-          </div>
+          </button>
           <div className="bg-white rounded-xl p-6 text-center shadow-md">
             <div className="text-3xl font-bold text-amber-600">{stats.likesReceived}</div>
             <div className="text-sm text-gray-600 mt-1">Likes</div>
@@ -345,22 +361,34 @@ export default function Profile() {
             <div className="text-3xl font-bold text-amber-600">{stats.commentsCount}</div>
             <div className="text-sm text-gray-600 mt-1">Comments</div>
           </div>
-          <div className="bg-white rounded-xl p-6 text-center shadow-md">
+          <button
+            onClick={() => {
+              setActiveTab('followers');
+              if (profile) loadFollowers(profile.id);
+            }}
+            className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
+          >
             <div className="text-3xl font-bold text-amber-600">{stats.followersCount}</div>
             <div className="text-sm text-gray-600 mt-1">Followers</div>
-          </div>
-          <div className="bg-white rounded-xl p-6 text-center shadow-md">
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('following');
+              if (profile) loadFollowing(profile.id);
+            }}
+            className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
+          >
             <div className="text-3xl font-bold text-amber-600">{stats.followingCount}</div>
             <div className="text-sm text-gray-600 mt-1">Following</div>
-          </div>
+          </button>
         </div>
 
         {/* Tabs */}
         <div className="bg-white rounded-2xl shadow-xl p-6">
-          <div className="flex space-x-4 border-b border-gray-200 mb-6">
+          <div className="flex space-x-4 border-b border-gray-200 mb-6 overflow-x-auto">
             <button
               onClick={() => setActiveTab('recipes')}
-              className={`pb-4 px-6 font-semibold transition ${
+              className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'recipes'
                   ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
@@ -369,14 +397,43 @@ export default function Profile() {
               Recipes ({stats.recipesCount})
             </button>
             <button
-              onClick={() => setActiveTab('activity')}
-              className={`pb-4 px-6 font-semibold transition ${
+              onClick={() => {
+                setActiveTab('activity');
+                if (profile) loadActivities(profile.id);
+              }}
+              className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'activity'
                   ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
               Activity
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('followers');
+                if (profile) loadFollowers(profile.id);
+              }}
+              className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+                activeTab === 'followers'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Followers ({stats.followersCount})
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('following');
+                if (profile) loadFollowing(profile.id);
+              }}
+              className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+                activeTab === 'following'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Following ({stats.followingCount})
             </button>
           </div>
 
@@ -432,8 +489,163 @@ export default function Profile() {
           )}
 
           {activeTab === 'activity' && (
-            <div className="text-center py-12">
-              <p className="text-gray-500">Activity feed coming soon...</p>
+            <div>
+              {activities.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-xl text-gray-500">No activity yet</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(groupActivitiesByDate(activities)).map(([period, acts]) => (
+                    acts.length > 0 && (
+                      <div key={period}>
+                        <h3 className="text-sm font-bold text-gray-500 uppercase mb-3">{period}</h3>
+                        <div className="space-y-3">
+                          {acts.map((activity: any) => (
+                            <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                              <div className="flex-shrink-0 mt-1">
+                                {activity.activity_type === 'posted_recipe' && <span className="text-2xl">📝</span>}
+                                {activity.activity_type === 'commented' && <span className="text-2xl">💬</span>}
+                                {activity.activity_type === 'liked' && <span className="text-2xl">❤️</span>}
+                                {activity.activity_type === 'saved' && <span className="text-2xl">🔖</span>}
+                                {activity.activity_type === 'followed' && <span className="text-2xl">👤</span>}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-gray-800">
+                                  {activity.activity_type === 'posted_recipe' && (
+                                    <>
+                                      Posted recipe{' '}
+                                      <button
+                                        onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
+                                        className="font-semibold text-amber-600 hover:underline"
+                                      >
+                                        {activity.recipes?.title}
+                                      </button>
+                                    </>
+                                  )}
+                                  {activity.activity_type === 'commented' && (
+                                    <>
+                                      Commented on{' '}
+                                      <button
+                                        onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
+                                        className="font-semibold text-amber-600 hover:underline"
+                                      >
+                                        {activity.recipes?.title}
+                                      </button>
+                                    </>
+                                  )}
+                                  {activity.activity_type === 'liked' && (
+                                    <>
+                                      Liked{' '}
+                                      <button
+                                        onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
+                                        className="font-semibold text-amber-600 hover:underline"
+                                      >
+                                        {activity.recipes?.title}
+                                      </button>
+                                    </>
+                                  )}
+                                  {activity.activity_type === 'saved' && (
+                                    <>
+                                      Saved{' '}
+                                      <button
+                                        onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
+                                        className="font-semibold text-amber-600 hover:underline"
+                                      >
+                                        {activity.recipes?.title}
+                                      </button>
+                                    </>
+                                  )}
+                                  {activity.activity_type === 'followed' && (
+                                    <>
+                                      Started following{' '}
+                                      <button
+                                        onClick={() => navigate(`/profile/${activity.profiles?.username}`)}
+                                        className="font-semibold text-amber-600 hover:underline"
+                                      >
+                                        {activity.profiles?.username}
+                                      </button>
+                                    </>
+                                  )}
+                                </p>
+                                <p className="text-sm text-gray-500 mt-1">{formatTimeAgo(activity.created_at)}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'followers' && (
+            <div>
+              {followers.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-xl text-gray-500">No followers yet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {followers.map((follower: any) => (
+                    <div
+                      key={follower.id}
+                      onClick={() => navigate(`/profile/${follower.username}`)}
+                      className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                    >
+                      {follower.profile_pic_url ? (
+                        <img src={follower.profile_pic_url} alt={follower.username} className="w-12 h-12 rounded-full" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
+                          {follower.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 truncate">{follower.username}</p>
+                        {follower.bio && (
+                          <p className="text-sm text-gray-600 truncate">{follower.bio}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'following' && (
+            <div>
+              {following.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-xl text-gray-500">Not following anyone yet</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {following.map((followed: any) => (
+                    <div
+                      key={followed.id}
+                      onClick={() => navigate(`/profile/${followed.username}`)}
+                      className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                    >
+                      {followed.profile_pic_url ? (
+                        <img src={followed.profile_pic_url} alt={followed.username} className="w-12 h-12 rounded-full" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
+                          {followed.username.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-800 truncate">{followed.username}</p>
+                        {followed.bio && (
+                          <p className="text-sm text-gray-600 truncate">{followed.bio}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -468,6 +680,28 @@ export default function Profile() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
                 <p className="text-sm text-gray-500 mt-1">{editBio.length}/500 characters</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Favorite Tags</label>
+                <p className="text-xs text-gray-600 mb-3">Select tags to personalize your feed</p>
+                <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-2 border border-gray-200 rounded-lg">
+                  {availableTags.map(tag => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleFavoriteTag(tag)}
+                      className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
+                        editFavoriteTags.includes(tag)
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-500 mt-2">{editFavoriteTags.length} tags selected</p>
               </div>
             </div>
 

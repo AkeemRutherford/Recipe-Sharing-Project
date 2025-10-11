@@ -94,16 +94,39 @@ export default function Home() {
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(['all']);
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending' | 'recommended'>('recent');
   const [loading, setLoading] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [userFavoriteTags, setUserFavoriteTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadRecipes();
     if (user) {
       loadUserLikes();
+      loadUserFavoriteTags();
     }
   }, [user]);
+
+  const loadUserFavoriteTags = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('favorite_tags')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setUserFavoriteTags(data?.favorite_tags || []);
+
+      if (data?.favorite_tags && data.favorite_tags.length > 0) {
+        setSortBy('recommended');
+      }
+    } catch (err) {
+      console.error('Error loading user favorite tags:', err);
+    }
+  };
 
   useEffect(() => {
     const tagsParam = searchParams.get('tags');
@@ -269,12 +292,25 @@ export default function Home() {
         const aScore = (a.likes_count || 0) * 2 + (new Date(a.created_at).getTime() / 1000000000);
         const bScore = (b.likes_count || 0) * 2 + (new Date(b.created_at).getTime() / 1000000000);
         return bScore - aScore;
+      } else if (sortBy === 'recommended') {
+        const aMatchCount = a.tags.filter((tag: string) =>
+          userFavoriteTags.some(ft => ft.toLowerCase() === tag.toLowerCase())
+        ).length;
+        const bMatchCount = b.tags.filter((tag: string) =>
+          userFavoriteTags.some(ft => ft.toLowerCase() === tag.toLowerCase())
+        ).length;
+
+        if (bMatchCount !== aMatchCount) {
+          return bMatchCount - aMatchCount;
+        }
+
+        return (b.likes_count || 0) - (a.likes_count || 0);
       }
       return 0;
     });
 
     return sorted;
-  }, [recipes, searchQuery, selectedFilters, sortBy]);
+  }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags]);
 
   const filterOptions = [
     { id: 'all', label: 'All Recipes' },
@@ -361,7 +397,19 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-3">
           <span className="text-sm text-gray-600 font-medium">Sort by:</span>
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
+            {userFavoriteTags.length > 0 && (
+              <button
+                onClick={() => handleSortChange('recommended')}
+                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                  sortBy === 'recommended'
+                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
+                }`}
+              >
+                Recommended
+              </button>
+            )}
             <button
               onClick={() => handleSortChange('recent')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
