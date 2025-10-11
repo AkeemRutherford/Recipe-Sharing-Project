@@ -132,7 +132,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
           />
 
           <div className="text-center">
-            <div className="text-5xl mb-4">=�</div>
+            <div className="text-6xl mb-4" style={{ color: 'var(--forklore-burnt-orange)' }}>📷</div>
             <p className="text-lg mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
@@ -152,5 +152,58 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
             {processing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70">
                 <div className="text-white text-center">
-                  <div className="text-5xl mb-4">
-                    <span className="animate-pulse">
+                  <div className="text-2xl font-bold mb-4 animate-pulse">
+                    {step === 'analyzing' ? 'Analyzing Image...' : 'Generating Recipe...'}
+                  </div>
+                  <p className="text-sm opacity-80">This may take a moment</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {!processing && (
+            <button
+              onClick={resetUpload}
+              className="mt-3 w-full py-2 rounded-lg transition hover:bg-white"
+              style={{ color: 'var(--forklore-warm-brown)', border: '1px solid var(--forklore-warm-brown)' }}
+            >
+              Choose different image
+            </button>
+          )}
+        </div>
+      )}
+
+      <div className="bg-white p-4 rounded-lg mb-6" style={{ border: '1px solid var(--forklore-warm-brown)' }}>
+        <h4 className="font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
+          Tips for best results:
+        </h4>
+        <ul className="text-sm space-y-1" style={{ color: 'var(--forklore-warm-brown)' }}>
+          <li>Use clear, well-lit photos of the finished dish</li>
+          <li>Show the full dish, not just a portion</li>
+          <li>Avoid images with multiple dishes</li>
+          <li>Photos of plated food work better than cooking process</li>
+          <li>You can edit all details after AI generates the recipe</li>
+        </ul>
+      </div>
+
+      <div className="flex justify-between space-x-4">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="btn-secondary px-6 py-3 rounded-lg font-semibold"
+            disabled={processing}
+          >
+            Cancel
+          </button>
+        )}
+        <button
+          onClick={generateRecipe}
+          disabled={!selectedFile || processing}
+          className="btn-primary px-8 py-3 rounded-lg font-semibold flex-1 flex items-center justify-center"
+        >
+          {processing ? 'Generating...' : 'Generate Recipe'}
+        </button>
+      </div>
+    </div>
+  );
+}
