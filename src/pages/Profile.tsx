@@ -264,8 +264,8 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-airbnb-dark-gray">Loading profile...</div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading profile...</div>
       </div>
     );
   }
@@ -275,11 +275,11 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-          <div className="h-32 bg-gradient-to-r from-gray-100 to-gray-200"></div>
+          <div className="h-32 bg-gradient-to-r from-amber-400 to-orange-500"></div>
           <div className="px-8 pb-8">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
               <div className="flex items-end space-x-6">
@@ -290,7 +290,7 @@ export default function Profile() {
                     className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-200 flex items-center justify-center text-4xl font-bold text-gray-700">
+                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-amber-200 flex items-center justify-center text-4xl font-bold text-amber-700">
                     {profile.username.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -308,7 +308,7 @@ export default function Profile() {
                 {isOwnProfile ? (
                   <button
                     onClick={() => setEditModalOpen(true)}
-                    className="btn-primary flex items-center space-x-2 px-6 py-3 text-white rounded-lg font-semibold"
+                    className="flex items-center space-x-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
                   >
                     <EditIcon />
                     <span>Edit Profile</span>
@@ -319,7 +319,7 @@ export default function Profile() {
                     className={`px-6 py-3 rounded-lg font-semibold transition ${
                       isFollowing
                         ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        : 'btn-primary text-white'
+                        : 'bg-amber-500 text-white hover:bg-amber-600'
                     }`}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
@@ -335,7 +335,7 @@ export default function Profile() {
             {profile.favorite_tags && profile.favorite_tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.favorite_tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                  <span key={tag} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-semibold">
                     {tag}
                   </span>
                 ))}
@@ -350,15 +350,15 @@ export default function Profile() {
             onClick={() => setActiveTab('recipes')}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.recipesCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.recipesCount}</div>
             <div className="text-sm text-gray-600 mt-1">Recipes</div>
           </button>
           <div className="bg-white rounded-xl p-6 text-center shadow-md">
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.likesReceived}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.likesReceived}</div>
             <div className="text-sm text-gray-600 mt-1">Likes</div>
           </div>
           <div className="bg-white rounded-xl p-6 text-center shadow-md">
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.commentsCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.commentsCount}</div>
             <div className="text-sm text-gray-600 mt-1">Comments</div>
           </div>
           <button
@@ -368,7 +368,7 @@ export default function Profile() {
             }}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.followersCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.followersCount}</div>
             <div className="text-sm text-gray-600 mt-1">Followers</div>
           </button>
           <button
@@ -378,7 +378,7 @@ export default function Profile() {
             }}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.followingCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.followingCount}</div>
             <div className="text-sm text-gray-600 mt-1">Following</div>
           </button>
         </div>
@@ -390,7 +390,7 @@ export default function Profile() {
               onClick={() => setActiveTab('recipes')}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'recipes'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -403,7 +403,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'activity'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -416,7 +416,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'followers'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -429,7 +429,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'following'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -445,7 +445,7 @@ export default function Profile() {
                   {isOwnProfile && (
                     <button
                       onClick={() => navigate('/add-recipe')}
-                      className="btn-primary mt-4 px-6 py-3 text-white rounded-lg font-semibold"
+                      className="mt-4 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
                     >
                       Create Your First Recipe
                     </button>
@@ -517,7 +517,7 @@ export default function Profile() {
                                       Posted recipe{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -528,7 +528,7 @@ export default function Profile() {
                                       Commented on{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -539,7 +539,7 @@ export default function Profile() {
                                       Liked{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -550,7 +550,7 @@ export default function Profile() {
                                       Saved{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -561,7 +561,7 @@ export default function Profile() {
                                       Started following{' '}
                                       <button
                                         onClick={() => navigate(`/profile/${activity.profiles?.username}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.profiles?.username}
                                       </button>
@@ -598,7 +598,7 @@ export default function Profile() {
                       {follower.profile_pic_url ? (
                         <img src={follower.profile_pic_url} alt={follower.username} className="w-12 h-12 rounded-full" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-700">
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
                           {follower.username.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -632,7 +632,7 @@ export default function Profile() {
                       {followed.profile_pic_url ? (
                         <img src={followed.profile_pic_url} alt={followed.username} className="w-12 h-12 rounded-full" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-700">
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
                           {followed.username.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -665,7 +665,7 @@ export default function Profile() {
                   value={editProfilePic}
                   onChange={(e) => setEditProfilePic(e.target.value)}
                   placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
@@ -677,7 +677,7 @@ export default function Profile() {
                   maxLength={500}
                   rows={4}
                   placeholder="Tell us about yourself..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
                 <p className="text-sm text-gray-500 mt-1">{editBio.length}/500 characters</p>
               </div>
@@ -693,7 +693,7 @@ export default function Profile() {
                       onClick={() => toggleFavoriteTag(tag)}
                       className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
                         editFavoriteTags.includes(tag)
-                          ? 'bg-airbnb-rausch text-white'
+                          ? 'bg-amber-500 text-white'
                           : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                       }`}
                     >
@@ -708,7 +708,7 @@ export default function Profile() {
             <div className="flex space-x-4 mt-8">
               <button
                 onClick={handleSaveProfile}
-                className="btn-primary flex-1 px-6 py-3 text-white rounded-lg font-semibold"
+                className="flex-1 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
               >
                 Save Changes
               </button>

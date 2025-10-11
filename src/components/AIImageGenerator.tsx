@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import CookingModal from './CookingModal';
 
 interface AIImageGeneratorProps {
   recipeTitle: string;
-  recipeDescription?: string;
-  ingredients?: Array<{ amount: string; unit: string; ingredient: string }>;
   onImageGenerated: (imageUrl: string) => void;
-  isGenerating?: boolean;
-  onGeneratingChange?: (generating: boolean) => void;
 }
 
 const SparklesIcon = () => (
@@ -20,14 +15,9 @@ const SparklesIcon = () => (
   </svg>
 );
 
-export default function AIImageGenerator({ recipeTitle, recipeDescription, ingredients, onImageGenerated, onGeneratingChange }: AIImageGeneratorProps) {
+export default function AIImageGenerator({ recipeTitle, onImageGenerated }: AIImageGeneratorProps) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const updateGenerating = (value: boolean) => {
-    setGenerating(value);
-    onGeneratingChange?.(value);
-  };
 
   const generateImageWithUnsplash = async () => {
     const cleanTitle = recipeTitle.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-');
@@ -54,7 +44,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
       return;
     }
 
-    updateGenerating(true);
+    setGenerating(true);
     setError(null);
 
     try {
@@ -66,8 +56,6 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const ingredientsList = ingredients?.map(i => i.ingredient) || [];
-
       const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -75,9 +63,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          recipeName: recipeTitle,
-          description: recipeDescription || '',
-          ingredients: ingredientsList,
+          prompt: recipeTitle,
         }),
         signal: controller.signal,
       });
@@ -85,7 +71,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn('Google Imagen API failed, using Unsplash fallback');
+        console.warn('HuggingFace API failed, using Unsplash fallback');
         await generateImageWithUnsplash();
         return;
       }
@@ -95,7 +81,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
       if (data.success && data.image) {
         onImageGenerated(data.image);
       } else {
-        console.warn('No image from Google Imagen, using Unsplash fallback');
+        console.warn('No image from HuggingFace, using Unsplash fallback');
         await generateImageWithUnsplash();
       }
     } catch (err: any) {
@@ -106,28 +92,27 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
         setError('Failed to generate image. Please try again or use a direct URL.');
       }
     } finally {
-      updateGenerating(false);
+      setGenerating(false);
     }
   };
 
   return (
-    <>
-      <CookingModal isOpen={generating} />
-
-      <div className="w-full">
-        <button
-          type="button"
-          onClick={generateImage}
-          disabled={generating || !recipeTitle}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-        >
-          <SparklesIcon />
-          <span>{generating ? 'Generating...' : 'Generate AI Image'}</span>
-        </button>
-        {error && (
-          <p className="text-red-600 text-sm mt-2">{error}</p>
-        )}
-      </div>
-    </>
+    <div>
+      <button
+        type="button"
+        onClick={generateImage}
+        disabled={generating || !recipeTitle}
+        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+      >
+        <SparklesIcon />
+        <span>{generating ? 'Generating...' : 'Generate AI Image'}</span>
+      </button>
+      {error && (
+        <p className="text-red-600 text-sm mt-2">{error}</p>
+      )}
+      {generating && (
+        <p className="text-gray-500 text-sm mt-2">This may take 10-20 seconds...</p>
+      )}
+    </div>
   );
 }
