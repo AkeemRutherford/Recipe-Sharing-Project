@@ -257,7 +257,7 @@ export default function Home() {
       const matchesTitle = recipe.title.toLowerCase().includes(searchLower);
       const matchesDescription = recipe.description.toLowerCase().includes(searchLower);
       const matchesTags = recipe.tags.some(tag => tag.toLowerCase().includes(searchLower));
-      const matchesAuthor = recipe.profiles?.username?.toLowerCase().includes(searchLower);
+      const matchesAuthor = recipe.profiles?.full_name?.toLowerCase().includes(searchLower);
 
       const matchesIngredients = recipe.ingredients?.some((ing: any) =>
         ing.ingredient?.toLowerCase().includes(searchLower)
