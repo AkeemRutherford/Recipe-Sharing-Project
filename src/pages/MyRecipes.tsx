@@ -35,7 +35,7 @@ export default function MyRecipes() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(full_name, avatar_url)
+          profiles!recipes_user_id_fkey(username, profile_pic_url)
         `)
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
@@ -55,7 +55,7 @@ export default function MyRecipes() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(full_name, avatar_url),
+          profiles!recipe_modifications_user_id_fkey(username, profile_pic_url),
           recipes!recipe_modifications_recipe_id_fkey(title)
         `)
         .order('created_at', { ascending: false })
@@ -80,20 +80,20 @@ export default function MyRecipes() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-airbnb-dark-gray">Loading your recipes...</div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading your recipes...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">My Recipes</h1>
           <button
-            onClick={() => navigate('/add-recipe')}
-            className="btn-primary px-6 py-3 text-white font-semibold rounded-lg shadow-md"
+            onClick={() => navigate('/create-recipe-method')}
+            className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition shadow-md"
           >
             + Add Recipe
           </button>
@@ -107,8 +107,8 @@ export default function MyRecipes() {
               <div className="bg-white rounded-xl shadow-lg p-12 text-center">
                 <p className="text-xl text-gray-500 mb-4">You haven't created any recipes yet</p>
                 <button
-                  onClick={() => navigate('/add-recipe')}
-                  className="btn-primary px-6 py-3 text-white font-semibold rounded-lg"
+                  onClick={() => navigate('/create-recipe-method')}
+                  className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-lg hover:from-amber-700 hover:to-orange-600 transition"
                 >
                   Create Your First Recipe
                 </button>
@@ -143,7 +143,7 @@ export default function MyRecipes() {
                                 e.stopPropagation();
                                 navigate(`/?tags=${tag.toLowerCase()}`);
                               }}
-                              className="bg-gray-100 text-gray-700 text-xs px-3 py-1 rounded-full hover:bg-airbnb-hof hover:text-airbnb-rausch transition"
+                              className="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full hover:bg-amber-200 transition"
                             >
                               {tag}
                             </button>
@@ -180,7 +180,7 @@ export default function MyRecipes() {
                   {recentModifications.map(mod => (
                     <div
                       key={mod.id}
-                      className="border-l-4 border-airbnb-rausch pl-4 py-2 hover:bg-gray-50 transition cursor-pointer rounded"
+                      className="border-l-4 border-amber-400 pl-4 py-2 hover:bg-amber-50 transition cursor-pointer rounded"
                       onClick={() => navigate(`/recipe/${mod.recipe_id}`)}
                     >
                       <div className="flex items-start space-x-2 mb-1">
