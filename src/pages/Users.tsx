@@ -145,8 +145,8 @@ export default function Users() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-2xl text-airbnb-rausch font-semibold">Loading community...</div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-2xl text-amber-600 font-semibold">Loading community...</div>
       </div>
     );
   }
@@ -168,7 +168,7 @@ export default function Users() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search users by name, username, or bio..."
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             />
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
               <SearchIcon />
@@ -182,8 +182,8 @@ export default function Users() {
                 onClick={() => setSortBy('active')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'active'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
                 }`}
               >
                 Most Active
@@ -192,8 +192,8 @@ export default function Users() {
                 onClick={() => setSortBy('followers')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'followers'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
                 }`}
               >
                 Most Followers
@@ -202,8 +202,8 @@ export default function Users() {
                 onClick={() => setSortBy('newest')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'newest'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
                 }`}
               >
                 Newest Members
@@ -212,8 +212,8 @@ export default function Users() {
                 onClick={() => setSortBy('alphabetical')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'alphabetical'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-amber-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-amber-400'
                 }`}
               >
                 A-Z
@@ -241,17 +241,17 @@ export default function Users() {
                       <img
                         src={userProfile.profile_pic_url}
                         alt={userProfile.username}
-                        className="w-24 h-24 rounded-full mb-4 border-4 border-gray-200"
+                        className="w-24 h-24 rounded-full mb-4 border-4 border-amber-200"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-4xl font-bold text-gray-700 mb-4 border-4 border-gray-200">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center text-4xl font-bold text-amber-700 mb-4 border-4 border-amber-200">
                         {userProfile.username?.charAt(0).toUpperCase()}
                       </div>
                     )}
 
                     <button
                       onClick={() => navigate(`/profile/${userProfile.username}`)}
-                      className="text-xl font-bold text-gray-800 hover:text-airbnb-rausch transition mb-2"
+                      className="text-xl font-bold text-gray-800 hover:text-amber-600 transition mb-2"
                     >
                       {userProfile.username}
                     </button>
@@ -280,8 +280,8 @@ export default function Users() {
                           onClick={() => toggleFollow(userProfile.id)}
                           className={`flex-1 px-4 py-2 rounded-lg transition font-semibold text-sm ${
                             followingIds.has(userProfile.id)
-                              ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                              : 'btn-primary text-white'
+                              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white hover:from-blue-600 hover:to-indigo-600'
+                              : 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
                           }`}
                         >
                           {followingIds.has(userProfile.id) ? '✓ Following' : 'Follow'}
