@@ -35,7 +35,7 @@ export default function MyRecipes() {
         .from('recipes')
         .select(`
           *,
-          profiles!recipes_user_id_fkey(username, profile_pic_url)
+          profiles!recipes_user_id_fkey(full_name, avatar_url)
         `)
         .eq('user_id', user!.id)
         .order('created_at', { ascending: false });
@@ -55,7 +55,7 @@ export default function MyRecipes() {
         .from('recipe_modifications')
         .select(`
           *,
-          profiles!recipe_modifications_user_id_fkey(username, profile_pic_url),
+          profiles!recipe_modifications_user_id_fkey(full_name, avatar_url),
           recipes!recipe_modifications_recipe_id_fkey(title)
         `)
         .order('created_at', { ascending: false })

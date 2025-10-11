@@ -101,17 +101,18 @@ export default function Login() {
       }
 
       if (data.session) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         const { error: profileError } = await supabase
           .from('profiles')
-          .upsert({
-            id: data.user.id,
-            username: username.trim(),
-            bio: 'Demo user - exploring Forklore',
+          .update({
+            full_name: username.trim(),
             updated_at: new Date().toISOString(),
-          });
+          })
+          .eq('id', data.user.id);
 
         if (profileError) {
-          console.error('Profile creation error:', profileError);
+          console.error('Profile update error:', profileError);
         }
       }
 

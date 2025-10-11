@@ -92,16 +92,16 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75">
-      <div className="w-full max-w-2xl rounded-lg shadow-2xl p-8 bg-white">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl font-bold mb-2 text-airbnb-black font-circular">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto" style={{ background: 'rgba(44, 85, 48, 0.95)' }}>
+      <div className="w-full max-w-2xl rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 my-8" style={{ background: 'var(--forklore-cream)' }}>
+        <div className="text-center mb-4 sm:mb-6">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
             Welcome to Forklore! 🍴
           </h2>
-          <p className="text-airbnb-dark-gray">Let's personalize your culinary journey</p>
+          <p className="text-sm sm:text-base" style={{ color: 'var(--forklore-warm-brown)' }}>Let's personalize your culinary journey</p>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-airbnb-dark-gray">Step {step} of {totalSteps}</span>
             <span className="text-sm text-airbnb-dark-gray">{Math.round((step / totalSteps) * 100)}%</span>
@@ -120,6 +120,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
           </div>
         )}
 
+        <div className="max-h-[50vh] sm:max-h-[60vh] overflow-y-auto mb-4 sm:mb-6 px-1">
         {step === 1 && (
           <div className="space-y-4">
             <h3 className="text-xl font-semibold mb-4 text-airbnb-black">Tell us about yourself</h3>
@@ -425,32 +426,34 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             </div>
           </div>
         )}
+        </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 mt-4 sm:mt-6 pt-4 border-t" style={{ borderColor: 'rgba(139, 111, 71, 0.2)' }}>
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className="btn-secondary px-6 py-3 rounded-lg font-semibold"
+              className="btn-secondary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base"
               disabled={loading}
             >
               ← Back
             </button>
           )}
 
-          <div className="ml-auto flex gap-2">
+          <div className="sm:ml-auto flex gap-2 flex-1 sm:flex-initial">
             {step < totalSteps ? (
               <>
                 {step > 2 && (
                   <button
                     onClick={() => setStep(step + 1)}
-                    className="px-6 py-3 rounded-lg font-semibold text-gray-600 bg-transparent hover:bg-gray-50"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
+                    style={{ color: 'var(--forklore-warm-brown)', background: 'transparent' }}
                   >
                     Skip
                   </button>
                 )}
                 <button
                   onClick={() => setStep(step + 1)}
-                  className="btn-primary px-6 py-3 rounded-lg font-semibold"
+                  className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
                   disabled={!canContinue() || loading}
                 >
                   Continue →
@@ -459,7 +462,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             ) : (
               <button
                 onClick={handleSubmit}
-                className="btn-primary px-6 py-3 rounded-lg font-semibold"
+                className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
                 disabled={loading || !canContinue()}
               >
                 {loading ? 'Saving...' : 'Complete Setup →'}
