@@ -169,6 +169,25 @@ export default function Header() {
                       My Recipes
                     </button>
                     <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate('/site-assets');
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 text-sm"
+                    >
+                      Site Assets
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        navigate('/initialize-assets');
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100 text-sm"
+                      style={{ color: 'var(--forklore-warm-red)' }}
+                    >
+                      Initialize Assets
+                    </button>
+                    <button
                       onClick={handleSignOut}
                       className="w-full text-left px-4 py-3 hover:bg-gray-50 transition text-red-600 font-semibold flex items-center space-x-2"
                     >

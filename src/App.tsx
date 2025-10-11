@@ -10,6 +10,8 @@ import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
+import SiteAssets from './pages/SiteAssets';
+import InitializeAssets from './pages/InitializeAssets';
 import Header from './components/Header';
 import Onboarding from './components/Onboarding';
 
@@ -91,6 +93,8 @@ function AppRoutes() {
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/users" element={<Users />} />
           <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/site-assets" element={<SiteAssets />} />
+          <Route path="/initialize-assets" element={<InitializeAssets />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
