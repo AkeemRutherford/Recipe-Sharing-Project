@@ -23,7 +23,7 @@ export default function SavedRecipes() {
   const loadSavedRecipes = async () => {
     try {
       const { data, error } = await supabase
-        .from('saved_recipes')
+        .from('recipe_saves')
         .select(`
           recipe_id,
           recipes (
@@ -49,7 +49,7 @@ export default function SavedRecipes() {
     event.stopPropagation();
     try {
       await supabase
-        .from('saved_recipes')
+        .from('recipe_saves')
         .delete()
         .eq('user_id', user!.id)
         .eq('recipe_id', recipeId);

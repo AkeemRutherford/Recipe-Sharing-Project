@@ -185,7 +185,7 @@ export default function Home() {
   const loadUserSavedRecipes = async () => {
     try {
       const { data, error } = await supabase
-        .from('saved_recipes')
+        .from('recipe_saves')
         .select('recipe_id')
         .eq('user_id', user!.id);
 
@@ -232,7 +232,7 @@ export default function Home() {
     try {
       if (userSavedRecipes.has(recipeId)) {
         await supabase
-          .from('saved_recipes')
+          .from('recipe_saves')
           .delete()
           .eq('user_id', user.id)
           .eq('recipe_id', recipeId);
@@ -244,7 +244,7 @@ export default function Home() {
         });
       } else {
         await supabase
-          .from('saved_recipes')
+          .from('recipe_saves')
           .insert({ user_id: user.id, recipe_id: recipeId });
 
         setUserSavedRecipes(prev => new Set(prev).add(recipeId));

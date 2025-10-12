@@ -82,6 +82,7 @@ function AppRoutes() {
   return (
     <>
       {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
+      {!showOnboarding && <Header />}
       <main className="bg-white min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -90,8 +91,9 @@ function AppRoutes() {
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/users" element={<Users />} />
-          <Route path="/saved" element={<SavedRecipes />} />
+          <Route path="/saved-recipes" element={<SavedRecipes />} />
           <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
