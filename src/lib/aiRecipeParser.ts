@@ -70,6 +70,9 @@ async function parseDescriptionWithGemini(description: string): Promise<ParsedRe
     throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.');
   }
 
+  console.log('=== GEMINI API CALL ===');
+  console.log('Input description:', description);
+
   const prompt = `You are a creative recipe AI assistant. Your job is to take ANY recipe description, no matter how vague or incomplete, and turn it into a structured recipe. BE EXTREMELY CREATIVE and make reasonable assumptions.
 
 Recipe Description:
@@ -156,6 +159,9 @@ BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
     const data = await response.json();
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
+    console.log('Gemini raw response:', data);
+    console.log('Generated text:', generatedText);
+
     if (!generatedText) {
       console.error('No generated text from Gemini:', data);
       throw new Error('No generated text from Gemini API');
@@ -166,8 +172,11 @@ BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
     cleanedText = cleanedText.replace(/```\n?/g, '');
     cleanedText = cleanedText.trim();
 
+    console.log('Cleaned text:', cleanedText);
+
     try {
       const recipeData = JSON.parse(cleanedText);
+      console.log('Parsed recipe data:', recipeData);
 
       if (!recipeData.ingredients || recipeData.ingredients.length === 0) {
         recipeData.ingredients = [

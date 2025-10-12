@@ -48,31 +48,28 @@ export default function VoiceInput({
     };
 
     recognition.onresult = (event: any) => {
-      console.log('Speech detected!', event.results.length, 'results');
+      console.log('Speech detected!', event.results.length, 'results', 'resultIndex:', event.resultIndex);
 
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
       }
 
-      let newFinalText = '';
       let interimTranscript = '';
 
-      for (let i = 0; i < event.results.length; i++) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
+        console.log(`Result ${i}: isFinal=${event.results[i].isFinal}, text="${transcript}"`);
 
         if (event.results[i].isFinal) {
-          newFinalText += transcript + ' ';
+          finalTranscriptRef.current += transcript + ' ';
+          console.log('Added final text, total now:', finalTranscriptRef.current);
         } else {
           interimTranscript += transcript;
         }
       }
 
-      if (newFinalText) {
-        finalTranscriptRef.current += newFinalText;
-      }
-
       const displayText = finalTranscriptRef.current + interimTranscript;
-      console.log('Current transcript:', displayText);
+      console.log('Display text:', displayText);
       setCurrentTranscript(displayText);
 
       const fullText = displayText.trim();
