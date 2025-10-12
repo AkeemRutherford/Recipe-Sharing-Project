@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Recipe, RecipeModification } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
+import Header from '../components/Header';
 
 const HeartIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -126,8 +127,10 @@ export default function MyRecipes() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-gray-800">My Recipes</h1>
           <button
@@ -272,5 +275,6 @@ export default function MyRecipes() {
         </div>
       </div>
     </div>
+    </>
   );
 }

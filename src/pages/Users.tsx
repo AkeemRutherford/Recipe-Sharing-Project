@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
 
 const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>;
 
@@ -152,8 +153,10 @@ export default function Users() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--gradient-background)' }}>
-      <div className="max-w-7xl mx-auto">
+    <>
+      <Header />
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--gradient-background)' }}>
+        <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-extrabold mb-4" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
             Forklore Community
@@ -296,5 +299,6 @@ export default function Users() {
         )}
       </div>
     </div>
+    </>
   );
 }

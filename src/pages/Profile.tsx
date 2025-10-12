@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatTimeAgo, groupActivitiesByDate } from '../lib/timeAgo';
+import Header from '../components/Header';
 
 const HeartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
@@ -42,7 +43,7 @@ export default function Profile() {
   });
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following'>('recipes');
+  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following' | 'settings'>('recipes');
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
@@ -52,6 +53,7 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [editProfilePic, setEditProfilePic] = useState('');
   const [editFavoriteTags, setEditFavoriteTags] = useState<string[]>([]);
+  const [measurementSystem, setMeasurementSystem] = useState<'imperial' | 'metric'>('imperial');
 
   const availableTags = ['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Quick', 'Easy', 'Healthy', 'Comfort Food', 'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Holiday', 'Weeknight', 'Kosher'];
 
@@ -264,9 +266,12 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-airbnb-dark-gray">Loading profile...</div>
-      </div>
+      <>
+        <Header />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-xl text-gray-600">Loading profile...</div>
+        </div>
+      </>
     );
   }
 
@@ -275,8 +280,10 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-6xl mx-auto px-4">
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
           <div className="h-32 bg-gradient-to-r from-gray-100 to-gray-200"></div>
@@ -390,7 +397,7 @@ export default function Profile() {
               onClick={() => setActiveTab('recipes')}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'recipes'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-pink-500 border-b-2 border-pink-500'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -403,7 +410,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'activity'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-pink-500 border-b-2 border-pink-500'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -416,7 +423,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'followers'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-pink-500 border-b-2 border-pink-500'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -429,12 +436,24 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'following'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-pink-500 border-b-2 border-pink-500'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
               Following ({stats.followingCount})
             </button>
+            {isOwnProfile && (
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+                  activeTab === 'settings'
+                    ? 'text-pink-500 border-b-2 border-pink-500'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Settings
+              </button>
+            )}
           </div>
 
           {activeTab === 'recipes' && (
@@ -648,6 +667,45 @@ export default function Profile() {
               )}
             </div>
           )}
+
+          {activeTab === 'settings' && isOwnProfile && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4">Account Settings</h3>
+
+                <div className="space-y-4">
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Measurement Units
+                    </label>
+                    <p className="text-sm text-gray-600 mb-3">
+                      Choose your preferred measurement system for recipes
+                    </p>
+                    <select
+                      value={measurementSystem}
+                      onChange={(e) => setMeasurementSystem(e.target.value as 'imperial' | 'metric')}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    >
+                      <option value="imperial">Imperial (cups, oz, °F)</option>
+                      <option value="metric">Metric (ml, g, °C)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-200">
+                <button
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    navigate('/login');
+                  }}
+                  className="w-full px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -723,5 +781,6 @@ export default function Profile() {
         </div>
       )}
     </div>
+    </>
   );
 }

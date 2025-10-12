@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 import VoiceInput from '../components/VoiceInput';
+import Header from '../components/Header';
 
 const BackIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -159,15 +160,17 @@ export default function EditRecipe() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6"
-        >
-          <BackIcon />
-          <span>Back</span>
-        </button>
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 font-semibold mb-6"
+          >
+            <BackIcon />
+            <span>Back</span>
+          </button>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-6">Edit Recipe</h1>
@@ -334,5 +337,6 @@ export default function EditRecipe() {
         </div>
       </div>
     </div>
+    </>
   );
 }

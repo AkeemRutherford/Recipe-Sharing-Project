@@ -6,6 +6,7 @@ import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 import VoiceInput from '../components/VoiceInput';
 import { parseDescriptionToRecipe } from '../lib/aiRecipeParser';
+import Header from '../components/Header';
 
 const BackIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -163,13 +164,15 @@ export default function AddRecipe() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6"
-        >
-          <BackIcon />
+    <>
+      <Header />
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 font-semibold mb-6"
+          >
+            <BackIcon />
           <span>Back</span>
         </button>
 
@@ -485,5 +488,6 @@ export default function AddRecipe() {
         </div>
       )}
     </div>
+    </>
   );
 }
