@@ -11,6 +11,7 @@ const BackIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height
 const ScaleIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>;
 const ChefHatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 13.87A4 4 0 0 1 7.41 6a5.11 5.11 0 0 1 1.05-1.54 5 5 0 0 1 7.08 0A5.11 5.11 0 0 1 16.59 6 4 4 0 0 1 18 13.87V21H6Z"/><line x1="6" y1="17" x2="18" y2="17"/></svg>;
 const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
+const ShareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
 
 function RecipeScaler({ originalServings, currentServings, onServingsChange }: { originalServings: number; currentServings: number; onServingsChange: (n: number) => void }) {
   return (
@@ -67,6 +68,7 @@ export default function RecipeDetail() {
   const [originalSystem, setOriginalSystem] = useState<MeasurementSystem>('imperial');
   const [commentSortBy, setCommentSortBy] = useState<'recent' | 'liked' | 'oldest'>('recent');
   const [appliedModifications, setAppliedModifications] = useState<Set<string>>(new Set());
+  const [showShareToast, setShowShareToast] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -248,6 +250,35 @@ export default function RecipeDetail() {
     }
   };
 
+  const handleShare = async () => {
+    const recipeUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: recipe?.title,
+          text: recipe?.description,
+          url: recipeUrl,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(recipeUrl);
+        }
+      }
+    } else {
+      copyToClipboard(recipeUrl);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 3000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
+  };
+
   const scaleFactor = recipe ? currentServings / recipe.servings : 1;
 
   const scaledIngredients = useMemo(() => {
@@ -357,6 +388,11 @@ export default function RecipeDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {showShareToast && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+          Link copied to clipboard!
+        </div>
+      )}
       <div className="max-w-6xl mx-auto p-4 md:p-8">
         <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark font-semibold mb-6 group">
           <BackIcon />
@@ -389,14 +425,23 @@ export default function RecipeDetail() {
                     </div>
                   </div>
                 </div>
-                {user && recipe.user_id === user.id && (
+                <div className="flex gap-3">
                   <button
-                    onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
-                    className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-full shadow-lg transition backdrop-blur-sm"
+                    onClick={handleShare}
+                    className="px-6 py-3 bg-white/90 hover:bg-white text-gray-700 font-semibold rounded-full shadow-lg transition backdrop-blur-sm flex items-center space-x-2"
                   >
-                    Edit Recipe
+                    <ShareIcon />
+                    <span>Share</span>
                   </button>
-                )}
+                  {user && recipe.user_id === user.id && (
+                    <button
+                      onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
+                      className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-full shadow-lg transition backdrop-blur-sm"
+                    >
+                      Edit Recipe
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
