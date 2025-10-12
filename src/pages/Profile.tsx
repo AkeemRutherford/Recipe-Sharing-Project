@@ -8,6 +8,9 @@ const HeartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" heigh
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+const SettingsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m5.2-13.2-4.2 4.2m-6 6-4.2 4.2M1 12h6m6 0h6m-13.2 5.2 4.2-4.2m6-6 4.2-4.2"/></svg>;
+const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
+const ChevronUpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"/></svg>;
 
 interface ProfileData {
   id: string;
@@ -42,7 +45,7 @@ export default function Profile() {
   });
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following'>('recipes');
+  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following' | 'settings'>('recipes');
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
@@ -52,6 +55,12 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [editProfilePic, setEditProfilePic] = useState('');
   const [editFavoriteTags, setEditFavoriteTags] = useState<string[]>([]);
+
+  const [settingsExpanded, setSettingsExpanded] = useState(false);
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [recipeUpdates, setRecipeUpdates] = useState(false);
+  const [measurementUnits, setMeasurementUnits] = useState('imperial');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const availableTags = ['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Quick', 'Easy', 'Healthy', 'Comfort Food', 'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Holiday', 'Weeknight', 'Kosher'];
 
@@ -90,6 +99,10 @@ export default function Profile() {
         loadStats(profileData.id),
         loadFollowStatus(profileData.id),
       ]);
+
+      if (isOwnProfile) {
+        loadUserPreferences();
+      }
     } catch (err) {
       console.error('Error loading profile:', err);
     } finally {
@@ -260,6 +273,93 @@ export default function Profile() {
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+  };
+
+  const loadUserPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        setEmailNotifications(data.email_notifications);
+        setRecipeUpdates(data.recipe_updates);
+        setMeasurementUnits(data.measurement_units);
+      }
+    } catch (err) {
+      console.error('Error loading preferences:', err);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    if (!user) return;
+
+    try {
+      const { data: existing } = await supabase
+        .from('user_preferences')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existing) {
+        const { error } = await supabase
+          .from('user_preferences')
+          .update({
+            email_notifications: emailNotifications,
+            recipe_updates: recipeUpdates,
+            measurement_units: measurementUnits,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('user_preferences')
+          .insert({
+            user_id: user.id,
+            email_notifications: emailNotifications,
+            recipe_updates: recipeUpdates,
+            measurement_units: measurementUnits,
+          });
+
+        if (error) throw error;
+      }
+
+      alert('Settings saved successfully!');
+    } catch (err: any) {
+      console.error('Error saving settings:', err);
+      alert(`Failed to save settings: ${err.message}`);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      navigate('/login');
+    } catch (err) {
+      console.error('Error signing out:', err);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(user.id);
+      if (error) throw error;
+      navigate('/login');
+    } catch (err: any) {
+      console.error('Error deleting account:', err);
+      alert(`Failed to delete account: ${err.message}`);
+    }
   };
 
   if (loading) {
@@ -435,6 +535,18 @@ export default function Profile() {
             >
               Following ({stats.followingCount})
             </button>
+            {isOwnProfile && (
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
+                  activeTab === 'settings'
+                    ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Settings
+              </button>
+            )}
           </div>
 
           {activeTab === 'recipes' && (
@@ -648,8 +760,135 @@ export default function Profile() {
               )}
             </div>
           )}
+
+          {activeTab === 'settings' && isOwnProfile && (
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <button
+                  onClick={() => setSettingsExpanded(!settingsExpanded)}
+                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition"
+                >
+                  <div className="flex items-center space-x-3">
+                    <SettingsIcon />
+                    <h3 className="text-xl font-bold text-gray-800">Account Settings</h3>
+                  </div>
+                  {settingsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                </button>
+
+                {settingsExpanded && (
+                  <div className="p-6 pt-0 space-y-6">
+                    <div className="border-t border-gray-200 pt-6">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Notification Preferences</h4>
+
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-gray-800">Email Notifications</p>
+                            <p className="text-sm text-gray-600">Receive updates via email</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={emailNotifications}
+                              onChange={(e) => setEmailNotifications(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
+                          </label>
+                        </div>
+
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                          <div>
+                            <p className="font-medium text-gray-800">Recipe Updates</p>
+                            <p className="text-sm text-gray-600">Get notified about recipe interactions</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={recipeUpdates}
+                              onChange={(e) => setRecipeUpdates(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-6">
+                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Display Preferences</h4>
+
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <label className="block">
+                          <span className="font-medium text-gray-800 mb-2 block">Measurement Units</span>
+                          <select
+                            value={measurementUnits}
+                            onChange={(e) => setMeasurementUnits(e.target.value)}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
+                          >
+                            <option value="imperial">Imperial (cups, oz, °F)</option>
+                            <option value="metric">Metric (ml, g, °C)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-6">
+                      <button
+                        onClick={handleSaveSettings}
+                        className="btn-primary w-full px-6 py-3 text-white rounded-lg font-semibold"
+                      >
+                        Save Settings
+                      </button>
+                    </div>
+
+                    <div className="border-t border-gray-200 pt-6">
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition mb-3"
+                      >
+                        Sign Out
+                      </button>
+
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="w-full px-6 py-3 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 transition"
+                      >
+                        Delete Account
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Delete Account</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete your account? This action cannot be undone and all your recipes and data will be permanently deleted.
+            </p>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleDeleteAccount}
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+              >
+                Delete Account
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Profile Modal */}
       {editModalOpen && (

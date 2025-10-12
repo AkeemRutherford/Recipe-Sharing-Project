@@ -6,11 +6,11 @@ import { useAuth } from '../contexts/AuthContext';
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
 const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
-const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
-const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+const BookmarkIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
+const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 
-function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onTagClick: (tag: string) => void }) {
+function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onSave: (recipeId: string) => void; isSaved: boolean; onTagClick: (tag: string) => void }) {
   const navigate = useNavigate();
 
   return (
@@ -27,7 +27,14 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onSave(recipe.id); }}
+            className={`p-2 rounded-full ${isSaved ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            title={isSaved ? "Remove from saved" : "Save recipe"}
+          >
+            <BookmarkIcon filled={isSaved} />
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
             className={`p-2 rounded-full ${isLiked ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
@@ -85,6 +92,7 @@ export default function Home() {
   const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [userSavedRecipes, setUserSavedRecipes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(['all']);
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending' | 'recommended'>('recent');
@@ -100,6 +108,7 @@ export default function Home() {
     loadRecipes();
     if (user) {
       loadUserLikes();
+      loadUserSavedRecipes();
       loadUserFavoriteTags();
       loadFollowing();
     }
@@ -124,6 +133,10 @@ export default function Home() {
     const sortParam = searchParams.get('sort');
     if (sortParam && ['recent', 'popular', 'trending'].includes(sortParam)) {
       setSortBy(sortParam as 'recent' | 'popular' | 'trending');
+    }
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchQuery(searchParam);
     }
   }, [searchParams]);
 
@@ -160,6 +173,20 @@ export default function Home() {
     }
   };
 
+  const loadUserSavedRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('recipe_id')
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      setUserSavedRecipes(new Set(data.map(saved => saved.recipe_id)));
+    } catch (err) {
+      console.error('Error loading saved recipes:', err);
+    }
+  };
+
   const toggleLike = async (recipeId: string) => {
     if (!user) return;
 
@@ -187,6 +214,34 @@ export default function Home() {
       await loadRecipes();
     } catch (err) {
       console.error('Error toggling like:', err);
+    }
+  };
+
+  const toggleSave = async (recipeId: string) => {
+    if (!user) return;
+
+    try {
+      if (userSavedRecipes.has(recipeId)) {
+        await supabase
+          .from('saved_recipes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recipe_id', recipeId);
+
+        setUserSavedRecipes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(recipeId);
+          return newSet;
+        });
+      } else {
+        await supabase
+          .from('saved_recipes')
+          .insert({ user_id: user.id, recipe_id: recipeId });
+
+        setUserSavedRecipes(prev => new Set(prev).add(recipeId));
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
     }
   };
 
@@ -385,21 +440,6 @@ export default function Home() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="mb-6">
-        <div className="relative">
-          <input
-            type="text"
-            value={searchQuery}
-            placeholder="Search recipes, ingredients, occasions..."
-            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent shadow-sm text-gray-800 placeholder-gray-500"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-            <SearchIcon />
-          </div>
-        </div>
-      </div>
-
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
@@ -601,6 +641,8 @@ export default function Home() {
               recipe={recipe}
               onLike={toggleLike}
               isLiked={userLikes.has(recipe.id)}
+              onSave={toggleSave}
+              isSaved={userSavedRecipes.has(recipe.id)}
               onTagClick={handleTagClick}
             />
           ))}
