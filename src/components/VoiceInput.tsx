@@ -20,10 +20,10 @@ export default function VoiceInput({
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  const [currentTranscript, setCurrentTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
   const silenceTimeoutRef = useRef<any>(null);
   const finalTranscriptRef = useRef<string>('');
-  const interimTranscriptRef = useRef<string>('');
   const durationIntervalRef = useRef<any>(null);
 
   useEffect(() => {
@@ -41,26 +41,34 @@ export default function VoiceInput({
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => {
-      console.log('Speech recognition started');
+      console.log('Speech recognition started - microphone is active');
       setIsListening(true);
     };
 
     recognition.onresult = (event: any) => {
+      console.log('Speech detected!', event.results.length, 'results');
+
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
       }
 
-      interimTranscriptRef.current = '';
+      let interimTranscript = '';
+      let finalTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
           finalTranscriptRef.current += transcript + ' ';
         } else {
-          interimTranscriptRef.current += transcript;
+          interimTranscript += transcript;
         }
       }
+
+      const displayText = finalTranscriptRef.current + interimTranscript;
+      console.log('Current transcript:', displayText);
+      setCurrentTranscript(displayText);
 
       silenceTimeoutRef.current = setTimeout(() => {
         console.log('Long pause detected, but continuing to listen...');
@@ -71,13 +79,13 @@ export default function VoiceInput({
       console.error('Speech recognition error:', event.error);
 
       if (event.error === 'no-speech') {
-        console.log('No speech detected, continuing to listen...');
+        console.log('No speech detected yet, continuing to listen...');
         return;
       }
 
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setIsListening(false);
-        alert('Microphone access denied. Please enable microphone permissions.');
+        alert('Microphone access denied. Please enable microphone permissions in your browser settings.');
         return;
       }
 
@@ -156,15 +164,14 @@ export default function VoiceInput({
   const startListening = () => {
     if (recognitionRef.current) {
       finalTranscriptRef.current = '';
-      interimTranscriptRef.current = '';
+      setCurrentTranscript('');
 
       try {
         recognitionRef.current.start();
-        setIsListening(true);
-        console.log('Voice recognition started - speak now!');
+        console.log('🎤 Voice recognition starting... Please allow microphone access if prompted.');
       } catch (error) {
         console.error('Error starting recognition:', error);
-        alert('Could not start voice recognition. Error: ' + error);
+        alert('Could not start voice recognition. Make sure you are using Chrome, Edge, or Safari, and have granted microphone permissions.');
       }
     }
   };
@@ -181,17 +188,20 @@ export default function VoiceInput({
           recognitionRef.current.stop();
 
           const finalText = finalTranscriptRef.current.trim();
-          console.log('Final transcript:', finalText);
+          console.log('✅ Final transcript:', finalText);
 
           if (finalText) {
             const currentValue = value || '';
             const separator = currentValue && !currentValue.endsWith(' ') && !currentValue.endsWith('.') ? ' ' : '';
             const newValue = currentValue + separator + finalText;
+            console.log('Updating field with:', newValue);
             onChange(newValue);
+          } else {
+            console.log('No text was captured');
           }
 
           finalTranscriptRef.current = '';
-          interimTranscriptRef.current = '';
+          setCurrentTranscript('');
         } catch (error) {
           console.error('Error stopping recognition:', error);
         }
@@ -243,13 +253,17 @@ export default function VoiceInput({
               ⏱️ {formatDuration(recordingDuration)}
             </span>
           </div>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 mb-2">
             Natural pauses are OK. Click "Stop" when finished.
           </p>
-          {finalTranscriptRef.current && (
+          {currentTranscript ? (
             <div className="mt-2 p-2 bg-white rounded border border-green-300">
-              <p className="text-xs text-gray-500 mb-1">Captured:</p>
-              <p className="text-sm text-gray-800">{finalTranscriptRef.current}</p>
+              <p className="text-xs text-gray-500 mb-1">Captured so far:</p>
+              <p className="text-sm text-gray-800">{currentTranscript}</p>
+            </div>
+          ) : (
+            <div className="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+              <p className="text-xs text-yellow-700">Waiting for speech... Make sure your microphone is on.</p>
             </div>
           )}
         </div>
