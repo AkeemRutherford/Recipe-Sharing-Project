@@ -24,6 +24,7 @@ export default function VoiceInput({
   const recognitionRef = useRef<any>(null);
   const silenceTimeoutRef = useRef<any>(null);
   const finalTranscriptRef = useRef<string>('');
+  const interimTranscriptRef = useRef<string>('');
   const durationIntervalRef = useRef<any>(null);
   const isListeningRef = useRef(false);
 
@@ -54,7 +55,7 @@ export default function VoiceInput({
         clearTimeout(silenceTimeoutRef.current);
       }
 
-      let interimTranscript = '';
+      interimTranscriptRef.current = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
@@ -64,11 +65,11 @@ export default function VoiceInput({
           finalTranscriptRef.current += transcript + ' ';
           console.log('Added final text, total now:', finalTranscriptRef.current);
         } else {
-          interimTranscript += transcript;
+          interimTranscriptRef.current += transcript;
         }
       }
 
-      const displayText = finalTranscriptRef.current + interimTranscript;
+      const displayText = finalTranscriptRef.current + interimTranscriptRef.current;
       console.log('Display text:', displayText);
       setCurrentTranscript(displayText);
 
@@ -86,7 +87,12 @@ export default function VoiceInput({
       console.error('Speech recognition error:', event.error);
 
       if (event.error === 'aborted') {
-        console.log('Recognition was aborted - will restart automatically');
+        console.log('Recognition was aborted - saving interim text and will restart');
+        if (interimTranscriptRef.current) {
+          finalTranscriptRef.current += interimTranscriptRef.current + ' ';
+          interimTranscriptRef.current = '';
+          console.log('Saved interim text, total now:', finalTranscriptRef.current);
+        }
         return;
       }
 
@@ -182,6 +188,7 @@ export default function VoiceInput({
   const startListening = () => {
     if (recognitionRef.current) {
       finalTranscriptRef.current = value ? value + ' ' : '';
+      interimTranscriptRef.current = '';
       setCurrentTranscript(value || '');
 
       try {
@@ -210,6 +217,7 @@ export default function VoiceInput({
       }
 
       finalTranscriptRef.current = '';
+      interimTranscriptRef.current = '';
       setCurrentTranscript('');
     }
   };
