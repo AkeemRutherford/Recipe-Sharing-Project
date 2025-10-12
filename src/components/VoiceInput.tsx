@@ -27,6 +27,8 @@ export default function VoiceInput({
   const interimTranscriptRef = useRef<string>('');
   const durationIntervalRef = useRef<any>(null);
   const isListeningRef = useRef(false);
+  const restartAttemptRef = useRef(0);
+  const lastResultTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -42,6 +44,13 @@ export default function VoiceInput({
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
+    if ('speechSynthesis' in window) {
+      try {
+        (recognition as any).serviceURI = undefined;
+      } catch (e) {
+      }
+    }
+
     recognition.onstart = () => {
       console.log('Speech recognition started - microphone is active');
       setIsListening(true);
@@ -49,6 +58,9 @@ export default function VoiceInput({
     };
 
     recognition.onresult = (event: any) => {
+      lastResultTimeRef.current = Date.now();
+      restartAttemptRef.current = 0;
+
       console.log('Speech detected!', event.results.length, 'results', 'resultIndex:', event.resultIndex);
 
       if (silenceTimeoutRef.current) {
@@ -126,7 +138,13 @@ export default function VoiceInput({
       console.log('Speech recognition ended');
 
       if (isListeningRef.current) {
-        console.log('Auto-restarting speech recognition...');
+        const timeSinceLastResult = Date.now() - lastResultTimeRef.current;
+        restartAttemptRef.current++;
+
+        const delay = Math.min(300 + (restartAttemptRef.current * 100), 1000);
+
+        console.log(`Auto-restarting in ${delay}ms (attempt ${restartAttemptRef.current}, ${timeSinceLastResult}ms since last result)...`);
+
         setTimeout(() => {
           if (isListeningRef.current && recognitionRef.current) {
             try {
@@ -137,7 +155,7 @@ export default function VoiceInput({
               isListeningRef.current = false;
             }
           }
-        }, 100);
+        }, delay);
       }
     };
 
@@ -189,6 +207,8 @@ export default function VoiceInput({
     if (recognitionRef.current) {
       finalTranscriptRef.current = value ? value + ' ' : '';
       interimTranscriptRef.current = '';
+      restartAttemptRef.current = 0;
+      lastResultTimeRef.current = Date.now();
       setCurrentTranscript(value || '');
 
       try {
