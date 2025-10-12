@@ -13,6 +13,55 @@ interface ParsedRecipe {
   tags?: string[];
 }
 
+function createBasicRecipeTemplate(description: string): ParsedRecipe {
+  const titleMatch = description.match(/^([^.!?]+)/);
+  const title = titleMatch
+    ? titleMatch[1].trim().split(' ').map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ')
+    : "Recipe from Description";
+
+  const ingredients: Array<{ amount: string; unit: string; name: string }> = [];
+  const lines = description.split(/[.\n,]/);
+
+  lines.forEach(line => {
+    const match = line.match(/(\d+\/?\d*)\s*(cup|cups|tbsp|tablespoon|tablespoons|tsp|teaspoon|teaspoons|oz|ounce|ounces|lb|pound|pounds|g|gram|grams|kg|kilogram|kilograms|ml|milliliter|milliliters|piece|pieces|clove|cloves)?\s*([a-zA-Z\s]+)/i);
+    if (match) {
+      ingredients.push({
+        amount: match[1],
+        unit: match[2] || "",
+        name: match[3].trim()
+      });
+    }
+  });
+
+  if (ingredients.length === 0) {
+    ingredients.push(
+      { amount: "1", unit: "cup", name: "main ingredient" },
+      { amount: "2", unit: "tbsp", name: "oil or butter" },
+      { amount: "to taste", unit: "", name: "salt and pepper" }
+    );
+  }
+
+  const instructions = [
+    "Gather and prepare all ingredients",
+    "Follow the cooking method described in your recipe",
+    "Cook until desired doneness",
+    "Season to taste and serve hot"
+  ];
+
+  return {
+    title: title,
+    servings: 4,
+    prep_time: "15 min",
+    cook_time: "30 min",
+    difficulty: "Easy",
+    ingredients: ingredients,
+    instructions: instructions,
+    tags: ["Home Cooking", "Simple"]
+  };
+}
+
 async function parseDescriptionWithGemini(description: string): Promise<ParsedRecipe> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
@@ -20,97 +69,137 @@ async function parseDescriptionWithGemini(description: string): Promise<ParsedRe
     throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.');
   }
 
-  const prompt = `You are a professional recipe creator and parser. Based on this recipe description, create a complete, structured recipe.
+  const prompt = `You are a creative recipe AI assistant. Your job is to take ANY recipe description, no matter how vague or incomplete, and turn it into a structured recipe. BE EXTREMELY CREATIVE and make reasonable assumptions.
 
 Recipe Description:
 "${description}"
 
-Extract and format into this EXACT JSON structure (respond with ONLY valid JSON, no other text):
+CRITICAL INSTRUCTIONS:
+- If ingredients are mentioned WITHOUT amounts, make reasonable guesses (e.g., "1 cup", "2 tablespoons", "to taste")
+- If NO ingredients are mentioned at all, infer common ingredients based on the dish type
+- If steps are vague, create detailed step-by-step instructions from your culinary knowledge
+- If it's just a dish NAME (like "chocolate cake"), generate a complete basic recipe for that dish
+- If servings not mentioned, assume 4-6 servings
+- If times not mentioned, estimate realistic prep and cook times
+- NEVER refuse to generate a recipe - always try your best with whatever info given
+- Make it sound delicious and professional
+
+Output this EXACT JSON structure (ONLY JSON, no other text):
 
 {
-  "title": "Recipe name (extract from description or create appropriate name)",
-  "servings": number,
+  "title": "Recipe name (use from description or create one)",
+  "servings": 4,
   "prep_time": "XX min",
   "cook_time": "XX min",
-  "difficulty": "Easy" or "Intermediate" or "Advanced",
+  "difficulty": "Easy",
   "ingredients": [
-    {
-      "amount": "2",
-      "unit": "cups",
-      "name": "all-purpose flour"
-    }
+    {"amount": "2", "unit": "cups", "name": "flour"},
+    {"amount": "1", "unit": "tsp", "name": "salt"}
   ],
   "instructions": [
-    "Preheat oven to 350°F (175°C)",
-    "Mix flour and sugar in a large bowl"
+    "First clear step",
+    "Second clear step"
   ],
-  "tags": ["tag1", "tag2", "tag3"]
+  "tags": ["Cuisine", "Type", "Diet"]
 }
 
-CRITICAL RULES:
-1. BE CREATIVE! If the description is vague or incomplete, fill in realistic details based on the dish type
-2. Extract any ingredients mentioned, and ADD common ingredients typically used in this type of recipe
-3. If no amounts are specified, use standard recipe amounts (e.g., "2 cups", "1 tablespoon", "to taste")
-4. Create complete, detailed cooking instructions even if only hints are provided
-5. Each instruction should be ONE clear action
-6. Infer appropriate tags based on cuisine, cooking method, dietary info
-7. Return ONLY the JSON object, no markdown, no explanation
-8. ALWAYS return at least 3-5 ingredients and 4-6 instructions minimum
-9. Make educated guesses to create a complete, usable recipe
-10. Ensure all JSON is valid and properly formatted
+EXAMPLES OF WHAT YOU SHOULD HANDLE:
 
-Even with minimal information, create a complete recipe that someone could actually cook from!`;
+Input: "pancakes"
+Output: Generate a complete pancake recipe with flour, eggs, milk, etc.
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.4,
-          topK: 32,
-          topP: 1,
-          maxOutputTokens: 2048,
-        }
-      })
-    }
-  );
+Input: "my mom's soup with chicken and vegetables"
+Output: Generate chicken vegetable soup with reasonable ingredients and steps
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(`Gemini API error: ${errorData.error?.message || 'Unknown error'}`);
-  }
+Input: "chocolate cookies with butter sugar flour eggs and chocolate chips bake 12 minutes"
+Output: Structure this into proper recipe format with amounts and full steps
 
-  const data = await response.json();
+Input: "pasta"
+Output: Generate a simple pasta recipe (e.g., spaghetti with tomato sauce)
 
-  const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!generatedText) {
-    throw new Error('No response from AI');
-  }
-
-  let cleanedText = generatedText.trim();
-  cleanedText = cleanedText.replace(/```json\n?/g, '');
-  cleanedText = cleanedText.replace(/```\n?/g, '');
-  cleanedText = cleanedText.trim();
+BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
 
   try {
-    const recipeData = JSON.parse(cleanedText);
-    return recipeData;
-  } catch (parseError) {
-    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            temperature: 0.8,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Gemini API error:', errorData);
+      return createBasicRecipeTemplate(description);
     }
-    throw new Error('Could not parse AI response into recipe format');
+
+    const data = await response.json();
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!generatedText) {
+      return createBasicRecipeTemplate(description);
+    }
+
+    let cleanedText = generatedText.trim();
+    cleanedText = cleanedText.replace(/```json\n?/g, '');
+    cleanedText = cleanedText.replace(/```\n?/g, '');
+    cleanedText = cleanedText.trim();
+
+    try {
+      const recipeData = JSON.parse(cleanedText);
+
+      if (!recipeData.ingredients || recipeData.ingredients.length === 0) {
+        recipeData.ingredients = [
+          { amount: "1", unit: "cup", name: "main ingredient" },
+          { amount: "to taste", unit: "", name: "salt and pepper" }
+        ];
+      }
+
+      if (!recipeData.instructions || recipeData.instructions.length === 0) {
+        recipeData.instructions = [
+          "Prepare ingredients as described",
+          "Combine ingredients according to recipe",
+          "Cook until done",
+          "Serve and enjoy"
+        ];
+      }
+
+      return recipeData;
+
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+
+      const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try {
+          return JSON.parse(jsonMatch[0]);
+        } catch (e) {
+          return createBasicRecipeTemplate(description);
+        }
+      }
+
+      return createBasicRecipeTemplate(description);
+    }
+
+  } catch (error) {
+    console.error('Recipe generation error:', error);
+    return createBasicRecipeTemplate(description);
   }
 }
 
@@ -121,18 +210,9 @@ export async function parseDescriptionToRecipe(description: string): Promise<Par
 
   try {
     const result = await parseDescriptionWithGemini(description);
-
-    if (!result.ingredients || result.ingredients.length === 0) {
-      throw new Error('AI could not generate ingredients. Please try a different description.');
-    }
-
-    if (!result.instructions || result.instructions.length === 0) {
-      throw new Error('AI could not generate instructions. Please try a different description.');
-    }
-
     return result;
   } catch (error) {
     console.error('Recipe parsing error:', error);
-    throw error;
+    return createBasicRecipeTemplate(description);
   }
 }

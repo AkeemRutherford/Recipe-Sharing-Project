@@ -19,7 +19,12 @@ export default function VoiceInput({
 }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
+  const [recordingDuration, setRecordingDuration] = useState(0);
   const recognitionRef = useRef<any>(null);
+  const silenceTimeoutRef = useRef<any>(null);
+  const finalTranscriptRef = useRef<string>('');
+  const interimTranscriptRef = useRef<string>('');
+  const durationIntervalRef = useRef<any>(null);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -30,29 +35,86 @@ export default function VoiceInput({
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
 
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-
-      onChange(value ? value + ' ' + transcript : transcript);
+    recognition.onstart = () => {
+      console.log('Speech recognition started');
+      setIsListening(true);
     };
 
-    recognition.onend = () => {
-      setIsListening(false);
+    recognition.onresult = (event: any) => {
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+
+      interimTranscriptRef.current = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+
+        if (event.results[i].isFinal) {
+          finalTranscriptRef.current += transcript + ' ';
+        } else {
+          interimTranscriptRef.current += transcript;
+        }
+      }
+
+      const combinedText = finalTranscriptRef.current + interimTranscriptRef.current;
+      if (combinedText.trim()) {
+        onChange(value ? value + ' ' + combinedText.trim() : combinedText.trim());
+      }
+
+      silenceTimeoutRef.current = setTimeout(() => {
+        console.log('Long pause detected, but continuing to listen...');
+      }, 5000);
     };
 
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
-      setIsListening(false);
 
       if (event.error === 'no-speech') {
-        alert('No speech detected. Please try again.');
-      } else if (event.error === 'not-allowed') {
+        console.log('No speech detected, continuing to listen...');
+        return;
+      }
+
+      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        setIsListening(false);
         alert('Microphone access denied. Please enable microphone permissions.');
+        return;
+      }
+
+      if (event.error === 'network') {
+        console.log('Network error, attempting to restart...');
+        setTimeout(() => {
+          if (isListening && recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (err) {
+              console.error('Could not restart:', err);
+            }
+          }
+        }, 1000);
+      }
+    };
+
+    recognition.onend = () => {
+      console.log('Speech recognition ended');
+
+      if (isListening) {
+        console.log('Auto-restarting speech recognition...');
+        setTimeout(() => {
+          if (isListening && recognitionRef.current) {
+            try {
+              recognitionRef.current.start();
+            } catch (error) {
+              console.log('Could not restart, user may have stopped manually');
+              setIsListening(false);
+            }
+          }
+        }, 100);
       }
     };
 
@@ -62,20 +124,77 @@ export default function VoiceInput({
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
     };
-  }, [value, onChange]);
+  }, [isListening]);
+
+  useEffect(() => {
+    if (isListening) {
+      durationIntervalRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1);
+      }, 1000);
+    } else {
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+      setRecordingDuration(0);
+    }
+
+    return () => {
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+      }
+    };
+  }, [isListening]);
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const startListening = () => {
     if (recognitionRef.current) {
-      recognitionRef.current.start();
-      setIsListening(true);
+      finalTranscriptRef.current = '';
+      interimTranscriptRef.current = '';
+
+      try {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } catch (error) {
+        console.error('Error starting recognition:', error);
+      }
     }
   };
 
   const stopListening = () => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
       setIsListening(false);
+
+      setTimeout(() => {
+        try {
+          recognitionRef.current.stop();
+
+          if (finalTranscriptRef.current.trim()) {
+            const currentValue = value || '';
+            const separator = currentValue && !currentValue.endsWith(' ') ? ' ' : '';
+            onChange(currentValue + separator + finalTranscriptRef.current.trim());
+          }
+
+          finalTranscriptRef.current = '';
+          interimTranscriptRef.current = '';
+        } catch (error) {
+          console.error('Error stopping recognition:', error);
+        }
+      }, 100);
     }
   };
 
@@ -106,14 +225,26 @@ export default function VoiceInput({
       )}
 
       {isListening && (
-        <div className="mt-2 flex items-center space-x-2 text-red-600 text-sm font-medium animate-fade-in">
-          <div className="flex space-x-1">
-            <span className="w-1 h-4 bg-red-600 animate-wave" style={{ animationDelay: '0s' }}></span>
-            <span className="w-1 h-4 bg-red-600 animate-wave" style={{ animationDelay: '0.1s' }}></span>
-            <span className="w-1 h-4 bg-red-600 animate-wave" style={{ animationDelay: '0.2s' }}></span>
-            <span className="w-1 h-4 bg-red-600 animate-wave" style={{ animationDelay: '0.3s' }}></span>
+        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <div className="flex space-x-1">
+                <span className="w-1 h-4 bg-green-600 animate-wave" style={{ animationDelay: '0s' }}></span>
+                <span className="w-1 h-4 bg-green-600 animate-wave" style={{ animationDelay: '0.1s' }}></span>
+                <span className="w-1 h-4 bg-green-600 animate-wave" style={{ animationDelay: '0.2s' }}></span>
+                <span className="w-1 h-4 bg-green-600 animate-wave" style={{ animationDelay: '0.3s' }}></span>
+              </div>
+              <span className="text-sm text-green-700 font-semibold">
+                Listening... Take your time, natural pauses are OK!
+              </span>
+            </div>
+            <span className="text-sm font-mono text-gray-700">
+              ⏱️ {formatDuration(recordingDuration)}
+            </span>
           </div>
-          <span>Listening... Speak your description</span>
+          <p className="text-xs text-gray-600">
+            Click "Stop" when finished
+          </p>
         </div>
       )}
 

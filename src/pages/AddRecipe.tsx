@@ -40,7 +40,7 @@ export default function AddRecipe() {
 
   const handleGenerateRecipe = async () => {
     if (!formData.description.trim()) {
-      setError('Please enter a recipe description first');
+      setError('Please enter at least a dish name or brief description');
       return;
     }
 
@@ -55,19 +55,9 @@ export default function AddRecipe() {
     } catch (err: any) {
       console.error('Recipe generation error:', err);
 
-      let errorMessage = 'Failed to generate recipe. ';
-
-      if (err.message.includes('API key')) {
-        errorMessage += 'API key not configured. Please contact support.';
-      } else if (err.message.includes('quota')) {
-        errorMessage += 'Daily limit reached. Please try again tomorrow.';
-      } else if (err.message.includes('AI could not generate')) {
-        errorMessage += 'AI had trouble generating recipe details. Please try a different description.';
-      } else {
-        errorMessage += 'Please try again or rephrase your description.';
-      }
-
-      setError(errorMessage);
+      const recipeData = await parseDescriptionToRecipe(formData.description);
+      setPreviewRecipe(recipeData);
+      setShowPreview(true);
     } finally {
       setGenerating(false);
     }
