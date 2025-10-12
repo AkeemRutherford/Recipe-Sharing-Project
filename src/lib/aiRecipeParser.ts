@@ -1,5 +1,6 @@
 interface ParsedRecipe {
   title?: string;
+  description?: string;
   servings?: number;
   prep_time?: string;
   cook_time?: string;
@@ -75,6 +76,8 @@ Recipe Description:
 "${description}"
 
 CRITICAL INSTRUCTIONS:
+- Title: Create a SHORT, catchy name (3-6 words max). NOT a copy of the input. Examples: "Crispy Garlic Chicken", "Classic Beef Stew", "Honey Glazed Salmon"
+- Description: Write an enticing, appetizing description (max 200 characters) that highlights flavors and textures
 - If ingredients are mentioned WITHOUT amounts, make reasonable guesses (e.g., "1 cup", "2 tablespoons", "to taste")
 - If NO ingredients are mentioned at all, infer common ingredients based on the dish type
 - If steps are vague, create detailed step-by-step instructions from your culinary knowledge
@@ -87,7 +90,8 @@ CRITICAL INSTRUCTIONS:
 Output this EXACT JSON structure (ONLY JSON, no other text):
 
 {
-  "title": "Recipe name (use from description or create one)",
+  "title": "Short catchy recipe name (3-6 words)",
+  "description": "Appetizing description highlighting flavors (max 200 chars)",
   "servings": 4,
   "prep_time": "XX min",
   "cook_time": "XX min",

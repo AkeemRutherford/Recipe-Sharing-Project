@@ -77,6 +77,7 @@ export default function AddRecipe() {
     setFormData({
       ...formData,
       title: previewRecipe.title || formData.title,
+      description: previewRecipe.description || formData.description,
       servings: previewRecipe.servings || formData.servings,
       prep_time: previewRecipe.prep_time || formData.prep_time,
       cook_time: previewRecipe.cook_time || formData.cook_time,
@@ -391,6 +392,13 @@ export default function AddRecipe() {
                 <div className="preview-section">
                   <h4 className="text-lg font-bold text-gray-700 mb-2">Title</h4>
                   <p className="text-gray-800">{previewRecipe.title}</p>
+                </div>
+              )}
+
+              {previewRecipe.description && (
+                <div className="preview-section">
+                  <h4 className="text-lg font-bold text-gray-700 mb-2">Description</h4>
+                  <p className="text-gray-700 leading-relaxed">{previewRecipe.description}</p>
                 </div>
               )}
 
