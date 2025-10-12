@@ -85,6 +85,11 @@ export default function VoiceInput({
     recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
 
+      if (event.error === 'aborted') {
+        console.log('Recognition was aborted - will restart automatically');
+        return;
+      }
+
       if (event.error === 'no-speech') {
         console.log('No speech detected yet, continuing to listen...');
         return;
