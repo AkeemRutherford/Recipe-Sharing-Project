@@ -92,6 +92,7 @@ function AppRoutes() {
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/saved-recipes" element={<SavedRecipes />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

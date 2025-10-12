@@ -45,6 +45,7 @@ export default function Header() {
   const location = useLocation();
   const { user } = useAuth();
   const [username, setUsername] = useState('');
+  const [usernameLoading, setUsernameLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function Header() {
 
   const loadUsername = async () => {
     try {
+      setUsernameLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('username')
@@ -67,6 +69,8 @@ export default function Header() {
       }
     } catch (err) {
       console.error('Error loading username:', err);
+    } finally {
+      setUsernameLoading(false);
     }
   };
 
@@ -78,6 +82,11 @@ export default function Header() {
   };
 
   const isActive = (path: string) => location.pathname === path;
+
+  const isProfileActive = () => {
+    return location.pathname === '/profile' ||
+           (username && location.pathname === `/profile/${username}`);
+  };
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
@@ -147,19 +156,18 @@ export default function Header() {
 
             <button
               onClick={() => {
-                console.log('Profile button clicked, username:', username);
                 if (username) {
                   navigate(`/profile/${username}`);
                 } else {
-                  console.warn('Username not loaded yet');
+                  navigate('/profile');
                 }
               }}
               className={`p-2 rounded-full transition ${
-                username && isActive(`/profile/${username}`)
+                isProfileActive()
                   ? 'bg-gray-100 text-airbnb-rausch'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-airbnb-black'
               }`}
-              title="My Profile"
+              title={usernameLoading ? 'Loading profile...' : 'My Profile'}
               aria-label="My Profile"
             >
               <UserIcon />

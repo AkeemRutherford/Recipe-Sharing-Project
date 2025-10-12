@@ -69,8 +69,34 @@ export default function Profile() {
   useEffect(() => {
     if (username) {
       loadProfile();
+    } else if (user && !username) {
+      loadCurrentUserProfile();
     }
   }, [username, user]);
+
+  const loadCurrentUserProfile = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', user!.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (data?.username) {
+        navigate(`/profile/${data.username}`, { replace: true });
+      } else {
+        alert('Profile not found');
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Error loading current user profile:', err);
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadProfile = async () => {
     try {
