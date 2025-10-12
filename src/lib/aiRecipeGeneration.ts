@@ -110,31 +110,29 @@ ${source === 'voice' ? '- Extract amounts from spoken numbers (e.g., "two cups" 
 ${source === 'voice' ? '- Convert conversational language to precise cooking steps' : ''}`;
 
   const response = await fetch(
-    `${HF_API_BASE}/mistralai/Mistral-7B-Instruct-v0.2`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          max_new_tokens: source === 'voice' ? 1500 : 1000,
-          temperature: 0.5,
-          return_full_text: false
-        }
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }]
       })
     }
   );
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Recipe generation failed: ${error.error || response.statusText}`);
+    throw new Error(`Recipe generation failed: ${error.error?.message || response.statusText}`);
   }
 
   const data = await response.json();
-  const responseText = data[0]?.generated_text || '';
+  const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
   // Extract JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
