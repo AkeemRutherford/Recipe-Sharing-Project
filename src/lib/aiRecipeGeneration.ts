@@ -51,7 +51,8 @@ export async function analyzeImage(imageFile: File): Promise<string> {
 
 export async function generateRecipeFromDescription(
   description: string,
-  source: 'voice' | 'image'
+  source: 'voice' | 'image',
+  enhanceDescription: boolean = true
 ): Promise<GeneratedRecipe> {
   const prompt = `You are a professional chef and recipe creator. ${
     source === 'image'
@@ -62,8 +63,8 @@ export async function generateRecipeFromDescription(
 Return ONLY valid JSON in this exact format, with no additional text:
 
 {
-  "title": "Descriptive recipe name",
-  "description": "Brief appetizing description (1-2 sentences)",
+  "title": "Short, catchy recipe name (3-6 words max)",
+  "description": "Appetizing description that makes you want to cook this (max 200 characters)",
   "servings": 4,
   "prep_time": "15 min",
   "cook_time": "30 min",
@@ -80,6 +81,8 @@ Return ONLY valid JSON in this exact format, with no additional text:
 }
 
 Important:
+- Title: Create a SHORT, memorable name (NOT a copy of the input description). Examples: "Crispy Garlic Chicken", "Mom's Secret Meatloaf", "Golden Honey Glazed Salmon"
+- Description: ${enhanceDescription ? 'Write an enticing, professional description that highlights flavors, textures, and appeal. Make it sound delicious and inviting!' : 'Keep description brief and accurate.'} Maximum 200 characters including spaces.
 - Use realistic measurements and common units (cups, tsp, tbsp, oz, lb, g, ml)
 - Include all necessary ingredients with specific amounts
 - Write clear, numbered steps in instructions array
@@ -146,21 +149,21 @@ ${source === 'voice' ? '- Convert conversational language to precise cooking ste
   }
 }
 
-export async function generateRecipeFromImage(imageFile: File): Promise<GeneratedRecipe> {
+export async function generateRecipeFromImage(imageFile: File, enhanceDescription: boolean = true): Promise<GeneratedRecipe> {
   // Step 1: Analyze image
   const description = await analyzeImage(imageFile);
 
   // Step 2: Generate recipe from description
-  const recipe = await generateRecipeFromDescription(description, 'image');
+  const recipe = await generateRecipeFromDescription(description, 'image', enhanceDescription);
 
   return recipe;
 }
 
-export async function parseVoiceToRecipe(transcript: string): Promise<GeneratedRecipe> {
+export async function parseVoiceToRecipe(transcript: string, enhanceDescription: boolean = true): Promise<GeneratedRecipe> {
   if (!transcript || transcript.trim().length < 50) {
     throw new Error('Transcript too short. Please provide more detail about the recipe.');
   }
 
-  const recipe = await generateRecipeFromDescription(transcript, 'voice');
+  const recipe = await generateRecipeFromDescription(transcript, 'voice', enhanceDescription);
   return recipe;
 }

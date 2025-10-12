@@ -14,6 +14,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const [step, setStep] = useState<'upload' | 'analyzing' | 'generating'>('upload');
+  const [enhanceDescription, setEnhanceDescription] = useState(true);
 
   const handleFileSelect = async (file: File) => {
     setError(null);
@@ -79,7 +80,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
       // Simulate progress for better UX
       setTimeout(() => setStep('generating'), 2000);
 
-      const recipe = await generateRecipeFromImage(selectedFile);
+      const recipe = await generateRecipeFromImage(selectedFile, enhanceDescription);
       onRecipeGenerated(recipe, selectedFile);
     } catch (err: any) {
       setError(err.message || 'Failed to generate recipe. Please try again.');
@@ -206,6 +207,20 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
           <li>• Photos of plated food work better than cooking process</li>
           <li>• You can edit all details after AI generates the recipe</li>
         </ul>
+      </div>
+
+      <div className="mb-4">
+        <label className="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={enhanceDescription}
+            onChange={(e) => setEnhanceDescription(e.target.checked)}
+            className="w-5 h-5 rounded border-2 border-forklore-red text-forklore-red focus:ring-2 focus:ring-forklore-red"
+          />
+          <span className="font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+            ✨ Enhance description (AI will rewrite to sound more appetizing)
+          </span>
+        </label>
       </div>
 
       <div className="flex justify-between space-x-4">

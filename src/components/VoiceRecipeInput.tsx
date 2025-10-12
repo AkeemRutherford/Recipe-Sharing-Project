@@ -12,6 +12,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
+  const [enhanceDescription, setEnhanceDescription] = useState(true);
   const recognitionRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
 
@@ -117,7 +118,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
     setError(null);
 
     try {
-      const recipe = await parseVoiceToRecipe(transcript);
+      const recipe = await parseVoiceToRecipe(transcript, enhanceDescription);
       onRecipeGenerated(recipe);
     } catch (err: any) {
       setError(err.message || 'Failed to process recipe. Please try again.');
@@ -221,6 +222,20 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
           <li>• Pause briefly between ingredients and steps</li>
           <li>• Mention cooking times and temperatures</li>
         </ul>
+      </div>
+
+      <div className="mb-4">
+        <label className="flex items-center space-x-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={enhanceDescription}
+            onChange={(e) => setEnhanceDescription(e.target.checked)}
+            className="w-5 h-5 rounded border-2 border-forklore-red text-forklore-red focus:ring-2 focus:ring-forklore-red"
+          />
+          <span className="font-medium" style={{ color: 'var(--forklore-forest-green)' }}>
+            ✨ Enhance description (AI will rewrite to sound more appetizing)
+          </span>
+        </label>
       </div>
 
       <div className="flex justify-between space-x-4">
