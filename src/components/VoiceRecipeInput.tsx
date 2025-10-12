@@ -225,7 +225,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
         {onCancel && (
           <button
             onClick={onCancel}
-            className="btn-secondary px-6 py-3 rounded-lg font-semibold"
+            className="btn-secondary px-6 py-3 rounded-full font-semibold"
             disabled={processing || isListening}
           >
             Cancel
@@ -234,7 +234,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
         <button
           onClick={processRecipe}
           disabled={!transcript.trim() || processing || isListening}
-          className="btn-primary px-8 py-3 rounded-lg font-semibold flex-1 flex items-center justify-center"
+          className="btn-primary px-8 py-3 rounded-full font-semibold flex-1 flex items-center justify-center"
         >
           {processing ? (
             <>

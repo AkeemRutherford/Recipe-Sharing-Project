@@ -239,7 +239,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
                 <button
                   type="button"
                   onClick={() => handleConvert(index)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition font-semibold"
+                  className="px-3 py-1 bg-blue-600 text-white rounded-full text-sm hover:bg-blue-700 transition font-semibold"
                 >
                   Convert
                 </button>

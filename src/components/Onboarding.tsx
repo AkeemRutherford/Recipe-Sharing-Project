@@ -226,7 +226,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('dietary_practices', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium ${
+                    className={`px-4 py-2 rounded-full transition font-medium ${
                       data.dietary_practices.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >
@@ -243,7 +243,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('dietary_restrictions', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium ${
+                    className={`px-4 py-2 rounded-full transition font-medium ${
                       data.dietary_restrictions.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >
@@ -260,7 +260,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('health_goals', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium ${
+                    className={`px-4 py-2 rounded-full transition font-medium ${
                       data.health_goals.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >
@@ -284,7 +284,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('favorite_cooking_styles', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium text-sm ${
+                    className={`px-4 py-2 rounded-full transition font-medium text-sm ${
                       data.favorite_cooking_styles.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >
@@ -301,7 +301,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('favorite_cuisines', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium text-sm ${
+                    className={`px-4 py-2 rounded-full transition font-medium text-sm ${
                       data.favorite_cuisines.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >
@@ -318,7 +318,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <button
                     key={item}
                     onClick={() => toggleArrayItem('favorite_meal_types', item)}
-                    className={`px-4 py-2 rounded-lg transition font-medium text-sm ${
+                    className={`px-4 py-2 rounded-full transition font-medium text-sm ${
                       data.favorite_meal_types.includes(item) ? 'btn-primary' : 'btn-secondary'
                     }`}
                   >

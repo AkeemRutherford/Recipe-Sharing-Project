@@ -186,7 +186,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
           {!processing && (
             <button
               onClick={resetUpload}
-              className="mt-3 w-full py-2 rounded-lg transition hover:bg-white"
+              className="mt-3 w-full py-2 rounded-full transition hover:bg-white"
               style={{ color: 'var(--forklore-warm-brown)', border: '1px solid var(--forklore-warm-brown)' }}
             >
               Choose different image
