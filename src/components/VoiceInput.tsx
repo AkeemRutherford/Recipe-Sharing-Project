@@ -53,13 +53,11 @@ export default function VoiceInput({
       }
 
       let interimTranscript = '';
-      let finalTranscript = '';
 
-      for (let i = 0; i < event.results.length; i++) {
+      for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
           finalTranscriptRef.current += transcript + ' ';
         } else {
           interimTranscript += transcript;
@@ -69,6 +67,11 @@ export default function VoiceInput({
       const displayText = finalTranscriptRef.current + interimTranscript;
       console.log('Current transcript:', displayText);
       setCurrentTranscript(displayText);
+
+      const fullText = displayText.trim();
+      if (fullText) {
+        onChange(fullText);
+      }
 
       silenceTimeoutRef.current = setTimeout(() => {
         console.log('Long pause detected, but continuing to listen...');
@@ -183,29 +186,15 @@ export default function VoiceInput({
       }
       setIsListening(false);
 
-      setTimeout(() => {
-        try {
-          recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+        console.log('✅ Stopped listening. Final text in field.');
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
 
-          const finalText = finalTranscriptRef.current.trim();
-          console.log('✅ Final transcript:', finalText);
-
-          if (finalText) {
-            const currentValue = value || '';
-            const separator = currentValue && !currentValue.endsWith(' ') && !currentValue.endsWith('.') ? ' ' : '';
-            const newValue = currentValue + separator + finalText;
-            console.log('Updating field with:', newValue);
-            onChange(newValue);
-          } else {
-            console.log('No text was captured');
-          }
-
-          finalTranscriptRef.current = '';
-          setCurrentTranscript('');
-        } catch (error) {
-          console.error('Error stopping recognition:', error);
-        }
-      }, 300);
+      finalTranscriptRef.current = '';
+      setCurrentTranscript('');
     }
   };
 
