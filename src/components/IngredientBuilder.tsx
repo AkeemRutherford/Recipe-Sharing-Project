@@ -133,7 +133,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
         <button
           type="button"
           onClick={addIngredient}
-          className="flex items-center space-x-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition text-sm font-semibold"
+          className="flex items-center space-x-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition text-sm font-semibold"
         >
           <PlusIcon />
           <span>Add Ingredient</span>
@@ -188,7 +188,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
               <button
                 type="button"
                 onClick={() => setShowConverter(showConverter === index ? null : index)}
-                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition"
                 title="Convert units"
               >
                 <ConvertIcon />
@@ -196,7 +196,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
               <button
                 type="button"
                 onClick={() => removeIngredient(index)}
-                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                className="p-2 text-red-600 hover:bg-red-50 rounded-full transition"
                 title="Remove ingredient"
               >
                 <TrashIcon />

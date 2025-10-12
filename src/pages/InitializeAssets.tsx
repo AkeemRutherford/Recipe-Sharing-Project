@@ -237,7 +237,7 @@ export default function InitializeAssets() {
             <button
               onClick={handleInitialize}
               disabled={status === 'uploading' || status === 'checking'}
-              className="btn-primary flex-1 py-4 rounded-lg font-semibold text-lg"
+              className="btn-primary flex-1 py-4 rounded-full font-semibold text-lg"
             >
               {status === 'uploading' ? 'Uploading...' : 'Initialize Assets'}
             </button>
@@ -245,14 +245,14 @@ export default function InitializeAssets() {
             <>
               <button
                 onClick={() => navigate('/site-assets')}
-                className="btn-secondary flex-1 py-4 rounded-lg font-semibold text-lg"
+                className="btn-secondary flex-1 py-4 rounded-full font-semibold text-lg"
               >
                 View Assets
               </button>
               <button
                 onClick={handleForceUpload}
                 disabled={status === 'uploading' || status === 'checking'}
-                className="btn-primary flex-1 py-4 rounded-lg font-semibold text-lg"
+                className="btn-primary flex-1 py-4 rounded-full font-semibold text-lg"
               >
                 Force Re-upload
               </button>

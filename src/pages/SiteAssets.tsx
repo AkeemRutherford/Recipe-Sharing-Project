@@ -152,7 +152,7 @@ export default function SiteAssets() {
               <button
                 onClick={handleUpload}
                 disabled={!selectedFile || uploading}
-                className="btn-primary w-full py-3 rounded-lg font-semibold"
+                className="btn-primary w-full py-3 rounded-full font-semibold"
               >
                 {uploading ? 'Uploading...' : 'Upload Asset'}
               </button>

@@ -392,7 +392,7 @@ export default function RecipeDetail() {
                 {user && recipe.user_id === user.id && (
                   <button
                     onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
-                    className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                    className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-full shadow-lg transition backdrop-blur-sm"
                   >
                     Edit Recipe
                   </button>
@@ -455,7 +455,7 @@ export default function RecipeDetail() {
                 </div>
                 <button
                   onClick={() => setMeasurementSystem(measurementSystem === 'imperial' ? 'metric' : 'imperial')}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg hover:from-blue-600 hover:to-indigo-600 transition font-semibold shadow-md"
+                  className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full hover:from-blue-600 hover:to-indigo-600 transition font-semibold shadow-md"
                 >
                   {measurementSystem === 'imperial' ? 'Convert to Metric' : 'Convert to Imperial'}
                 </button>

@@ -408,7 +408,7 @@ export default function Profile() {
                 {isOwnProfile ? (
                   <button
                     onClick={() => setEditModalOpen(true)}
-                    className="btn-primary flex items-center space-x-2 px-6 py-3 text-white rounded-lg font-semibold"
+                    className="btn-primary flex items-center space-x-2 px-6 py-3 text-white rounded-full font-semibold"
                   >
                     <EditIcon />
                     <span>Edit Profile</span>
@@ -416,7 +416,7 @@ export default function Profile() {
                 ) : (
                   <button
                     onClick={toggleFollow}
-                    className={`px-6 py-3 rounded-lg font-semibold transition ${
+                    className={`px-6 py-3 rounded-full font-semibold transition ${
                       isFollowing
                         ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         : 'btn-primary text-white'
@@ -557,7 +557,7 @@ export default function Profile() {
                   {isOwnProfile && (
                     <button
                       onClick={() => navigate('/add-recipe')}
-                      className="btn-primary mt-4 px-6 py-3 text-white rounded-lg font-semibold"
+                      className="btn-primary mt-4 px-6 py-3 text-white rounded-full font-semibold"
                     >
                       Create Your First Recipe
                     </button>
@@ -836,7 +836,7 @@ export default function Profile() {
                     <div className="border-t border-gray-200 pt-6">
                       <button
                         onClick={handleSaveSettings}
-                        className="btn-primary w-full px-6 py-3 text-white rounded-lg font-semibold"
+                        className="btn-primary w-full px-6 py-3 text-white rounded-full font-semibold"
                       >
                         Save Settings
                       </button>
@@ -845,14 +845,14 @@ export default function Profile() {
                     <div className="border-t border-gray-200 pt-6">
                       <button
                         onClick={handleSignOut}
-                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition mb-3"
+                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-semibold hover:bg-gray-200 transition mb-3"
                       >
                         Sign Out
                       </button>
 
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="w-full px-6 py-3 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 transition"
+                        className="w-full px-6 py-3 bg-red-50 text-red-600 rounded-full font-semibold hover:bg-red-100 transition"
                       >
                         Delete Account
                       </button>
@@ -875,13 +875,13 @@ export default function Profile() {
             <div className="flex space-x-4">
               <button
                 onClick={handleDeleteAccount}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
+                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition font-semibold"
               >
                 Delete Account
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition font-semibold"
               >
                 Cancel
               </button>
@@ -947,13 +947,13 @@ export default function Profile() {
             <div className="flex space-x-4 mt-8">
               <button
                 onClick={handleSaveProfile}
-                className="btn-primary flex-1 px-6 py-3 text-white rounded-lg font-semibold"
+                className="btn-primary flex-1 px-6 py-3 text-white rounded-full font-semibold"
               >
                 Save Changes
               </button>
               <button
                 onClick={() => setEditModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition font-semibold"
               >
                 Cancel
               </button>

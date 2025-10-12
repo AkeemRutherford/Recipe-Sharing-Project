@@ -127,7 +127,7 @@ export default function Notifications() {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 text-white hover:bg-white/20 rounded-lg transition"
+        className="relative p-2 text-white hover:bg-white/20 rounded-full transition"
       >
         <BellIcon hasUnread={unreadCount > 0} />
         {unreadCount > 0 && (
