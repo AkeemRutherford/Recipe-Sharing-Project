@@ -212,7 +212,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
         {onCancel && (
           <button
             onClick={onCancel}
-            className="btn-secondary px-6 py-3 rounded-lg font-semibold"
+            className="btn-secondary px-6 py-3 rounded-full font-semibold"
             disabled={processing}
           >
             Cancel
@@ -221,16 +221,9 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
         <button
           onClick={generateRecipe}
           disabled={!selectedFile || processing}
-          className="btn-primary px-8 py-3 rounded-lg font-semibold flex-1 flex items-center justify-center"
+          className="btn-primary px-8 py-3 rounded-full font-semibold flex-1 flex items-center justify-center"
         >
-          {processing ? (
-            <>
-              <span className="animate-spin mr-2">⏳</span>
-              Generating...
-            </>
-          ) : (
-            <>✨ Generate Recipe</>
-          )}
+          {processing ? 'Generating...' : 'Generate Recipe'}
         </button>
       </div>
     </div>

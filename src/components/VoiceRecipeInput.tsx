@@ -154,22 +154,20 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
           <button
             onClick={startListening}
             disabled={processing}
-            className="btn-primary px-8 py-4 rounded-xl font-semibold text-lg flex items-center space-x-2"
+            className="btn-primary px-8 py-4 rounded-full font-semibold text-lg flex items-center space-x-2"
           >
-            <span className="text-2xl">🎤</span>
             <span>Start Recording</span>
           </button>
         ) : (
           <>
             <button
               onClick={stopListening}
-              className="btn-secondary px-8 py-4 rounded-xl font-semibold text-lg flex items-center space-x-2"
+              className="btn-secondary px-8 py-4 rounded-full font-semibold text-lg flex items-center space-x-2"
             >
-              <span className="text-2xl">⏹</span>
               <span>Stop</span>
             </button>
             <div className="flex items-center space-x-2">
-              <span className="text-2xl animate-pulse" style={{ color: 'var(--forklore-warm-red)' }}>🔴</span>
+              <span className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
               <span className="font-semibold" style={{ color: 'var(--forklore-forest-green)' }}>
                 Listening... {formatTime(duration)}
               </span>

@@ -23,7 +23,7 @@ function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick }: { 
           <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
-            <span className="text-6xl">🍳</span>
+            <span className="text-4xl font-bold text-white">No Image</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -405,15 +405,15 @@ export default function Home() {
   }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags, showFollowingOnly, followingUserIds]);
 
   const allFilterOptions = [
-    ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: '✨ For You' }] : []),
-    { id: 'trending', label: '🔥 Trending' },
+    ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: 'For You' }] : []),
+    { id: 'trending', label: 'Trending' },
     { id: 'all', label: 'All Recipes' },
-    { id: 'easy', label: '🌟 Easy Wins' },
-    { id: 'weekend', label: '🎯 Weekend Projects' },
-    { id: 'healthy', label: '🥗 Healthy' },
-    { id: 'comfort', label: '🍲 Comfort Food' },
-    { id: 'international', label: '🌍 International' },
-    { id: 'desserts', label: '🍰 Desserts' },
+    { id: 'easy', label: 'Easy Wins' },
+    { id: 'weekend', label: 'Weekend Projects' },
+    { id: 'healthy', label: 'Healthy' },
+    { id: 'comfort', label: 'Comfort Food' },
+    { id: 'international', label: 'International' },
+    { id: 'desserts', label: 'Desserts' },
     { id: 'vegan', label: 'Vegan' },
     { id: 'kosher', label: 'Kosher' },
     { id: 'weeknight', label: 'Weeknight' },
@@ -447,13 +447,13 @@ export default function Home() {
             {user && followingUserIds.size > 0 && (
               <button
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-5 py-2.5 rounded-full font-semibold transition text-sm ${
                   showFollowingOnly
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
                 }`}
               >
-                {showFollowingOnly ? '✓ ' : ''}Following
+                Following
               </button>
             )}
           </div>
@@ -562,7 +562,7 @@ export default function Home() {
               <button
                 key={filter.id}
                 onClick={() => handleFilterChange(filter.id)}
-                className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                className={`px-6 py-2.5 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                   selectedFilters.includes(filter.id)
                     ? 'bg-airbnb-rausch text-white shadow-md scale-105'
                     : 'bg-white border border-gray-300 text-gray-700 hover:border-airbnb-rausch'
@@ -585,7 +585,7 @@ export default function Home() {
             {userFavoriteTags.length > 0 && (
               <button
                 onClick={() => handleSortChange('recommended')}
-                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                className={`px-5 py-2.5 rounded-full font-semibold transition ${
                   sortBy === 'recommended'
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -596,7 +596,7 @@ export default function Home() {
             )}
             <button
               onClick={() => handleSortChange('recent')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'recent'
                   ? 'bg-airbnb-rausch text-white shadow-md'
                   : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -606,7 +606,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => handleSortChange('popular')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'popular'
                   ? 'bg-airbnb-rausch text-white shadow-md'
                   : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -616,7 +616,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => handleSortChange('trending')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'trending'
                   ? 'bg-airbnb-rausch text-white shadow-md'
                   : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'

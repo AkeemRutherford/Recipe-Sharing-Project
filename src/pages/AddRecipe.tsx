@@ -257,14 +257,14 @@ export default function AddRecipe() {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+                className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary px-6 py-3 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary px-6 py-3 text-white font-semibold rounded-full shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating...' : 'Create Recipe'}
               </button>

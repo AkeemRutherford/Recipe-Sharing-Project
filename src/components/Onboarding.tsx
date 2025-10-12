@@ -432,7 +432,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className="btn-secondary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base"
+              className="btn-secondary px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base"
               disabled={loading}
             >
               ← Back
@@ -445,7 +445,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 {step > 2 && (
                   <button
                     onClick={() => setStep(step + 1)}
-                    className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
                     style={{ color: 'var(--forklore-warm-brown)', background: 'transparent' }}
                   >
                     Skip
@@ -453,7 +453,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 )}
                 <button
                   onClick={() => setStep(step + 1)}
-                  className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
+                  className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
                   disabled={!canContinue() || loading}
                 >
                   Continue →
@@ -462,7 +462,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             ) : (
               <button
                 onClick={handleSubmit}
-                className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
+                className="btn-primary px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-semibold text-sm sm:text-base flex-1 sm:flex-initial"
                 disabled={loading || !canContinue()}
               >
                 {loading ? 'Saving...' : 'Complete Setup →'}

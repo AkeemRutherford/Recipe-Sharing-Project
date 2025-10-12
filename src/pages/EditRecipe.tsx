@@ -148,7 +148,7 @@ export default function EditRecipe() {
           <p className="text-xl text-red-600 mb-4">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 btn-primary text-white rounded-lg transition"
+            className="px-6 py-3 btn-primary text-white rounded-full transition"
           >
             Go Back
           </button>
