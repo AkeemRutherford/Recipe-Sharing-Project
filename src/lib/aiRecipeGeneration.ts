@@ -25,8 +25,7 @@ export interface GeneratedRecipe {
 }
 
 export async function analyzeImage(imageFile: File): Promise<string> {
-  const base64Image = await fileToBase64(imageFile);
-  const base64Data = base64Image.split(',')[1];
+  const base64Data = await fileToBase64(imageFile);
 
   if (!base64Data) {
     throw new Error('Failed to convert image to base64');
