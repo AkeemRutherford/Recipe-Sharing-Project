@@ -54,19 +54,21 @@ export default function VoiceInput({
         clearTimeout(silenceTimeoutRef.current);
       }
 
+      let finalText = '';
       let interimTranscript = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
+      for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          finalTranscriptRef.current += transcript + ' ';
+          finalText += transcript + ' ';
         } else {
           interimTranscript += transcript;
         }
       }
 
-      const displayText = finalTranscriptRef.current + interimTranscript;
+      finalTranscriptRef.current = finalText;
+      const displayText = finalText + interimTranscript;
       console.log('Current transcript:', displayText);
       setCurrentTranscript(displayText);
 
