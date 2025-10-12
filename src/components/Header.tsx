@@ -168,9 +168,16 @@ export default function Header() {
             </button>
 
             <button
-              onClick={() => username && navigate(`/profile/${username}`)}
+              onClick={() => {
+                console.log('Profile button clicked, username:', username);
+                if (username) {
+                  navigate(`/profile/${username}`);
+                } else {
+                  console.warn('Username not loaded yet');
+                }
+              }}
               className={`p-2 rounded-full transition ${
-                isActive(`/profile/${username}`)
+                username && isActive(`/profile/${username}`)
                   ? 'bg-gray-100 text-airbnb-rausch'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-airbnb-black'
               }`}
