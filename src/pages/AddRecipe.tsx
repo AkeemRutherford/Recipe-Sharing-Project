@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 import VoiceInput from '../components/VoiceInput';
+import ImageToRecipe from '../components/ImageToRecipe';
 import { parseDescriptionToRecipe } from '../lib/aiRecipeParser';
 import Header from '../components/Header';
 
@@ -38,6 +39,7 @@ export default function AddRecipe() {
   const [generating, setGenerating] = useState(false);
   const [previewRecipe, setPreviewRecipe] = useState<any>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleGenerateRecipe = async () => {
     if (!formData.description.trim()) {
@@ -84,6 +86,37 @@ export default function AddRecipe() {
     });
 
     setShowPreview(false);
+    setError(null);
+
+    setTimeout(() => {
+      document.getElementById('ingredients-section')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
+  };
+
+  const handleImageRecipeGenerated = (recipe: any, imageFile: File) => {
+    const mappedIngredients = recipe.ingredients.map((ing: any) => ({
+      amount: ing.amount,
+      unit: ing.unit,
+      ingredient: ing.name
+    }));
+
+    setIngredients(mappedIngredients);
+    setFormData({
+      ...formData,
+      title: recipe.title || formData.title,
+      description: recipe.description || formData.description,
+      servings: recipe.servings || formData.servings,
+      prep_time: recipe.prep_time || formData.prep_time,
+      cook_time: recipe.cook_time || formData.cook_time,
+      difficulty: recipe.difficulty || formData.difficulty,
+      tags: recipe.tags ? recipe.tags.join(', ') : formData.tags,
+      instructions: recipe.instructions.join('\n')
+    });
+
+    setShowImageUpload(false);
     setError(null);
 
     setTimeout(() => {
@@ -228,6 +261,14 @@ export default function AddRecipe() {
                         Generate Recipe Details
                       </>
                     )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowImageUpload(true)}
+                    className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <span>📸</span>
+                    Upload Food Photo
                   </button>
                 </div>
               </div>
@@ -489,6 +530,17 @@ export default function AddRecipe() {
             <p className="px-6 pb-4 text-xs text-gray-500 text-center">
               ⚠️ AI-generated content may need adjustments. Always review before saving.
             </p>
+          </div>
+        </div>
+      )}
+
+      {showImageUpload && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            <ImageToRecipe
+              onRecipeGenerated={handleImageRecipeGenerated}
+              onCancel={() => setShowImageUpload(false)}
+            />
           </div>
         </div>
       )}
