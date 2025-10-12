@@ -2,16 +2,16 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import Header from '../components/Header';
 
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
 const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
-const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
-const FilterIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>;
+const BookmarkIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
+const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const ShareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
 
-function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onTagClick: (tag: string) => void }) {
+function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick, onShare }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onSave: (recipeId: string) => void; isSaved: boolean; onTagClick: (tag: string) => void; onShare: (recipeId: string, title: string, description: string) => void }) {
   const navigate = useNavigate();
 
   return (
@@ -23,15 +23,29 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         {recipe.image_url ? (
           <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
-            <span className="text-6xl">🍳</span>
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+            <span className="text-4xl font-bold text-gray-600">No Image</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); onShare(recipe.id, recipe.title, recipe.description); }}
+            className="p-2 rounded-full bg-white/90 text-gray-700 hover:bg-white hover:scale-110 transition"
+            title="Share recipe"
+          >
+            <ShareIcon />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); onSave(recipe.id); }}
+            className={`p-2 rounded-full ${isSaved ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            title={isSaved ? "Remove from saved" : "Save recipe"}
+          >
+            <BookmarkIcon filled={isSaved} />
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
-            className={`p-2 rounded-full ${isLiked ? 'bg-forklore-red text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            className={`p-2 rounded-full ${isLiked ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
           >
             <HeartIcon filled={isLiked} />
           </button>
@@ -65,7 +79,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
             <button
               key={tag}
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-forklore-red-50 hover:text-forklore-red-600 transition"
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-airbnb-hof hover:text-airbnb-rausch transition"
             >
               {tag}
             </button>
@@ -86,6 +100,7 @@ export default function Home() {
   const { user } = useAuth();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [userLikes, setUserLikes] = useState<Set<string>>(new Set());
+  const [userSavedRecipes, setUserSavedRecipes] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilters, setSelectedFilters] = useState(['all']);
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'trending' | 'recommended'>('recent');
@@ -96,11 +111,13 @@ export default function Home() {
   const [followingUserIds, setFollowingUserIds] = useState<Set<string>>(new Set());
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const [showShareToast, setShowShareToast] = useState(false);
 
   useEffect(() => {
     loadRecipes();
     if (user) {
       loadUserLikes();
+      loadUserSavedRecipes();
       loadUserFavoriteTags();
       loadFollowing();
     }
@@ -125,6 +142,10 @@ export default function Home() {
     const sortParam = searchParams.get('sort');
     if (sortParam && ['recent', 'popular', 'trending'].includes(sortParam)) {
       setSortBy(sortParam as 'recent' | 'popular' | 'trending');
+    }
+    const searchParam = searchParams.get('search');
+    if (searchParam) {
+      setSearchQuery(searchParam);
     }
   }, [searchParams]);
 
@@ -161,6 +182,20 @@ export default function Home() {
     }
   };
 
+  const loadUserSavedRecipes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('recipe_id')
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      setUserSavedRecipes(new Set(data.map(saved => saved.recipe_id)));
+    } catch (err) {
+      console.error('Error loading saved recipes:', err);
+    }
+  };
+
   const toggleLike = async (recipeId: string) => {
     if (!user) return;
 
@@ -188,6 +223,34 @@ export default function Home() {
       await loadRecipes();
     } catch (err) {
       console.error('Error toggling like:', err);
+    }
+  };
+
+  const toggleSave = async (recipeId: string) => {
+    if (!user) return;
+
+    try {
+      if (userSavedRecipes.has(recipeId)) {
+        await supabase
+          .from('saved_recipes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recipe_id', recipeId);
+
+        setUserSavedRecipes(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(recipeId);
+          return newSet;
+        });
+      } else {
+        await supabase
+          .from('saved_recipes')
+          .insert({ user_id: user.id, recipe_id: recipeId });
+
+        setUserSavedRecipes(prev => new Set(prev).add(recipeId));
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
     }
   };
 
@@ -238,6 +301,35 @@ export default function Home() {
   const clearFilters = () => {
     setSelectedFilters(['all']);
     setSearchParams({});
+  };
+
+  const handleShareRecipe = async (recipeId: string, title: string, description: string) => {
+    const recipeUrl = `${window.location.origin}/recipe/${recipeId}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: title,
+          text: description,
+          url: recipeUrl,
+        });
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          copyToClipboard(recipeUrl);
+        }
+      }
+    } else {
+      copyToClipboard(recipeUrl);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setShowShareToast(true);
+      setTimeout(() => setShowShareToast(false), 3000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+    });
   };
 
   const handleSortChange = (newSort: 'recent' | 'popular' | 'trending') => {
@@ -351,15 +443,15 @@ export default function Home() {
   }, [recipes, searchQuery, selectedFilters, sortBy, userFavoriteTags, showFollowingOnly, followingUserIds]);
 
   const allFilterOptions = [
-    ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: '✨ For You' }] : []),
-    { id: 'trending', label: '🔥 Trending' },
+    ...(user && userFavoriteTags.length > 0 ? [{ id: 'for-you', label: 'For You' }] : []),
+    { id: 'trending', label: 'Trending' },
     { id: 'all', label: 'All Recipes' },
-    { id: 'easy', label: '🌟 Easy Wins' },
-    { id: 'weekend', label: '🎯 Weekend Projects' },
-    { id: 'healthy', label: '🥗 Healthy' },
-    { id: 'comfort', label: '🍲 Comfort Food' },
-    { id: 'international', label: '🌍 International' },
-    { id: 'desserts', label: '🍰 Desserts' },
+    { id: 'easy', label: 'Easy Wins' },
+    { id: 'weekend', label: 'Weekend Projects' },
+    { id: 'healthy', label: 'Healthy' },
+    { id: 'comfort', label: 'Comfort Food' },
+    { id: 'international', label: 'International' },
+    { id: 'desserts', label: 'Desserts' },
     { id: 'vegan', label: 'Vegan' },
     { id: 'kosher', label: 'Kosher' },
     { id: 'weeknight', label: 'Weeknight' },
@@ -378,40 +470,40 @@ export default function Home() {
 
   if (loading) {
     return (
-      <>
-        <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
-        <div className="min-h-screen flex items-center justify-center bg-white">
-          <div className="text-xl text-gray-600">Loading culinary stories...</div>
-        </div>
-      </>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-xl text-airbnb-dark-gray">Loading culinary stories...</div>
+      </div>
     );
   }
 
   return (
-    <>
-      <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
-      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <h2 className="text-3xl font-bold text-gray-900">Discover Recipes</h2>
+    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      {showShareToast && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+          Link copied to clipboard!
+        </div>
+      )}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            <h2 className="text-2xl font-bold text-airbnb-black">Discover Recipes</h2>
             {user && followingUserIds.size > 0 && (
               <button
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-5 py-2.5 rounded-full font-semibold transition text-sm ${
                   showFollowingOnly
-                    ? 'bg-forklore-red text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red'
+                    ? 'bg-airbnb-rausch text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
                 }`}
               >
-                {showFollowingOnly ? '✓ ' : ''}Following
+                Following
               </button>
             )}
           </div>
           {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-2 text-forklore-red hover:text-forklore-red-600 transition font-semibold"
+              className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark transition font-semibold"
             >
               <span>Clear Filters</span>
               <span className="text-xl">×</span>
@@ -424,7 +516,7 @@ export default function Home() {
             <p className="text-sm text-gray-700 mb-2">Active filters:</p>
             <div className="flex flex-wrap gap-2">
               {selectedFilters.map(filter => (
-                <span key={filter} className="px-3 py-1 bg-forklore-red text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
+                <span key={filter} className="px-3 py-1 bg-airbnb-rausch text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
                   <span>{filter}</span>
                   <button onClick={() => handleTagClick(filter)} className="ml-1 hover:opacity-80">×</button>
                 </span>
@@ -438,8 +530,8 @@ export default function Home() {
             onClick={() => handleFilterChange('trending')}
             className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
               selectedFilters.includes('trending')
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
+                ? 'bg-airbnb-rausch text-white shadow-md scale-105'
+                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-airbnb-rausch'
             }`}
           >
             {trendingFilter.label}
@@ -448,7 +540,7 @@ export default function Home() {
           <div className="relative flex-1">
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full px-5 py-2 rounded-full font-semibold transition-all bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400 flex items-center justify-between"
+              className="w-full px-5 py-2 rounded-full font-semibold transition-all bg-white border-2 border-gray-300 text-gray-700 hover:border-airbnb-rausch flex items-center justify-between"
             >
               <span>Categories</span>
               <ChevronDownIcon />
@@ -468,7 +560,7 @@ export default function Home() {
                         value={categorySearchQuery}
                         onChange={(e) => setCategorySearchQuery(e.target.value)}
                         placeholder="Search categories..."
-                        className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                         onClick={(e) => e.stopPropagation()}
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -492,8 +584,8 @@ export default function Home() {
                           }}
                           className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-colors ${
                             selectedFilters.includes(filter.id)
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                              : 'text-gray-700 hover:bg-amber-50'
+                              ? 'bg-airbnb-rausch text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
                           }`}
                         >
                           {filter.label}
@@ -513,10 +605,10 @@ export default function Home() {
               <button
                 key={filter.id}
                 onClick={() => handleFilterChange(filter.id)}
-                className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
+                className={`px-6 py-2.5 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                   selectedFilters.includes(filter.id)
-                    ? 'bg-forklore-red text-white shadow-md scale-105'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:border-forklore-red-400'
+                    ? 'bg-airbnb-rausch text-white shadow-md scale-105'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:border-airbnb-rausch'
                 }`}
               >
                 {filter.label}
@@ -536,10 +628,10 @@ export default function Home() {
             {userFavoriteTags.length > 0 && (
               <button
                 onClick={() => handleSortChange('recommended')}
-                className={`px-4 py-2 rounded-lg font-semibold transition ${
+                className={`px-5 py-2.5 rounded-full font-semibold transition ${
                   sortBy === 'recommended'
-                    ? 'bg-forklore-red text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
+                    ? 'bg-airbnb-rausch text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
                 }`}
               >
                 Recommended
@@ -547,30 +639,30 @@ export default function Home() {
             )}
             <button
               onClick={() => handleSortChange('recent')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'recent'
-                  ? 'bg-forklore-red text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
+                  ? 'bg-airbnb-rausch text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
               }`}
             >
               Recent
             </button>
             <button
               onClick={() => handleSortChange('popular')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'popular'
-                  ? 'bg-forklore-red text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
+                  ? 'bg-airbnb-rausch text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
               }`}
             >
               Popular
             </button>
             <button
               onClick={() => handleSortChange('trending')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`px-5 py-2.5 rounded-full font-semibold transition ${
                 sortBy === 'trending'
-                  ? 'bg-forklore-red text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
+                  ? 'bg-airbnb-rausch text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
               }`}
             >
               Trending
@@ -592,12 +684,14 @@ export default function Home() {
               recipe={recipe}
               onLike={toggleLike}
               isLiked={userLikes.has(recipe.id)}
+              onSave={toggleSave}
+              isSaved={userSavedRecipes.has(recipe.id)}
               onTagClick={handleTagClick}
+              onShare={handleShareRecipe}
             />
           ))}
         </div>
       )}
     </div>
-    </>
   );
 }

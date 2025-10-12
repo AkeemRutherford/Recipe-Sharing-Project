@@ -132,7 +132,7 @@ export default function Login() {
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
               <img
-                src="/forklore-logo.png"
+                src="/forklore-logo.svg"
                 alt="Forklore"
                 className="h-16 w-auto"
               />
@@ -151,7 +151,7 @@ export default function Login() {
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-white border border-gray-300 rounded-lg hover:border-gray-400 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-white border border-gray-300 rounded-full hover:border-gray-400 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
             >
               <GoogleIcon />
               <span className="font-semibold text-gray-700 group-hover:text-gray-900">
@@ -162,7 +162,7 @@ export default function Login() {
             <button
               onClick={handleGitHubSignIn}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gray-800 text-white rounded-full hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <GitHubIcon />
               <span className="font-semibold">
@@ -196,7 +196,7 @@ export default function Login() {
             <button
               onClick={() => setShowUsernameModal(true)}
               disabled={loading}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-airbnb-dark-gray text-white rounded-lg hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-airbnb-dark-gray text-white rounded-full hover:bg-gray-700 hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -219,7 +219,7 @@ export default function Login() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            🔒 Secure authentication powered by Supabase
+            Secure authentication powered by Supabase
           </p>
         </div>
       </div>
@@ -260,14 +260,14 @@ export default function Login() {
                     setError(null);
                   }}
                   disabled={loading}
-                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
+                  className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-full hover:bg-gray-50 transition disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading || !username.trim()}
-                  className="flex-1 px-6 py-3 bg-airbnb-rausch text-white font-semibold rounded-lg hover:bg-airbnb-rausch-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-6 py-3 bg-airbnb-rausch text-white font-semibold rounded-full hover:bg-airbnb-rausch-dark transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Creating...' : 'Create & Login'}
                 </button>
