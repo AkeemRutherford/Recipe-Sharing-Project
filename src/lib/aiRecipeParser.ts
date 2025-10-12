@@ -20,7 +20,7 @@ async function parseDescriptionWithGemini(description: string): Promise<ParsedRe
     throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.');
   }
 
-  const prompt = `You are a professional recipe parser. Convert this recipe description into structured JSON format.
+  const prompt = `You are a professional recipe creator and parser. Based on this recipe description, create a complete, structured recipe.
 
 Recipe Description:
 "${description}"
@@ -48,15 +48,18 @@ Extract and format into this EXACT JSON structure (respond with ONLY valid JSON,
 }
 
 CRITICAL RULES:
-1. Extract ALL ingredients mentioned with their amounts and units
-2. If no amount specified, use reasonable defaults (e.g., "1 piece", "to taste")
-3. Convert instructions into clear, numbered steps
-4. Each instruction should be ONE clear action
-5. Infer appropriate tags based on cuisine, cooking method, dietary info
-6. Return ONLY the JSON object, no markdown, no explanation
-7. Ensure all JSON is valid and properly formatted
+1. BE CREATIVE! If the description is vague or incomplete, fill in realistic details based on the dish type
+2. Extract any ingredients mentioned, and ADD common ingredients typically used in this type of recipe
+3. If no amounts are specified, use standard recipe amounts (e.g., "2 cups", "1 tablespoon", "to taste")
+4. Create complete, detailed cooking instructions even if only hints are provided
+5. Each instruction should be ONE clear action
+6. Infer appropriate tags based on cuisine, cooking method, dietary info
+7. Return ONLY the JSON object, no markdown, no explanation
+8. ALWAYS return at least 3-5 ingredients and 4-6 instructions minimum
+9. Make educated guesses to create a complete, usable recipe
+10. Ensure all JSON is valid and properly formatted
 
-If the description is vague, make reasonable assumptions but stay realistic.`;
+Even with minimal information, create a complete recipe that someone could actually cook from!`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
@@ -116,19 +119,15 @@ export async function parseDescriptionToRecipe(description: string): Promise<Par
     throw new Error('Description is required');
   }
 
-  if (description.trim().length < 50) {
-    throw new Error('Description too short. Please provide more detail about ingredients and steps.');
-  }
-
   try {
     const result = await parseDescriptionWithGemini(description);
 
     if (!result.ingredients || result.ingredients.length === 0) {
-      throw new Error('No ingredients found in description');
+      throw new Error('AI could not generate ingredients. Please try a different description.');
     }
 
     if (!result.instructions || result.instructions.length === 0) {
-      throw new Error('No instructions found in description');
+      throw new Error('AI could not generate instructions. Please try a different description.');
     }
 
     return result;

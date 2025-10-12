@@ -44,24 +44,11 @@ export default function AddRecipe() {
       return;
     }
 
-    if (formData.description.trim().length < 50) {
-      setError('Description too short. Please provide more detail about ingredients and steps.');
-      return;
-    }
-
     setGenerating(true);
     setError(null);
 
     try {
       const recipeData = await parseDescriptionToRecipe(formData.description);
-
-      if (!recipeData.ingredients || recipeData.ingredients.length === 0) {
-        throw new Error('No ingredients found in description');
-      }
-
-      if (!recipeData.instructions || recipeData.instructions.length === 0) {
-        throw new Error('No instructions found in description');
-      }
 
       setPreviewRecipe(recipeData);
       setShowPreview(true);
@@ -74,12 +61,10 @@ export default function AddRecipe() {
         errorMessage += 'API key not configured. Please contact support.';
       } else if (err.message.includes('quota')) {
         errorMessage += 'Daily limit reached. Please try again tomorrow.';
-      } else if (err.message.includes('No ingredients')) {
-        errorMessage += 'Could not identify ingredients. Please describe ingredients more clearly.';
-      } else if (err.message.includes('too short')) {
-        errorMessage = err.message;
+      } else if (err.message.includes('AI could not generate')) {
+        errorMessage += 'AI had trouble generating recipe details. Please try a different description.';
       } else {
-        errorMessage += 'Please try rephrasing your description with more detail.';
+        errorMessage += 'Please try again or rephrase your description.';
       }
 
       setError(errorMessage);
