@@ -93,7 +93,7 @@ export default function MyRecipes() {
           <h1 className="text-4xl font-bold text-gray-800">My Recipes</h1>
           <button
             onClick={() => navigate('/add-recipe')}
-            className="btn-primary px-6 py-3 text-white font-semibold rounded-lg shadow-md"
+            className="btn-primary px-6 py-3 text-white font-semibold rounded-full shadow-md"
           >
             + Add Recipe
           </button>
@@ -108,7 +108,7 @@ export default function MyRecipes() {
                 <p className="text-xl text-gray-500 mb-4">You haven't created any recipes yet</p>
                 <button
                   onClick={() => navigate('/add-recipe')}
-                  className="btn-primary px-6 py-3 text-white font-semibold rounded-lg"
+                  className="btn-primary px-6 py-3 text-white font-semibold rounded-full"
                 >
                   Create Your First Recipe
                 </button>

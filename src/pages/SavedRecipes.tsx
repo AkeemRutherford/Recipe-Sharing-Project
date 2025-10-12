@@ -78,12 +78,11 @@ export default function SavedRecipes() {
 
         {savedRecipes.length === 0 ? (
           <div className="bg-white rounded-xl shadow-lg p-12 text-center">
-            <div className="text-6xl mb-4">🔖</div>
             <p className="text-xl text-gray-500 mb-4">No saved recipes yet</p>
             <p className="text-gray-400 mb-6">Start bookmarking recipes you want to try later</p>
             <button
               onClick={() => navigate('/')}
-              className="btn-primary px-6 py-3 text-white font-semibold rounded-lg"
+              className="btn-primary px-6 py-3 text-white font-semibold rounded-full"
             >
               Explore Recipes
             </button>

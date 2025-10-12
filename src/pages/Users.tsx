@@ -154,11 +154,9 @@ export default function Users() {
   return (
     <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--gradient-background)' }}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold mb-4" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
-            Forklore Community
-          </h1>
-          <p className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Connect with fellow home cooks and discover their culinary journeys</p>
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">Community</h1>
+          <p className="text-gray-600">Connect with fellow home cooks and discover their culinary journeys</p>
         </div>
 
         <div className="mb-8 bg-white rounded-2xl shadow-lg p-6">
@@ -180,7 +178,7 @@ export default function Users() {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSortBy('active')}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-4 py-2 rounded-full font-semibold transition text-sm ${
                   sortBy === 'active'
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -190,7 +188,7 @@ export default function Users() {
               </button>
               <button
                 onClick={() => setSortBy('followers')}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-4 py-2 rounded-full font-semibold transition text-sm ${
                   sortBy === 'followers'
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -200,7 +198,7 @@ export default function Users() {
               </button>
               <button
                 onClick={() => setSortBy('newest')}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-4 py-2 rounded-full font-semibold transition text-sm ${
                   sortBy === 'newest'
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -210,7 +208,7 @@ export default function Users() {
               </button>
               <button
                 onClick={() => setSortBy('alphabetical')}
-                className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
+                className={`px-4 py-2 rounded-full font-semibold transition text-sm ${
                   sortBy === 'alphabetical'
                     ? 'bg-airbnb-rausch text-white shadow-md'
                     : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
@@ -271,20 +269,20 @@ export default function Users() {
                     <div className="flex space-x-2 w-full">
                       <button
                         onClick={() => navigate(`/profile/${userProfile.username}`)}
-                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition font-semibold text-sm"
                       >
                         View Profile
                       </button>
                       {user && user.id !== userProfile.id && (
                         <button
                           onClick={() => toggleFollow(userProfile.id)}
-                          className={`flex-1 px-4 py-2 rounded-lg transition font-semibold text-sm ${
+                          className={`flex-1 px-4 py-2 rounded-full transition font-semibold text-sm ${
                             followingIds.has(userProfile.id)
                               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                               : 'btn-primary text-white'
                           }`}
                         >
-                          {followingIds.has(userProfile.id) ? '✓ Following' : 'Follow'}
+                          {followingIds.has(userProfile.id) ? 'Following' : 'Follow'}
                         </button>
                       )}
                     </div>
