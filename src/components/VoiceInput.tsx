@@ -62,11 +62,6 @@ export default function VoiceInput({
         }
       }
 
-      const combinedText = finalTranscriptRef.current + interimTranscriptRef.current;
-      if (combinedText.trim()) {
-        onChange(value ? value + ' ' + combinedText.trim() : combinedText.trim());
-      }
-
       silenceTimeoutRef.current = setTimeout(() => {
         console.log('Long pause detected, but continuing to listen...');
       }, 5000);
@@ -166,8 +161,10 @@ export default function VoiceInput({
       try {
         recognitionRef.current.start();
         setIsListening(true);
+        console.log('Voice recognition started - speak now!');
       } catch (error) {
         console.error('Error starting recognition:', error);
+        alert('Could not start voice recognition. Error: ' + error);
       }
     }
   };
@@ -183,10 +180,14 @@ export default function VoiceInput({
         try {
           recognitionRef.current.stop();
 
-          if (finalTranscriptRef.current.trim()) {
+          const finalText = finalTranscriptRef.current.trim();
+          console.log('Final transcript:', finalText);
+
+          if (finalText) {
             const currentValue = value || '';
-            const separator = currentValue && !currentValue.endsWith(' ') ? ' ' : '';
-            onChange(currentValue + separator + finalTranscriptRef.current.trim());
+            const separator = currentValue && !currentValue.endsWith(' ') && !currentValue.endsWith('.') ? ' ' : '';
+            const newValue = currentValue + separator + finalText;
+            onChange(newValue);
           }
 
           finalTranscriptRef.current = '';
@@ -194,7 +195,7 @@ export default function VoiceInput({
         } catch (error) {
           console.error('Error stopping recognition:', error);
         }
-      }, 100);
+      }, 300);
     }
   };
 
@@ -235,7 +236,7 @@ export default function VoiceInput({
                 <span className="w-1 h-4 bg-green-600 animate-wave" style={{ animationDelay: '0.3s' }}></span>
               </div>
               <span className="text-sm text-green-700 font-semibold">
-                Listening... Take your time, natural pauses are OK!
+                🎤 Listening... Speak now!
               </span>
             </div>
             <span className="text-sm font-mono text-gray-700">
@@ -243,8 +244,14 @@ export default function VoiceInput({
             </span>
           </div>
           <p className="text-xs text-gray-600">
-            Click "Stop" when finished
+            Natural pauses are OK. Click "Stop" when finished.
           </p>
+          {finalTranscriptRef.current && (
+            <div className="mt-2 p-2 bg-white rounded border border-green-300">
+              <p className="text-xs text-gray-500 mb-1">Captured:</p>
+              <p className="text-sm text-gray-800">{finalTranscriptRef.current}</p>
+            </div>
+          )}
         </div>
       )}
 
