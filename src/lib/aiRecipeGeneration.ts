@@ -2,6 +2,7 @@ import { fileToBase64 } from './imageUpload';
 
 const HF_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 const HF_API_BASE = 'https://api-inference.huggingface.co/models';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export interface GeneratedRecipe {
   title: string;
@@ -25,28 +26,41 @@ export interface GeneratedRecipe {
 
 export async function analyzeImage(imageFile: File): Promise<string> {
   const base64Image = await fileToBase64(imageFile);
+  const base64Data = base64Image.split(',')[1];
 
   const response = await fetch(
-    `${HF_API_BASE}/Salesforce/blip-image-captioning-large`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${HF_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        inputs: base64Image
+        contents: [{
+          parts: [
+            {
+              text: "Analyze this food image and provide a detailed description of the dish, including what it appears to be, key ingredients you can identify, cooking method, and presentation style. Be specific and focus on culinary details."
+            },
+            {
+              inline_data: {
+                mime_type: imageFile.type,
+                data: base64Data
+              }
+            }
+          ]
+        }]
       })
     }
   );
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Image analysis failed: ${error.error || response.statusText}`);
+    throw new Error(`Image analysis failed: ${error.error?.message || response.statusText}`);
   }
 
   const result = await response.json();
-  return result[0]?.generated_text || 'Unknown food dish';
+  const description = result.candidates?.[0]?.content?.parts?.[0]?.text || 'Unknown food dish';
+  return description;
 }
 
 export async function generateRecipeFromDescription(
