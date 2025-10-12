@@ -25,6 +25,7 @@ export default function VoiceInput({
   const silenceTimeoutRef = useRef<any>(null);
   const finalTranscriptRef = useRef<string>('');
   const durationIntervalRef = useRef<any>(null);
+  const isListeningRef = useRef(false);
 
   useEffect(() => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -43,6 +44,7 @@ export default function VoiceInput({
     recognition.onstart = () => {
       console.log('Speech recognition started - microphone is active');
       setIsListening(true);
+      isListeningRef.current = true;
     };
 
     recognition.onresult = (event: any) => {
@@ -88,6 +90,7 @@ export default function VoiceInput({
 
       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setIsListening(false);
+        isListeningRef.current = false;
         alert('Microphone access denied. Please enable microphone permissions in your browser settings.');
         return;
       }
@@ -95,7 +98,7 @@ export default function VoiceInput({
       if (event.error === 'network') {
         console.log('Network error, attempting to restart...');
         setTimeout(() => {
-          if (isListening && recognitionRef.current) {
+          if (isListeningRef.current && recognitionRef.current) {
             try {
               recognitionRef.current.start();
             } catch (err) {
@@ -109,15 +112,16 @@ export default function VoiceInput({
     recognition.onend = () => {
       console.log('Speech recognition ended');
 
-      if (isListening) {
+      if (isListeningRef.current) {
         console.log('Auto-restarting speech recognition...');
         setTimeout(() => {
-          if (isListening && recognitionRef.current) {
+          if (isListeningRef.current && recognitionRef.current) {
             try {
               recognitionRef.current.start();
             } catch (error) {
               console.log('Could not restart, user may have stopped manually');
               setIsListening(false);
+              isListeningRef.current = false;
             }
           }
         }, 100);
@@ -128,7 +132,11 @@ export default function VoiceInput({
 
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.abort();
+        try {
+          recognitionRef.current.abort();
+        } catch (err) {
+          console.error('Error aborting recognition:', err);
+        }
       }
       if (silenceTimeoutRef.current) {
         clearTimeout(silenceTimeoutRef.current);
@@ -137,7 +145,7 @@ export default function VoiceInput({
         clearInterval(durationIntervalRef.current);
       }
     };
-  }, [isListening]);
+  }, [onChange]);
 
   useEffect(() => {
     if (isListening) {
@@ -185,6 +193,7 @@ export default function VoiceInput({
         clearTimeout(silenceTimeoutRef.current);
       }
       setIsListening(false);
+      isListeningRef.current = false;
 
       try {
         recognitionRef.current.stop();
