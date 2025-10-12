@@ -25,6 +25,7 @@ export default function ImageUpload({
   const handleFileChange = async (file: File) => {
     setError(null);
 
+    // Validate file
     const validation = validateImageFile(file);
     if (!validation.valid) {
       setError(validation.error!);
@@ -32,9 +33,11 @@ export default function ImageUpload({
     }
 
     try {
+      // Show preview immediately
       const previewUrl = await getImagePreview(file);
       setPreview(previewUrl);
 
+      // Upload to storage
       setUploading(true);
       const result = await uploadImage(file, bucket, user?.id);
       onImageUploaded(result.url, result.path);

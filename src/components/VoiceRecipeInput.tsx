@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { parseVoiceToRecipe } from '../lib/aiRecipeGeneration';
+import { parseVoiceToRecipe, GeneratedRecipe } from '../lib/aiRecipeGeneration';
 
 interface VoiceRecipeInputProps {
-  onRecipeGenerated: (recipe: any) => void;
+  onRecipeGenerated: (recipe: GeneratedRecipe) => void;
   onCancel?: () => void;
 }
 
@@ -16,6 +16,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
   const intervalRef = useRef<any>(null);
 
   useEffect(() => {
+    // Check browser support
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
@@ -23,6 +24,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
       return;
     }
 
+    // Initialize speech recognition
     const recognition = new SpeechRecognition();
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -30,11 +32,14 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
 
     recognition.onresult = (event: any) => {
       let finalTranscript = '';
+      let interimTranscript = '';
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const transcriptPiece = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
           finalTranscript += transcriptPiece + ' ';
+        } else {
+          interimTranscript += transcriptPiece;
         }
       }
 
@@ -82,6 +87,7 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
     recognitionRef.current.start();
     setIsListening(true);
 
+    // Start duration timer
     intervalRef.current = setInterval(() => {
       setDuration(prev => prev + 1);
     }, 1000);

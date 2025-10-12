@@ -1,88 +1,102 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Circular:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  --airbnb-rausch: #FF385C;
+  --airbnb-rausch-dark: #E31C5F;
+  --airbnb-babu: #00A699;
+  --airbnb-hof: #F7F7F7;
+  --airbnb-foggy: #767676;
+  --airbnb-dark-gray: #484848;
+  --airbnb-light-gray: #EBEBEB;
+  --airbnb-white: #FFFFFF;
+  --airbnb-black: #222222;
+
+  --forklore-cream: #FFF8F0;
   --forklore-forest-green: #2C5530;
   --forklore-warm-brown: #8B6F47;
-  --forklore-cream: #F5E6D3;
-  --forklore-burnt-orange: #D4764A;
-  --forklore-golden-yellow: #E6C068;
-  --forklore-sage-green: #94A89A;
+  --forklore-burnt-orange: #D97135;
   --forklore-warm-red: #C44536;
 
-  --primary-color: var(--forklore-forest-green);
-  --secondary-color: var(--forklore-burnt-orange);
-  --accent-color: var(--forklore-golden-yellow);
-  --background-color: var(--forklore-cream);
-  --text-color: var(--forklore-forest-green);
-  --border-color: var(--forklore-warm-brown);
+  --primary-color: var(--airbnb-rausch);
+  --secondary-color: var(--airbnb-dark-gray);
+  --accent-color: var(--airbnb-rausch);
+  --background-color: var(--airbnb-white);
+  --text-color: var(--airbnb-black);
+  --border-color: var(--airbnb-light-gray);
 
-  --gradient-primary: linear-gradient(135deg, #2C5530 0%, #94A89A 100%);
-  --gradient-accent: linear-gradient(135deg, #D4764A 0%, #E6C068 100%);
-  --gradient-background: linear-gradient(180deg, #F5E6D3 0%, #EAE0CF 100%);
+  --gradient-primary: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%);
+  --gradient-accent: linear-gradient(135deg, #FF385C 0%, #FF5A7B 100%);
+  --gradient-background: #FFFFFF;
 
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Lato', 'Open Sans', sans-serif;
+  --font-heading: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 body {
   font-family: var(--font-body);
   background: var(--gradient-background);
+  color: var(--text-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+  font-weight: 600;
 }
 
 .forklore-logo {
   font-family: var(--font-heading);
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .forklore-tagline {
   font-family: var(--font-body);
-  font-weight: 300;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-size: 0.65rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  font-size: 0.875rem;
 }
 
 .btn-primary {
-  background: var(--forklore-burnt-orange);
-  color: var(--forklore-cream);
-  transition: all 0.3s ease;
+  background: var(--airbnb-rausch);
+  color: var(--airbnb-white);
+  transition: all 0.2s ease;
+  border-radius: 8px;
 }
 
 .btn-primary:hover {
-  background: #C1653D;
-  box-shadow: 0 4px 12px rgba(212, 118, 74, 0.3);
+  background: var(--airbnb-rausch-dark);
+  box-shadow: 0 2px 8px rgba(255, 56, 92, 0.3);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
-  border: 2px solid var(--forklore-warm-brown);
-  color: var(--forklore-forest-green);
+  border: 1px solid var(--airbnb-dark-gray);
+  color: var(--airbnb-dark-gray);
   background: transparent;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  border-radius: 8px;
 }
 
 .btn-secondary:hover {
-  background: var(--forklore-cream);
-  border-color: var(--forklore-burnt-orange);
+  background: var(--airbnb-hof);
+  border-color: var(--airbnb-black);
 }
 
 .card-forklore {
-  background: var(--forklore-cream);
-  border: 1px solid rgba(139, 111, 71, 0.2);
-  transition: all 0.3s ease;
+  background: var(--airbnb-white);
+  border: 1px solid var(--airbnb-light-gray);
+  transition: all 0.2s ease;
+  border-radius: 12px;
 }
 
 .card-forklore:hover {
-  box-shadow: 0 8px 20px rgba(44, 85, 48, 0.15);
-  border-color: var(--forklore-golden-yellow);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .gradient-primary {
@@ -94,15 +108,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-brand {
-  color: var(--forklore-forest-green);
+  color: var(--airbnb-rausch);
 }
 
 .bg-brand {
-  background: var(--forklore-forest-green);
+  background: var(--airbnb-rausch);
 }
 
 .border-brand {
-  border-color: var(--forklore-warm-brown);
+  border-color: var(--airbnb-light-gray);
 }
 
 .scrollbar-hide::-webkit-scrollbar {
