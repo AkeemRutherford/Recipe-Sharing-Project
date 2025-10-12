@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import IngredientBuilder from '../components/IngredientBuilder';
 import AIImageGenerator from '../components/AIImageGenerator';
 import VoiceInput from '../components/VoiceInput';
+import { parseDescriptionToRecipe } from '../lib/aiRecipeParser';
 
 const BackIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -33,6 +34,91 @@ export default function AddRecipe() {
 
   const [ingredients, setIngredients] = useState<Array<{ amount: string; unit: string; ingredient: string }>>([]);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [previewRecipe, setPreviewRecipe] = useState<any>(null);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleGenerateRecipe = async () => {
+    if (!formData.description.trim()) {
+      setError('Please enter a recipe description first');
+      return;
+    }
+
+    if (formData.description.trim().length < 50) {
+      setError('Description too short. Please provide more detail about ingredients and steps.');
+      return;
+    }
+
+    setGenerating(true);
+    setError(null);
+
+    try {
+      const recipeData = await parseDescriptionToRecipe(formData.description);
+
+      if (!recipeData.ingredients || recipeData.ingredients.length === 0) {
+        throw new Error('No ingredients found in description');
+      }
+
+      if (!recipeData.instructions || recipeData.instructions.length === 0) {
+        throw new Error('No instructions found in description');
+      }
+
+      setPreviewRecipe(recipeData);
+      setShowPreview(true);
+    } catch (err: any) {
+      console.error('Recipe generation error:', err);
+
+      let errorMessage = 'Failed to generate recipe. ';
+
+      if (err.message.includes('API key')) {
+        errorMessage += 'API key not configured. Please contact support.';
+      } else if (err.message.includes('quota')) {
+        errorMessage += 'Daily limit reached. Please try again tomorrow.';
+      } else if (err.message.includes('No ingredients')) {
+        errorMessage += 'Could not identify ingredients. Please describe ingredients more clearly.';
+      } else if (err.message.includes('too short')) {
+        errorMessage = err.message;
+      } else {
+        errorMessage += 'Please try rephrasing your description with more detail.';
+      }
+
+      setError(errorMessage);
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const applyGeneratedRecipe = () => {
+    if (!previewRecipe) return;
+
+    const mappedIngredients = previewRecipe.ingredients.map((ing: any) => ({
+      amount: ing.amount,
+      unit: ing.unit,
+      ingredient: ing.name
+    }));
+
+    setIngredients(mappedIngredients);
+    setFormData({
+      ...formData,
+      title: previewRecipe.title || formData.title,
+      servings: previewRecipe.servings || formData.servings,
+      prep_time: previewRecipe.prep_time || formData.prep_time,
+      cook_time: previewRecipe.cook_time || formData.cook_time,
+      difficulty: previewRecipe.difficulty || formData.difficulty,
+      tags: previewRecipe.tags ? previewRecipe.tags.join(', ') : formData.tags,
+      instructions: previewRecipe.instructions.join('\n')
+    });
+
+    setShowPreview(false);
+    setError(null);
+
+    setTimeout(() => {
+      document.getElementById('ingredients-section')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }, 100);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,17 +222,52 @@ export default function AddRecipe() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Description *
+                Recipe Description *
                 <span className="text-xs font-normal text-gray-500 ml-2">(Type or use voice input)</span>
               </label>
-              <VoiceInput
-                required
-                value={formData.description}
-                onChange={(value) => setFormData({ ...formData, description: value })}
-                rows={3}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
-                placeholder="A brief description of your recipe..."
-              />
+              <div className="description-input-container">
+                <VoiceInput
+                  required
+                  value={formData.description}
+                  onChange={(value) => setFormData({ ...formData, description: value })}
+                  rows={6}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
+                  placeholder="Describe your recipe in detail... Include ingredients, amounts, and cooking steps. The more detail you provide, the better the AI can structure your recipe!"
+                />
+                <div className="description-actions mt-3 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={handleGenerateRecipe}
+                    disabled={!formData.description.trim() || generating}
+                    className="btn-ai-generate flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-airbnb-rausch to-yellow-500 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {generating ? (
+                      <>
+                        <span className="spinner"></span>
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <span>✨</span>
+                        Generate Recipe Details
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+              {generating && (
+                <div className="generation-progress mt-4 p-4 bg-gradient-to-r from-orange-50 to-yellow-50 rounded-lg border-2 border-yellow-300">
+                  <div className="progress-bar h-2 bg-orange-200 rounded-full overflow-hidden mb-3">
+                    <div className="progress-fill h-full bg-gradient-to-r from-airbnb-rausch to-yellow-500"></div>
+                  </div>
+                  <p className="text-sm text-gray-700 font-medium text-center">
+                    AI is analyzing your description and creating structured recipe...
+                  </p>
+                </div>
+              )}
+              <p className="help-text text-xs text-gray-500 mt-2">
+                💡 Tip: Describe your recipe in detail including ingredients, amounts, and cooking steps. The AI will automatically structure it into a proper recipe format.
+              </p>
             </div>
 
             <div>
@@ -239,10 +360,12 @@ export default function AddRecipe() {
               />
             </div>
 
-            <IngredientBuilder
-              ingredients={ingredients}
-              onChange={setIngredients}
-            />
+            <div id="ingredients-section">
+              <IngredientBuilder
+                ingredients={ingredients}
+                onChange={setIngredients}
+              />
+            </div>
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Instructions *</label>
@@ -276,6 +399,116 @@ export default function AddRecipe() {
           </form>
         </div>
       </div>
+
+      {showPreview && previewRecipe && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowPreview(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b px-6 py-4 z-10">
+              <h3 className="text-2xl font-bold text-gray-800">AI Generated Recipe Preview</h3>
+              <p className="text-sm text-gray-600 mt-1">Review the generated recipe before applying</p>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {previewRecipe.title && (
+                <div className="preview-section">
+                  <h4 className="text-lg font-bold text-gray-700 mb-2">Title</h4>
+                  <p className="text-gray-800">{previewRecipe.title}</p>
+                </div>
+              )}
+
+              <div className="preview-meta flex flex-wrap gap-4 p-4 bg-gray-50 rounded-lg">
+                {previewRecipe.prep_time && (
+                  <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                    <span>⏱️</span> {previewRecipe.prep_time} prep
+                  </span>
+                )}
+                {previewRecipe.cook_time && (
+                  <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                    <span>🔥</span> {previewRecipe.cook_time} cook
+                  </span>
+                )}
+                {previewRecipe.servings && (
+                  <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                    <span>👥</span> {previewRecipe.servings} servings
+                  </span>
+                )}
+                {previewRecipe.difficulty && (
+                  <span className="flex items-center gap-1 text-sm font-medium text-gray-700">
+                    <span>📊</span> {previewRecipe.difficulty}
+                  </span>
+                )}
+              </div>
+
+              <div className="preview-section">
+                <h4 className="text-lg font-bold text-gray-700 mb-3">
+                  Ingredients ({previewRecipe.ingredients?.length || 0})
+                </h4>
+                <ul className="space-y-2">
+                  {previewRecipe.ingredients?.map((ing: any, i: number) => (
+                    <li key={i} className="flex items-start gap-2 text-gray-700">
+                      <span className="text-airbnb-rausch font-bold">•</span>
+                      <span>
+                        <span className="font-semibold">{ing.amount}</span>
+                        {ing.unit && <span> {ing.unit}</span>}
+                        <span> {ing.name}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="preview-section">
+                <h4 className="text-lg font-bold text-gray-700 mb-3">
+                  Instructions ({previewRecipe.instructions?.length || 0} steps)
+                </h4>
+                <ol className="space-y-3">
+                  {previewRecipe.instructions?.map((step: string, i: number) => (
+                    <li key={i} className="flex gap-3 text-gray-700">
+                      <span className="font-bold text-airbnb-rausch min-w-[24px]">{i + 1}.</span>
+                      <span>{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+
+              {previewRecipe.tags && previewRecipe.tags.length > 0 && (
+                <div className="preview-tags flex flex-wrap gap-2">
+                  {previewRecipe.tags.map((tag: string) => (
+                    <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="sticky bottom-0 bg-white border-t px-6 py-4 flex justify-end gap-3">
+              <button
+                onClick={() => setShowPreview(false)}
+                className="px-5 py-2.5 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerateRecipe}
+                className="px-5 py-2.5 border-2 border-airbnb-rausch text-airbnb-rausch font-semibold rounded-lg hover:bg-red-50 transition"
+              >
+                🔄 Regenerate
+              </button>
+              <button
+                onClick={applyGeneratedRecipe}
+                className="px-5 py-2.5 bg-gradient-to-r from-airbnb-rausch to-yellow-500 text-white font-bold rounded-lg hover:shadow-lg transition"
+              >
+                ✅ Apply to Recipe Form
+              </button>
+            </div>
+
+            <p className="px-6 pb-4 text-xs text-gray-500 text-center">
+              ⚠️ AI-generated content may need adjustments. Always review before saving.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
