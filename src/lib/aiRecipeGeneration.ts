@@ -2,7 +2,8 @@ import { fileToBase64 } from './imageUpload';
 
 const HF_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 const HF_API_BASE = 'https://api-inference.huggingface.co/models';
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export interface GeneratedRecipe {
   title: string;
@@ -32,33 +33,24 @@ export async function analyzeImage(imageFile: File): Promise<string> {
   }
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `${SUPABASE_URL}/functions/v1/gemini-generate`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [
-            {
-              text: "Analyze this food image and provide a detailed description of the dish, including what it appears to be, key ingredients you can identify, cooking method, and presentation style. Be specific and focus on culinary details."
-            },
-            {
-              inlineData: {
-                mimeType: imageFile.type,
-                data: base64Data
-              }
-            }
-          ]
-        }]
+        prompt: "Analyze this food image and provide a detailed description of the dish, including what it appears to be, key ingredients you can identify, cooking method, and presentation style. Be specific and focus on culinary details.",
+        imageData: base64Data,
+        mimeType: imageFile.type
       })
     }
   );
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Image analysis failed: ${error.error?.message || response.statusText}`);
+    throw new Error(`Image analysis failed: ${error.error || response.statusText}`);
   }
 
   const result = await response.json();
@@ -110,25 +102,22 @@ ${source === 'voice' ? '- Extract amounts from spoken numbers (e.g., "two cups" 
 ${source === 'voice' ? '- Convert conversational language to precise cooking steps' : ''}`;
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `${SUPABASE_URL}/functions/v1/gemini-generate`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
+        prompt: prompt
       })
     }
   );
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(`Recipe generation failed: ${error.error?.message || response.statusText}`);
+    throw new Error(`Recipe generation failed: ${error.error || response.statusText}`);
   }
 
   const data = await response.json();

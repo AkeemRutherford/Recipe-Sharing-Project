@@ -64,10 +64,11 @@ function createBasicRecipeTemplate(description: string): ParsedRecipe {
 }
 
 async function parseDescriptionWithGemini(description: string): Promise<ParsedRecipe> {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  if (!apiKey) {
-    throw new Error('Gemini API key not configured. Add VITE_GEMINI_API_KEY to your .env file.');
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error('Supabase configuration not found.');
   }
 
   console.log('=== GEMINI API CALL ===');
@@ -128,24 +129,15 @@ BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `${supabaseUrl}/functions/v1/gemini-generate`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseAnonKey}`
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.8,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 2048,
-          }
+          prompt: prompt
         })
       }
     );
