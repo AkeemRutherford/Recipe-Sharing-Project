@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import Notifications from './Notifications';
 
 const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -108,12 +107,9 @@ export default function Header() {
         <div className="flex items-center justify-between gap-4">
           <div
             onClick={() => navigate('/')}
-            className="cursor-pointer hover:opacity-90 transition flex items-center space-x-3 flex-shrink-0"
+            className="cursor-pointer hover:opacity-90 transition flex-shrink-0"
           >
             <ForkloreLogoIcon className="w-10 h-10" style={{ color: 'var(--forklore-warm-red)' }} />
-            <h1 className="text-2xl font-bold hidden sm:block" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
-              Forklore
-            </h1>
           </div>
 
           <div className="flex items-center gap-3 flex-1 max-w-2xl">
@@ -170,8 +166,6 @@ export default function Header() {
             >
               <PlusIcon />
             </button>
-
-            <Notifications />
 
             <button
               onClick={() => username && navigate(`/profile/${username}`)}
