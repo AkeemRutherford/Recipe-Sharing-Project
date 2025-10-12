@@ -146,8 +146,8 @@ export default function Users() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-2xl text-airbnb-rausch font-semibold">Loading community...</div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-2xl font-semibold" style={{ color: 'var(--forklore-red)' }}>Loading community...</div>
       </div>
     );
   }
@@ -155,23 +155,24 @@ export default function Users() {
   return (
     <>
       <Header />
-      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--gradient-background)' }}>
+      <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-extrabold mb-4" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
+          <h1 className="text-5xl font-bold mb-4" style={{ color: 'var(--text-color)', fontFamily: 'var(--font-heading)' }}>
             Forklore Community
           </h1>
-          <p className="text-xl" style={{ color: 'var(--forklore-warm-brown)' }}>Connect with fellow home cooks and discover their culinary journeys</p>
+          <p className="text-xl text-gray-600">Connect with fellow home cooks and discover their culinary journeys</p>
         </div>
 
-        <div className="mb-8 bg-white rounded-2xl shadow-lg p-6">
+        <div className="mb-8 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
           <div className="relative mb-6">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search users by name, username, or bio..."
-              className="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-400"
+              style={{ fontFamily: 'var(--font-body)' }}
             />
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
               <SearchIcon />
@@ -185,9 +186,10 @@ export default function Users() {
                 onClick={() => setSortBy('active')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'active'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'text-white shadow-sm'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                 }`}
+                style={sortBy === 'active' ? { background: 'var(--forklore-red)' } : {}}
               >
                 Most Active
               </button>
@@ -195,9 +197,10 @@ export default function Users() {
                 onClick={() => setSortBy('followers')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'followers'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'text-white shadow-sm'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                 }`}
+                style={sortBy === 'followers' ? { background: 'var(--forklore-red)' } : {}}
               >
                 Most Followers
               </button>
@@ -205,9 +208,10 @@ export default function Users() {
                 onClick={() => setSortBy('newest')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'newest'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'text-white shadow-sm'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                 }`}
+                style={sortBy === 'newest' ? { background: 'var(--forklore-red)' } : {}}
               >
                 Newest Members
               </button>
@@ -215,9 +219,10 @@ export default function Users() {
                 onClick={() => setSortBy('alphabetical')}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   sortBy === 'alphabetical'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'text-white shadow-sm'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
                 }`}
+                style={sortBy === 'alphabetical' ? { background: 'var(--forklore-red)' } : {}}
               >
                 A-Z
               </button>
@@ -230,42 +235,46 @@ export default function Users() {
         </div>
 
         {filteredUsers.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-2xl shadow-lg">
+          <div className="text-center py-20 bg-white rounded-lg border border-gray-200 shadow-sm">
             <p className="text-2xl text-gray-500">No users found</p>
             <p className="text-gray-400 mt-2">Try adjusting your search</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredUsers.map(userProfile => (
-              <div key={userProfile.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition">
+              <div key={userProfile.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
                 <div className="p-6">
                   <div className="flex flex-col items-center">
                     {userProfile.profile_pic_url ? (
                       <img
                         src={userProfile.profile_pic_url}
                         alt={userProfile.username}
-                        className="w-24 h-24 rounded-full mb-4 border-4 border-gray-200"
+                        className="w-24 h-24 rounded-full mb-4 border-2 border-gray-200"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-4xl font-bold text-gray-700 mb-4 border-4 border-gray-200">
+                      <div
+                        className="w-24 h-24 rounded-full flex items-center justify-center text-4xl font-bold text-white mb-4 border-2 border-gray-200"
+                        style={{ background: 'var(--forklore-red)' }}
+                      >
                         {userProfile.username?.charAt(0).toUpperCase()}
                       </div>
                     )}
 
                     <button
                       onClick={() => navigate(`/profile/${userProfile.username}`)}
-                      className="text-xl font-bold text-gray-800 hover:text-airbnb-rausch transition mb-2"
+                      className="text-xl font-bold text-gray-800 hover:opacity-80 transition mb-2"
+                      style={{ fontFamily: 'var(--font-heading)' }}
                     >
                       {userProfile.username}
                     </button>
 
                     {userProfile.bio && (
-                      <p className="text-sm text-gray-600 text-center mb-4 line-clamp-3">
+                      <p className="text-sm text-gray-600 text-center mb-4 line-clamp-3" style={{ fontFamily: 'var(--font-body)' }}>
                         {userProfile.bio.length > 100 ? `${userProfile.bio.substring(0, 100)}...` : userProfile.bio}
                       </p>
                     )}
 
-                    <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500">
+                    <div className="flex items-center space-x-4 mb-4 text-sm text-gray-500" style={{ fontFamily: 'var(--font-body)' }}>
                       <span>{userProfile.recipe_count} {userProfile.recipe_count === 1 ? 'recipe' : 'recipes'}</span>
                       <span>•</span>
                       <span>{userProfile.follower_count} {userProfile.follower_count === 1 ? 'follower' : 'followers'}</span>
@@ -275,6 +284,7 @@ export default function Users() {
                       <button
                         onClick={() => navigate(`/profile/${userProfile.username}`)}
                         className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-semibold text-sm"
+                        style={{ fontFamily: 'var(--font-body)' }}
                       >
                         View Profile
                       </button>
@@ -286,6 +296,7 @@ export default function Users() {
                               ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                               : 'btn-primary text-white'
                           }`}
+                          style={{ fontFamily: 'var(--font-body)' }}
                         >
                           {followingIds.has(userProfile.id) ? '✓ Following' : 'Follow'}
                         </button>
