@@ -123,7 +123,7 @@ export default function Header({ onSearchChange, searchQuery = '' }: HeaderProps
             onClick={() => navigate('/')}
             className="cursor-pointer hover:opacity-90 transition flex items-center"
           >
-            <ForkloreLogoIcon className="w-8 h-8 md:w-10 md:h-10" style={{ color: '#FF385C' }} />
+            <ForkloreLogoIcon className="w-8 h-8 md:w-10 md:h-10" style={{ color: '#FF4D6A' }} />
             <span className="ml-2 text-lg md:text-xl font-bold hidden sm:inline" style={{ color: '#222' }}>
               Forklore
             </span>
@@ -153,7 +153,7 @@ export default function Header({ onSearchChange, searchQuery = '' }: HeaderProps
             <button
               onClick={() => navigate('/users')}
               className={`p-2 rounded-full hover:bg-gray-100 transition ${
-                isActive('/users') ? 'text-pink-500' : 'text-gray-600'
+                isActive('/users') ? 'text-forklore-red' : 'text-gray-600'
               }`}
               title="Community"
             >
@@ -163,7 +163,7 @@ export default function Header({ onSearchChange, searchQuery = '' }: HeaderProps
             <button
               onClick={() => navigate('/saved')}
               className={`p-2 rounded-full hover:bg-gray-100 transition ${
-                isActive('/saved') ? 'text-pink-500' : 'text-gray-600'
+                isActive('/saved') ? 'text-forklore-red' : 'text-gray-600'
               }`}
               title="Saved Recipes"
             >
@@ -181,7 +181,7 @@ export default function Header({ onSearchChange, searchQuery = '' }: HeaderProps
             <button
               onClick={() => username ? navigate(`/profile/${username}`) : navigate('/login')}
               className={`p-2 rounded-full hover:bg-gray-100 transition ${
-                location.pathname.includes('/profile') ? 'text-pink-500' : 'text-gray-600'
+                location.pathname.includes('/profile') ? 'text-forklore-red' : 'text-gray-600'
               }`}
               title="Profile"
             >

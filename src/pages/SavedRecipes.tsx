@@ -93,7 +93,7 @@ export default function SavedRecipes() {
 
         {savedRecipes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl">
-            <div className="text-pink-500 mb-6 opacity-80">
+            <div className="text-forklore-red mb-6 opacity-80">
               <BookmarkIcon />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">No saved recipes yet</h2>
@@ -102,7 +102,7 @@ export default function SavedRecipes() {
             </p>
             <button
               onClick={() => navigate('/')}
-              className="px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg transition"
+              className="px-6 py-3 bg-forklore-red hover:bg-forklore-red-600 text-white font-semibold rounded-lg transition"
             >
               Explore Recipes
             </button>

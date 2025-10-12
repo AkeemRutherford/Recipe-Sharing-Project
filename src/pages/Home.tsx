@@ -31,7 +31,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         <div className="absolute top-3 right-3">
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
-            className={`p-2 rounded-full ${isLiked ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            className={`p-2 rounded-full ${isLiked ? 'bg-forklore-red text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
           >
             <HeartIcon filled={isLiked} />
           </button>
@@ -65,7 +65,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
             <button
               key={tag}
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-pink-50 hover:text-pink-600 transition"
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-forklore-red-50 hover:text-forklore-red-600 transition"
             >
               {tag}
             </button>
@@ -400,8 +400,8 @@ export default function Home() {
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   showFollowingOnly
-                    ? 'bg-pink-500 text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-500'
+                    ? 'bg-forklore-red text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red'
                 }`}
               >
                 {showFollowingOnly ? '✓ ' : ''}Following
@@ -411,7 +411,7 @@ export default function Home() {
           {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 transition font-semibold"
+              className="flex items-center space-x-2 text-forklore-red hover:text-forklore-red-600 transition font-semibold"
             >
               <span>Clear Filters</span>
               <span className="text-xl">×</span>
@@ -424,7 +424,7 @@ export default function Home() {
             <p className="text-sm text-gray-700 mb-2">Active filters:</p>
             <div className="flex flex-wrap gap-2">
               {selectedFilters.map(filter => (
-                <span key={filter} className="px-3 py-1 bg-pink-500 text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
+                <span key={filter} className="px-3 py-1 bg-forklore-red text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
                   <span>{filter}</span>
                   <button onClick={() => handleTagClick(filter)} className="ml-1 hover:opacity-80">×</button>
                 </span>
@@ -515,8 +515,8 @@ export default function Home() {
                 onClick={() => handleFilterChange(filter.id)}
                 className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                   selectedFilters.includes(filter.id)
-                    ? 'bg-pink-500 text-white shadow-md scale-105'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:border-pink-400'
+                    ? 'bg-forklore-red text-white shadow-md scale-105'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:border-forklore-red-400'
                 }`}
               >
                 {filter.label}
@@ -538,8 +538,8 @@ export default function Home() {
                 onClick={() => handleSortChange('recommended')}
                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                   sortBy === 'recommended'
-                    ? 'bg-pink-500 text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
+                    ? 'bg-forklore-red text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
                 }`}
               >
                 Recommended
@@ -549,8 +549,8 @@ export default function Home() {
               onClick={() => handleSortChange('recent')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'recent'
-                  ? 'bg-pink-500 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
+                  ? 'bg-forklore-red text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
               }`}
             >
               Recent
@@ -559,8 +559,8 @@ export default function Home() {
               onClick={() => handleSortChange('popular')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'popular'
-                  ? 'bg-pink-500 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
+                  ? 'bg-forklore-red text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
               }`}
             >
               Popular
@@ -569,8 +569,8 @@ export default function Home() {
               onClick={() => handleSortChange('trending')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'trending'
-                  ? 'bg-pink-500 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
+                  ? 'bg-forklore-red text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-forklore-red-400'
               }`}
             >
               Trending

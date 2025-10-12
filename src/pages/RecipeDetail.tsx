@@ -409,7 +409,7 @@ export default function RecipeDetail() {
       <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-6xl mx-auto p-4 md:p-8">
-          <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 font-semibold mb-6 group">
+          <button onClick={() => navigate(-1)} className="flex items-center space-x-2 text-forklore-red hover:text-forklore-red-600 font-semibold mb-6 group">
             <BackIcon />
             <span className="group-hover:underline">Back</span>
           </button>
@@ -636,7 +636,7 @@ export default function RecipeDetail() {
               <p className="text-gray-600 mb-6">See how others have adapted this recipe</p>
 
               {aggregatedSuggestions.length > 0 && (
-                <div className="mb-8 p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-gray-50 rounded-xl border-2 border-purple-200 shadow-lg">
+                <div className="mb-8 p-6 bg-gradient-to-br from-purple-50 via-forklore-red-50 to-gray-50 rounded-xl border-2 border-purple-200 shadow-lg">
                   <h4 className="text-2xl font-bold text-purple-900 mb-4 flex items-center">
                     <span className="text-3xl mr-2">🔥</span>
                     Popular Modifications
@@ -645,7 +645,7 @@ export default function RecipeDetail() {
                     {aggregatedSuggestions.map((agg: any, index: number) => (
                       <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition border border-purple-100">
                         <div className="flex items-start">
-                          <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                          <span className="bg-gradient-to-r from-purple-500 to-forklore-red text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3 flex-shrink-0">
                             {agg.count}
                           </span>
                           <div className="flex-1">

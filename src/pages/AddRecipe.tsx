@@ -170,7 +170,7 @@ export default function AddRecipe() {
         <div className="max-w-4xl mx-auto px-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 font-semibold mb-6"
+            className="flex items-center space-x-2 text-forklore-red hover:text-forklore-red-600 font-semibold mb-6"
           >
             <BackIcon />
           <span>Back</span>

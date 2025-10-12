@@ -5,15 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --airbnb-rausch: #FF385C;
-  --airbnb-rausch-dark: #E31C5F;
-  --airbnb-babu: #00A699;
-  --airbnb-hof: #F7F7F7;
-  --airbnb-foggy: #767676;
-  --airbnb-dark-gray: #484848;
-  --airbnb-light-gray: #EBEBEB;
-  --airbnb-white: #FFFFFF;
-  --airbnb-black: #222222;
+  --forklore-red: #FF4D6A;
+  --forklore-red-hover: #E63946;
+  --forklore-red-light: #FF8FA3;
+  --forklore-red-dark: #D62828;
 
   --forklore-cream: #FFF8F0;
   --forklore-forest-green: #2C5530;
@@ -21,15 +16,15 @@
   --forklore-burnt-orange: #D97135;
   --forklore-warm-red: #C44536;
 
-  --primary-color: var(--airbnb-rausch);
-  --secondary-color: var(--airbnb-dark-gray);
-  --accent-color: var(--airbnb-rausch);
-  --background-color: var(--airbnb-white);
-  --text-color: var(--airbnb-black);
-  --border-color: var(--airbnb-light-gray);
+  --primary-color: var(--forklore-red);
+  --secondary-color: #484848;
+  --accent-color: var(--forklore-red);
+  --background-color: #FFFFFF;
+  --text-color: #222222;
+  --border-color: #EBEBEB;
 
-  --gradient-primary: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%);
-  --gradient-accent: linear-gradient(135deg, #FF385C 0%, #FF5A7B 100%);
+  --gradient-primary: linear-gradient(135deg, #FF4D6A 0%, #E63946 100%);
+  --gradient-accent: linear-gradient(135deg, #FF4D6A 0%, #FF8FA3 100%);
   --gradient-background: #FFFFFF;
 
   --font-heading: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -62,34 +57,41 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-  background: var(--airbnb-rausch);
-  color: var(--airbnb-white);
+  background: var(--forklore-red);
+  color: white;
   transition: all 0.2s ease;
   border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  border: none;
 }
 
 .btn-primary:hover {
-  background: var(--airbnb-rausch-dark);
-  box-shadow: 0 2px 8px rgba(255, 56, 92, 0.3);
+  background: var(--forklore-red-hover);
+  box-shadow: 0 4px 12px rgba(255, 77, 106, 0.3);
   transform: translateY(-1px);
 }
 
+.btn-primary:active {
+  transform: translateY(0);
+}
+
 .btn-secondary {
-  border: 1px solid var(--airbnb-dark-gray);
-  color: var(--airbnb-dark-gray);
+  border: 1px solid #484848;
+  color: #484848;
   background: transparent;
   transition: all 0.2s ease;
   border-radius: 8px;
 }
 
 .btn-secondary:hover {
-  background: var(--airbnb-hof);
-  border-color: var(--airbnb-black);
+  background: #F7F7F7;
+  border-color: #222222;
 }
 
 .card-forklore {
-  background: var(--airbnb-white);
-  border: 1px solid var(--airbnb-light-gray);
+  background: white;
+  border: 1px solid #EBEBEB;
   transition: all 0.2s ease;
   border-radius: 12px;
 }
@@ -189,15 +191,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-brand {
-  color: var(--airbnb-rausch);
+  color: var(--forklore-red);
 }
 
 .bg-brand {
-  background: var(--airbnb-rausch);
+  background: var(--forklore-red);
 }
 
 .border-brand {
-  border-color: var(--airbnb-light-gray);
+  border-color: #EBEBEB;
 }
 
 .scrollbar-hide::-webkit-scrollbar {

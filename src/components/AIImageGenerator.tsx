@@ -119,7 +119,7 @@ export default function AIImageGenerator({ recipeTitle, recipeDescription, ingre
           type="button"
           onClick={generateImage}
           disabled={generating || !recipeTitle}
-          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+          className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-forklore-red-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
         >
           <SparklesIcon />
           <span>{generating ? 'Generating...' : 'Generate AI Image'}</span>

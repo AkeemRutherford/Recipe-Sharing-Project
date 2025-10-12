@@ -397,7 +397,7 @@ export default function Profile() {
               onClick={() => setActiveTab('recipes')}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'recipes'
-                  ? 'text-pink-500 border-b-2 border-pink-500'
+                  ? 'text-forklore-red border-b-2 border-forklore-red'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -410,7 +410,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'activity'
-                  ? 'text-pink-500 border-b-2 border-pink-500'
+                  ? 'text-forklore-red border-b-2 border-forklore-red'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -423,7 +423,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'followers'
-                  ? 'text-pink-500 border-b-2 border-pink-500'
+                  ? 'text-forklore-red border-b-2 border-forklore-red'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -436,7 +436,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'following'
-                  ? 'text-pink-500 border-b-2 border-pink-500'
+                  ? 'text-forklore-red border-b-2 border-forklore-red'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -447,7 +447,7 @@ export default function Profile() {
                 onClick={() => setActiveTab('settings')}
                 className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                   activeTab === 'settings'
-                    ? 'text-pink-500 border-b-2 border-pink-500'
+                    ? 'text-forklore-red border-b-2 border-forklore-red'
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
@@ -684,7 +684,7 @@ export default function Profile() {
                     <select
                       value={measurementSystem}
                       onChange={(e) => setMeasurementSystem(e.target.value as 'imperial' | 'metric')}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-forklore-red"
                     >
                       <option value="imperial">Imperial (cups, oz, °F)</option>
                       <option value="metric">Metric (ml, g, °C)</option>

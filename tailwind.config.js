@@ -6,14 +6,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        'airbnb-rausch': '#FF385C',
-        'airbnb-rausch-dark': '#E31C5F',
-        'airbnb-babu': '#00A699',
-        'airbnb-hof': '#F7F7F7',
-        'airbnb-foggy': '#767676',
-        'airbnb-dark-gray': '#484848',
-        'airbnb-light-gray': '#EBEBEB',
-        'airbnb-black': '#222222',
+        'forklore-red': {
+          DEFAULT: '#FF4D6A',
+          50: '#FFE5EA',
+          100: '#FFCCD6',
+          200: '#FF99AD',
+          300: '#FF6684',
+          400: '#FF335B',
+          500: '#FF4D6A',
+          600: '#E63946',
+          700: '#CC2936',
+          800: '#B31F27',
+          900: '#991519'
+        },
       },
       fontFamily: {
         'circular': ['Circular', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
