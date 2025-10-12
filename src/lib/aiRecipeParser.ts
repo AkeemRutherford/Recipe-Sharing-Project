@@ -150,14 +150,15 @@ BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
     if (!response.ok) {
       const errorData = await response.json();
       console.error('Gemini API error:', errorData);
-      return createBasicRecipeTemplate(description);
+      throw new Error(`Gemini API error: ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
     const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (!generatedText) {
-      return createBasicRecipeTemplate(description);
+      console.error('No generated text from Gemini:', data);
+      throw new Error('No generated text from Gemini API');
     }
 
     let cleanedText = generatedText.trim();
@@ -188,22 +189,24 @@ BE CREATIVE. BE HELPFUL. NEVER REFUSE. Always generate something useful.`;
 
     } catch (parseError) {
       console.error('JSON parse error:', parseError);
+      console.error('Failed to parse text:', cleanedText);
 
       const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           return JSON.parse(jsonMatch[0]);
         } catch (e) {
-          return createBasicRecipeTemplate(description);
+          console.error('Failed to parse extracted JSON:', e);
+          throw new Error('Failed to parse AI response as JSON');
         }
       }
 
-      return createBasicRecipeTemplate(description);
+      throw new Error('No valid JSON found in AI response');
     }
 
   } catch (error) {
     console.error('Recipe generation error:', error);
-    return createBasicRecipeTemplate(description);
+    throw error;
   }
 }
 
@@ -216,7 +219,7 @@ export async function parseDescriptionToRecipe(description: string): Promise<Par
     const result = await parseDescriptionWithGemini(description);
     return result;
   } catch (error) {
-    console.error('Recipe parsing error:', error);
+    console.error('Recipe parsing error - falling back to template:', error);
     return createBasicRecipeTemplate(description);
   }
 }

@@ -55,10 +55,7 @@ export default function AddRecipe() {
       setShowPreview(true);
     } catch (err: any) {
       console.error('Recipe generation error:', err);
-
-      const recipeData = await parseDescriptionToRecipe(formData.description);
-      setPreviewRecipe(recipeData);
-      setShowPreview(true);
+      setError(err.message || 'Failed to generate recipe. Please try again.');
     } finally {
       setGenerating(false);
     }

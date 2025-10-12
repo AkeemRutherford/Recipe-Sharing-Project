@@ -54,21 +54,24 @@ export default function VoiceInput({
         clearTimeout(silenceTimeoutRef.current);
       }
 
-      let finalText = '';
+      let newFinalText = '';
       let interimTranscript = '';
 
       for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
 
         if (event.results[i].isFinal) {
-          finalText += transcript + ' ';
+          newFinalText += transcript + ' ';
         } else {
           interimTranscript += transcript;
         }
       }
 
-      finalTranscriptRef.current = finalText;
-      const displayText = finalText + interimTranscript;
+      if (newFinalText) {
+        finalTranscriptRef.current += newFinalText;
+      }
+
+      const displayText = finalTranscriptRef.current + interimTranscript;
       console.log('Current transcript:', displayText);
       setCurrentTranscript(displayText);
 
@@ -176,8 +179,8 @@ export default function VoiceInput({
 
   const startListening = () => {
     if (recognitionRef.current) {
-      finalTranscriptRef.current = '';
-      setCurrentTranscript('');
+      finalTranscriptRef.current = value ? value + ' ' : '';
+      setCurrentTranscript(value || '');
 
       try {
         recognitionRef.current.start();
