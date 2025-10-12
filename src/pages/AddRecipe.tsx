@@ -7,7 +7,6 @@ import AIImageGenerator from '../components/AIImageGenerator';
 import VoiceInput from '../components/VoiceInput';
 import ImageToRecipe from '../components/ImageToRecipe';
 import { parseDescriptionToRecipe } from '../lib/aiRecipeParser';
-import Header from '../components/Header';
 
 const BackIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -195,8 +194,6 @@ export default function AddRecipe() {
   };
 
   return (
-    <>
-      <Header />
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4">
           <button
@@ -545,6 +542,5 @@ export default function AddRecipe() {
         </div>
       )}
     </div>
-    </>
   );
 }
