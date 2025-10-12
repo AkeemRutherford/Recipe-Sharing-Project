@@ -75,19 +75,29 @@ export default function Profile() {
   }, [username, user]);
 
   const loadCurrentUserProfile = async () => {
+    if (!user) {
+      navigate('/');
+      return;
+    }
+
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
         .select('username')
-        .eq('id', user!.id)
+        .eq('id', user.id)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error loading current user profile:', error);
+        navigate('/');
+        return;
+      }
+
       if (data?.username) {
         navigate(`/profile/${data.username}`, { replace: true });
       } else {
-        alert('Profile not found');
+        console.warn('No username found for current user');
         navigate('/');
       }
     } catch (err) {
