@@ -18,165 +18,21 @@ export default function VoiceInput({
   required = false
 }: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
-  const [isSupported, setIsSupported] = useState(true);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const recognitionRef = useRef<any>(null);
-  const silenceTimeoutRef = useRef<any>(null);
-  const finalTranscriptRef = useRef<string>('');
-  const interimTranscriptRef = useRef<string>('');
+  const [error, setError] = useState<string | null>(null);
+
+  const wsRef = useRef<WebSocket | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
   const durationIntervalRef = useRef<any>(null);
-  const isListeningRef = useRef(false);
-  const restartAttemptRef = useRef(0);
-  const lastResultTimeRef = useRef<number>(0);
+  const finalTranscriptRef = useRef<string>('');
 
   useEffect(() => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      setIsSupported(false);
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 1;
-
-    if ('speechSynthesis' in window) {
-      try {
-        (recognition as any).serviceURI = undefined;
-      } catch (e) {
-      }
-    }
-
-    recognition.onstart = () => {
-      console.log('Speech recognition started - microphone is active');
-      setIsListening(true);
-      isListeningRef.current = true;
-    };
-
-    recognition.onresult = (event: any) => {
-      lastResultTimeRef.current = Date.now();
-      restartAttemptRef.current = 0;
-
-      console.log('Speech detected!', event.results.length, 'results', 'resultIndex:', event.resultIndex);
-
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-      }
-
-      interimTranscriptRef.current = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        console.log(`Result ${i}: isFinal=${event.results[i].isFinal}, text="${transcript}"`);
-
-        if (event.results[i].isFinal) {
-          finalTranscriptRef.current += transcript + ' ';
-          console.log('Added final text, total now:', finalTranscriptRef.current);
-        } else {
-          interimTranscriptRef.current += transcript;
-        }
-      }
-
-      const displayText = finalTranscriptRef.current + interimTranscriptRef.current;
-      console.log('Display text:', displayText);
-      setCurrentTranscript(displayText);
-
-      const fullText = displayText.trim();
-      if (fullText) {
-        onChange(fullText);
-      }
-
-      silenceTimeoutRef.current = setTimeout(() => {
-        console.log('Long pause detected, but continuing to listen...');
-      }, 5000);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-
-      if (event.error === 'aborted') {
-        console.log('Recognition was aborted - saving interim text and will restart');
-        if (interimTranscriptRef.current) {
-          finalTranscriptRef.current += interimTranscriptRef.current + ' ';
-          interimTranscriptRef.current = '';
-          console.log('Saved interim text, total now:', finalTranscriptRef.current);
-        }
-        return;
-      }
-
-      if (event.error === 'no-speech') {
-        console.log('No speech detected yet, continuing to listen...');
-        return;
-      }
-
-      if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-        setIsListening(false);
-        isListeningRef.current = false;
-        alert('Microphone access denied. Please enable microphone permissions in your browser settings.');
-        return;
-      }
-
-      if (event.error === 'network') {
-        console.log('Network error, attempting to restart...');
-        setTimeout(() => {
-          if (isListeningRef.current && recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (err) {
-              console.error('Could not restart:', err);
-            }
-          }
-        }, 1000);
-      }
-    };
-
-    recognition.onend = () => {
-      console.log('Speech recognition ended');
-
-      if (isListeningRef.current) {
-        const timeSinceLastResult = Date.now() - lastResultTimeRef.current;
-        restartAttemptRef.current++;
-
-        const delay = Math.min(300 + (restartAttemptRef.current * 100), 1000);
-
-        console.log(`Auto-restarting in ${delay}ms (attempt ${restartAttemptRef.current}, ${timeSinceLastResult}ms since last result)...`);
-
-        setTimeout(() => {
-          if (isListeningRef.current && recognitionRef.current) {
-            try {
-              recognitionRef.current.start();
-            } catch (error) {
-              console.log('Could not restart, user may have stopped manually');
-              setIsListening(false);
-              isListeningRef.current = false;
-            }
-          }
-        }, delay);
-      }
-    };
-
-    recognitionRef.current = recognition;
-
     return () => {
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.abort();
-        } catch (err) {
-          console.error('Error aborting recognition:', err);
-        }
-      }
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-      }
-      if (durationIntervalRef.current) {
-        clearInterval(durationIntervalRef.current);
-      }
+      stopListening();
     };
-  }, [onChange]);
+  }, []);
 
   useEffect(() => {
     if (isListening) {
@@ -203,42 +59,109 @@ export default function VoiceInput({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startListening = () => {
-    if (recognitionRef.current) {
+  const startListening = async () => {
+    try {
+      setError(null);
       finalTranscriptRef.current = value ? value + ' ' : '';
-      interimTranscriptRef.current = '';
-      restartAttemptRef.current = 0;
-      lastResultTimeRef.current = Date.now();
       setCurrentTranscript(value || '');
 
-      try {
-        recognitionRef.current.start();
-        console.log('🎤 Voice recognition starting... Please allow microphone access if prompted.');
-      } catch (error) {
-        console.error('Error starting recognition:', error);
-        alert('Could not start voice recognition. Make sure you are using Chrome, Edge, or Safari, and have granted microphone permissions.');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const wsUrl = `${supabaseUrl.replace('https://', 'wss://')}/functions/v1/deepgram-streaming`;
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('Connected to Deepgram');
+        setIsListening(true);
+
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm',
+        });
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+            ws.send(event.data);
+          }
+        };
+
+        mediaRecorder.start(250);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.channel?.alternatives?.[0]?.transcript) {
+            const transcript = data.channel.alternatives[0].transcript;
+
+            if (transcript.trim()) {
+              if (data.is_final) {
+                finalTranscriptRef.current += transcript + ' ';
+                const fullText = finalTranscriptRef.current.trim();
+                setCurrentTranscript(fullText);
+                onChange(fullText);
+              } else {
+                const fullText = finalTranscriptRef.current + transcript;
+                setCurrentTranscript(fullText);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing Deepgram response:', err);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setError('Connection error. Please try again.');
+        stopListening();
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+        if (isListening) {
+          stopListening();
+        }
+      };
+
+    } catch (err: any) {
+      console.error('Error starting voice input:', err);
+      if (err.name === 'NotAllowedError') {
+        setError('Microphone access denied. Please enable microphone permissions.');
+      } else {
+        setError('Could not start voice input. Please check your microphone.');
       }
     }
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-      }
-      setIsListening(false);
-      isListeningRef.current = false;
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
 
-      try {
-        recognitionRef.current.stop();
-        console.log('✅ Stopped listening. Final text in field.');
-      } catch (error) {
-        console.error('Error stopping recognition:', error);
-      }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
 
-      finalTranscriptRef.current = '';
-      interimTranscriptRef.current = '';
-      setCurrentTranscript('');
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.close();
+    }
+
+    wsRef.current = null;
+    mediaRecorderRef.current = null;
+    setIsListening(false);
+    finalTranscriptRef.current = '';
+    setCurrentTranscript('');
+
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
     }
   };
 
@@ -253,19 +176,23 @@ export default function VoiceInput({
         placeholder={placeholder}
       />
 
-      {isSupported && (
-        <button
-          type="button"
-          onClick={isListening ? stopListening : startListening}
-          className={`absolute right-3 top-3 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
-            isListening
-              ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
-              : 'bg-orange-500 hover:bg-orange-600 text-white'
-          }`}
-          title={isListening ? 'Stop recording' : 'Start voice input'}
-        >
-          {isListening ? '⏹️ Stop' : '🎤 Speak'}
-        </button>
+      <button
+        type="button"
+        onClick={isListening ? stopListening : startListening}
+        className={`absolute right-3 top-3 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+          isListening
+            ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse'
+            : 'bg-orange-500 hover:bg-orange-600 text-white'
+        }`}
+        title={isListening ? 'Stop recording' : 'Start voice input'}
+      >
+        {isListening ? '⏹️ Stop' : '🎤 Speak'}
+      </button>
+
+      {error && (
+        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-700">{error}</p>
+        </div>
       )}
 
       {isListening && (
@@ -300,12 +227,6 @@ export default function VoiceInput({
             </div>
           )}
         </div>
-      )}
-
-      {!isSupported && (
-        <p className="mt-2 text-sm text-gray-500">
-          ℹ️ Voice input is not supported in this browser. Try Chrome, Edge, or Safari.
-        </p>
       )}
 
       <style>{`

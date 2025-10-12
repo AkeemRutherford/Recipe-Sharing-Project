@@ -13,99 +13,128 @@ export default function VoiceRecipeInput({ onRecipeGenerated, onCancel }: VoiceR
   const [error, setError] = useState<string | null>(null);
   const [duration, setDuration] = useState(0);
   const [enhanceDescription, setEnhanceDescription] = useState(true);
-  const recognitionRef = useRef<any>(null);
+
+  const wsRef = useRef<WebSocket | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
   const intervalRef = useRef<any>(null);
+  const finalTranscriptRef = useRef<string>('');
 
   useEffect(() => {
-    // Check browser support
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-
-    if (!SpeechRecognition) {
-      setError('Speech recognition not supported in this browser. Please use Chrome or Edge.');
-      return;
-    }
-
-    // Initialize speech recognition
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-
-    recognition.onresult = (event: any) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcriptPiece = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcriptPiece + ' ';
-        } else {
-          interimTranscript += transcriptPiece;
-        }
-      }
-
-      if (finalTranscript) {
-        setTranscript(prev => prev + finalTranscript);
-      }
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
-      if (event.error === 'no-speech') {
-        setError('No speech detected. Please try again.');
-      } else if (event.error === 'not-allowed') {
-        setError('Microphone access denied. Please allow microphone access.');
-      } else {
-        setError(`Recognition error: ${event.error}`);
-      }
-      setIsListening(false);
-      clearInterval(intervalRef.current);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-      clearInterval(intervalRef.current);
-    };
-
-    recognitionRef.current = recognition;
-
     return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-      clearInterval(intervalRef.current);
+      stopListening();
     };
   }, []);
 
-  const startListening = () => {
-    if (!recognitionRef.current) {
-      setError('Speech recognition not available');
-      return;
+  const startListening = async () => {
+    try {
+      setError(null);
+      finalTranscriptRef.current = '';
+      setTranscript('');
+      setDuration(0);
+
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const wsUrl = `${supabaseUrl.replace('https://', 'wss://')}/functions/v1/deepgram-streaming`;
+
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        console.log('Connected to Deepgram');
+        setIsListening(true);
+
+        intervalRef.current = setInterval(() => {
+          setDuration(prev => prev + 1);
+        }, 1000);
+
+        const mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm',
+        });
+        mediaRecorderRef.current = mediaRecorder;
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+            ws.send(event.data);
+          }
+        };
+
+        mediaRecorder.start(250);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.channel?.alternatives?.[0]?.transcript) {
+            const transcriptText = data.channel.alternatives[0].transcript;
+
+            if (transcriptText.trim()) {
+              if (data.is_final) {
+                finalTranscriptRef.current += transcriptText + ' ';
+                setTranscript(finalTranscriptRef.current.trim());
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error parsing Deepgram response:', err);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+        setError('Connection error. Please try again.');
+        stopListening();
+      };
+
+      ws.onclose = () => {
+        console.log('WebSocket closed');
+        if (isListening) {
+          stopListening();
+        }
+      };
+
+    } catch (err: any) {
+      console.error('Error starting voice input:', err);
+      if (err.name === 'NotAllowedError') {
+        setError('Microphone access denied. Please allow microphone access.');
+      } else {
+        setError('Could not start voice input. Please check your microphone.');
+      }
+      setIsListening(false);
     }
-
-    setError(null);
-    setDuration(0);
-    recognitionRef.current.start();
-    setIsListening(true);
-
-    // Start duration timer
-    intervalRef.current = setInterval(() => {
-      setDuration(prev => prev + 1);
-    }, 1000);
   };
 
   const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
     }
+
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach(track => track.stop());
+      mediaStreamRef.current = null;
+    }
+
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.close();
+    }
+
+    wsRef.current = null;
+    mediaRecorderRef.current = null;
     setIsListening(false);
-    clearInterval(intervalRef.current);
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
   };
 
   const clearTranscript = () => {
     setTranscript('');
     setDuration(0);
     setError(null);
+    finalTranscriptRef.current = '';
   };
 
   const processRecipe = async () => {
