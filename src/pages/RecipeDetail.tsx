@@ -5,6 +5,7 @@ import { supabase, Recipe, RecipeModification } from '../lib/supabase';
 import { formatIngredientAmount } from '../lib/fractions';
 import { convertIngredient, detectCurrentSystem, MeasurementSystem } from '../lib/unitConversion';
 import Header from '../components/Header';
+import { HeartSpoonIcon, CookbookIcon } from '../components/ForkloreIcons';
 
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
@@ -70,6 +71,10 @@ export default function RecipeDetail() {
   const [appliedModifications, setAppliedModifications] = useState<Set<string>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [savesCount, setSavesCount] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -79,7 +84,11 @@ export default function RecipeDetail() {
       if (user) {
         loadModificationLikes();
         loadCommentLikes();
+        checkIfLiked();
+        checkIfSaved();
       }
+      loadLikesCount();
+      loadSavesCount();
     }
   }, [id, user]);
 
@@ -161,6 +170,122 @@ export default function RecipeDetail() {
       setCommentLikes(new Set(data.map(like => like.comment_id)));
     } catch (err) {
       console.error('Error loading comment likes:', err);
+    }
+  };
+
+  const checkIfLiked = async () => {
+    if (!user || !id) return;
+    try {
+      const { data, error } = await supabase
+        .from('recipe_likes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('recipe_id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsLiked(!!data);
+    } catch (err) {
+      console.error('Error checking if liked:', err);
+    }
+  };
+
+  const checkIfSaved = async () => {
+    if (!user || !id) return;
+    try {
+      const { data, error } = await supabase
+        .from('saved_recipes')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('recipe_id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setIsSaved(!!data);
+    } catch (err) {
+      console.error('Error checking if saved:', err);
+    }
+  };
+
+  const loadLikesCount = async () => {
+    if (!id) return;
+    try {
+      const { count, error } = await supabase
+        .from('recipe_likes')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipe_id', id);
+
+      if (error) throw error;
+      setLikesCount(count || 0);
+    } catch (err) {
+      console.error('Error loading likes count:', err);
+    }
+  };
+
+  const loadSavesCount = async () => {
+    if (!id) return;
+    try {
+      const { count, error } = await supabase
+        .from('saved_recipes')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipe_id', id);
+
+      if (error) throw error;
+      setSavesCount(count || 0);
+    } catch (err) {
+      console.error('Error loading saves count:', err);
+    }
+  };
+
+  const toggleLike = async () => {
+    if (!user || !id) return;
+
+    try {
+      if (isLiked) {
+        await supabase
+          .from('recipe_likes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recipe_id', id);
+
+        setIsLiked(false);
+        setLikesCount(prev => Math.max(0, prev - 1));
+      } else {
+        await supabase
+          .from('recipe_likes')
+          .insert({ user_id: user.id, recipe_id: id });
+
+        setIsLiked(true);
+        setLikesCount(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling like:', err);
+    }
+  };
+
+  const toggleSave = async () => {
+    if (!user || !id) return;
+
+    try {
+      if (isSaved) {
+        await supabase
+          .from('saved_recipes')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('recipe_id', id);
+
+        setIsSaved(false);
+        setSavesCount(prev => Math.max(0, prev - 1));
+      } else {
+        await supabase
+          .from('saved_recipes')
+          .insert({ user_id: user.id, recipe_id: id });
+
+        setIsSaved(true);
+        setSavesCount(prev => prev + 1);
+      }
+    } catch (err) {
+      console.error('Error toggling save:', err);
     }
   };
 
@@ -440,22 +565,52 @@ export default function RecipeDetail() {
                     </div>
                   </div>
                 </div>
-                {user && recipe.user_id === user.id && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
-                      className="px-6 py-3 bg-white/90 hover:bg-white text-airbnb-rausch font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
-                    >
-                      📝 Edit Recipe
-                    </button>
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      className="px-6 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
-                    >
-                      🗑️ Delete
-                    </button>
-                  </div>
-                )}
+                <div className="flex gap-3">
+                  {user && (
+                    <>
+                      <button
+                        onClick={toggleLike}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold shadow-lg transition backdrop-blur-sm ${
+                          isLiked
+                            ? 'bg-white text-forklore-red'
+                            : 'bg-white/90 hover:bg-white text-gray-700'
+                        }`}
+                        title={isLiked ? "Unlike recipe" : "Like recipe"}
+                      >
+                        <HeartSpoonIcon size={20} />
+                        <span>{likesCount}</span>
+                      </button>
+                      <button
+                        onClick={toggleSave}
+                        className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold shadow-lg transition backdrop-blur-sm ${
+                          isSaved
+                            ? 'bg-white text-forklore-red'
+                            : 'bg-white/90 hover:bg-white text-gray-700'
+                        }`}
+                        title={isSaved ? "Remove from saved" : "Save recipe"}
+                      >
+                        <CookbookIcon size={20} />
+                        <span>{savesCount}</span>
+                      </button>
+                    </>
+                  )}
+                  {user && recipe.user_id === user.id && (
+                    <>
+                      <button
+                        onClick={() => navigate(`/recipe/${recipe.id}/edit`)}
+                        className="px-6 py-3 bg-white/90 hover:bg-white text-forklore-red font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                      >
+                        📝 Edit Recipe
+                      </button>
+                      <button
+                        onClick={() => setShowDeleteModal(true)}
+                        className="px-6 py-3 bg-red-500/90 hover:bg-red-600 text-white font-semibold rounded-lg shadow-lg transition backdrop-blur-sm"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
