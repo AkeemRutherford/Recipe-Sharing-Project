@@ -115,11 +115,11 @@ export default function Notifications() {
 
   const getNotificationIcon = (type: string) => {
     switch(type) {
-      case 'modification': return '💡';
-      case 'like': return '❤️';
-      case 'comment': return '💬';
-      case 'follow': return '👤';
-      default: return '🔔';
+      case 'modification': return 'M';
+      case 'like': return 'L';
+      case 'comment': return 'C';
+      case 'follow': return 'F';
+      default: return 'N';
     }
   };
 
@@ -159,7 +159,7 @@ export default function Notifications() {
             <div className="overflow-y-auto flex-1">
               {notifications.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
-                  <p className="text-4xl mb-2">🔔</p>
+                  <p className="text-4xl mb-2 font-bold">N</p>
                   <p>No notifications yet</p>
                 </div>
               ) : (

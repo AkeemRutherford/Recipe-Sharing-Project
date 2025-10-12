@@ -617,10 +617,10 @@ export default function Profile() {
                             <div key={activity.id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                               <div className="flex-shrink-0 mt-1">
                                 {activity.activity_type === 'posted_recipe' && <span className="text-2xl">📝</span>}
-                                {activity.activity_type === 'commented' && <span className="text-2xl">💬</span>}
-                                {activity.activity_type === 'liked' && <span className="text-2xl">❤️</span>}
-                                {activity.activity_type === 'saved' && <span className="text-2xl">🔖</span>}
-                                {activity.activity_type === 'followed' && <span className="text-2xl">👤</span>}
+                                {activity.activity_type === 'commented' && <span className="text-2xl font-bold">C</span>}
+                                {activity.activity_type === 'liked' && <span className="text-2xl font-bold">L</span>}
+                                {activity.activity_type === 'saved' && <span className="text-2xl font-bold">S</span>}
+                                {activity.activity_type === 'followed' && <span className="text-2xl font-bold">F</span>}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-gray-800">

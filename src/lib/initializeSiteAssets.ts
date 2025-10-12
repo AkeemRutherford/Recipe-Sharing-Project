@@ -137,8 +137,8 @@ export async function initializeForkloreAssets(): Promise<void> {
       results.errors.forEach(err => console.log(`  - ${err}`));
     }
 
-    console.log('\n🎉 Asset initialization complete!');
-    console.log('💡 Refresh the page to see the new logo in the header.');
+    console.log('\nAsset initialization complete!');
+    console.log('Refresh the page to see the new logo in the header.');
 
   } catch (error: any) {
     console.error('❌ Asset initialization failed:', error);

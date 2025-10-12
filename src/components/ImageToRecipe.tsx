@@ -197,7 +197,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
 
       <div className="bg-white p-4 rounded-lg mb-6" style={{ border: '1px solid var(--forklore-warm-brown)' }}>
         <h4 className="font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
-          💡 Tips for best results:
+          Tips for best results:
         </h4>
         <ul className="text-sm space-y-1" style={{ color: 'var(--forklore-warm-brown)' }}>
           <li>• Use clear, well-lit photos of the finished dish</li>

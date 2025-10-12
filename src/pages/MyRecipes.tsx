@@ -70,11 +70,11 @@ export default function MyRecipes() {
 
   const getModificationIcon = (type: string) => {
     switch(type) {
-      case 'substitution': return '🔄';
-      case 'addition': return '➕';
-      case 'tip': return '⭐';
-      case 'question': return '❓';
-      default: return '💡';
+      case 'substitution': return 'S';
+      case 'addition': return 'A';
+      case 'tip': return 'T';
+      case 'question': return 'Q';
+      default: return 'N';
     }
   };
 

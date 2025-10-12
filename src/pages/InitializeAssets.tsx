@@ -72,8 +72,8 @@ export default function InitializeAssets() {
       console.log = originalConsoleLog;
 
       setStatus('complete');
-      setMessage('All assets uploaded successfully! 🎉');
-      addLog('🎉 Initialization complete!');
+      setMessage('All assets uploaded successfully!');
+      addLog('Initialization complete!');
 
       await checkAssets();
 

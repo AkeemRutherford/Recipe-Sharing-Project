@@ -323,10 +323,10 @@ export default function RecipeDetail() {
 
   const getCommentIcon = (type: string) => {
     switch(type) {
-      case 'suggestion': return '💡';
-      case 'tip': return '⭐';
-      case 'question': return '❓';
-      default: return '💬';
+      case 'suggestion': return 'S';
+      case 'tip': return 'T';
+      case 'question': return 'Q';
+      default: return 'C';
     }
   };
 
@@ -593,9 +593,9 @@ export default function RecipeDetail() {
                             <p className="font-semibold text-gray-800 mb-2">{agg.comment.text}</p>
                             <p className="text-xs text-gray-500">
                               {agg.count === 1 ? (
-                                <>✓ Suggested by {agg.users[0]}</>
+                                <>Suggested by {agg.users[0]}</>
                               ) : (
-                                <>✓ {agg.count} users suggest this: {agg.users.join(', ')}</>
+                                <>{agg.count} users suggest this: {agg.users.join(', ')}</>
                               )}
                             </p>
                           </div>
@@ -613,23 +613,23 @@ export default function RecipeDetail() {
                     <button
                       type="button"
                       onClick={() => setCommentType('tip')}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'tip' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition ${commentType === 'tip' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
                     >
-                      ⭐ Tip
+                      Tip
                     </button>
                     <button
                       type="button"
                       onClick={() => setCommentType('suggestion')}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'suggestion' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition ${commentType === 'suggestion' ? 'bg-blue-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
                     >
-                      💡 Suggestion
+                      Suggestion
                     </button>
                     <button
                       type="button"
                       onClick={() => setCommentType('question')}
-                      className={`px-4 py-2 rounded-lg font-medium transition ${commentType === 'question' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition ${commentType === 'question' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
                     >
-                      ❓ Question
+                      Question
                     </button>
                   </div>
                   <textarea
@@ -642,7 +642,7 @@ export default function RecipeDetail() {
                   <div className="flex justify-end mt-3">
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-airbnb-rausch text-white font-bold rounded-lg hover:bg-airbnb-rausch-dark transition shadow-sm"
+                      className="px-6 py-3 bg-airbnb-rausch text-white font-bold rounded-full hover:bg-airbnb-rausch-dark transition shadow-sm"
                     >
                       Post Community Note
                     </button>
@@ -698,12 +698,12 @@ export default function RecipeDetail() {
                               </span>
                               {(comment.likes_count || 0) >= 10 && (
                                 <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                  ⭐ Top Comment
+                                  Top Comment
                                 </span>
                               )}
                               {comment.user_id === recipe?.user_id && (
                                 <span className="inline-block ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                                  👨‍🍳 Author
+                                  Author
                                 </span>
                               )}
                               <span className="block text-xs text-gray-500 mt-1">{new Date(comment.created_at).toLocaleDateString()}</span>
@@ -720,7 +720,7 @@ export default function RecipeDetail() {
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                                 }`}
                               >
-                                <span>{commentLikes.has(comment.id) ? '❤️' : '🤍'}</span>
+                                <span>{commentLikes.has(comment.id) ? 'L' : 'L'}</span>
                                 <span>{commentLikes.has(comment.id) ? 'Liked' : 'Like'} ({comment.likes_count || 0})</span>
                               </button>
                             )}
@@ -743,7 +743,7 @@ export default function RecipeDetail() {
                                     : 'bg-blue-100 text-blue-600 hover:bg-blue-200'
                                 }`}
                               >
-                                <span>{appliedModifications.has(comment.id) ? '✓ Applied' : 'Apply to Recipe'}</span>
+                                <span>{appliedModifications.has(comment.id) ? 'Applied' : 'Apply to Recipe'}</span>
                               </button>
                             )}
                           </div>
