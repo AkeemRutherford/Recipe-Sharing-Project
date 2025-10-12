@@ -19,6 +19,16 @@ export default {
           800: '#B31F27',
           900: '#991519'
         },
+        'airbnb-rausch': {
+          DEFAULT: '#FF5A5F',
+          dark: '#E00007',
+        },
+        'airbnb-babu': '#00A699',
+        'airbnb-arches': '#FC642D',
+        'airbnb-hof': '#FFB400',
+        'airbnb-foggy': '#767676',
+        'airbnb-black': '#222222',
+        'airbnb-dark-gray': '#484848',
       },
       fontFamily: {
         'circular': ['Circular', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
