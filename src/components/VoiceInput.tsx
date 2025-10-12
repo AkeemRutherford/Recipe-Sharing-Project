@@ -70,9 +70,21 @@ export default function VoiceInput({
 
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const wsUrl = `${supabaseUrl.replace('https://', 'wss://')}/functions/v1/deepgram-streaming`;
 
-      const ws = new WebSocket(wsUrl);
+      const tokenResponse = await fetch(`${supabaseUrl}/functions/v1/deepgram-token`, {
+        headers: {
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+      });
+
+      if (!tokenResponse.ok) {
+        throw new Error('Failed to get Deepgram token');
+      }
+
+      const { apiKey } = await tokenResponse.json();
+
+      const deepgramUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&punctuate=true&interim_results=true&smart_format=true`;
+      const ws = new WebSocket(deepgramUrl, ['token', apiKey]);
       wsRef.current = ws;
 
       ws.onopen = () => {

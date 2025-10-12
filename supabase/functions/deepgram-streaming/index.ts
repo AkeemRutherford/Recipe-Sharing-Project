@@ -3,7 +3,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey, Upgrade, Connection, Sec-WebSocket-Key, Sec-WebSocket-Version, Sec-WebSocket-Extensions",
 };
 
 Deno.serve(async (req: Request) => {
@@ -20,7 +20,6 @@ Deno.serve(async (req: Request) => {
       throw new Error('DEEPGRAM_API_KEY not configured');
     }
 
-    // Check if this is a WebSocket upgrade request
     const upgrade = req.headers.get("upgrade") || "";
     if (upgrade.toLowerCase() !== "websocket") {
       return new Response(
@@ -32,36 +31,30 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Create WebSocket connection to client
     const { socket: clientSocket, response } = Deno.upgradeWebSocket(req);
 
-    // Connect to Deepgram
     const deepgramUrl = "wss://api.deepgram.com/v1/listen?model=nova-2&punctuate=true&interim_results=true&smart_format=true";
     const deepgramSocket = new WebSocket(deepgramUrl, [
       "token",
       deepgramApiKey,
     ]);
 
-    // Forward messages from client to Deepgram
     clientSocket.onmessage = (event) => {
       if (deepgramSocket.readyState === WebSocket.OPEN) {
         deepgramSocket.send(event.data);
       }
     };
 
-    // Forward messages from Deepgram to client
     deepgramSocket.onmessage = (event) => {
       if (clientSocket.readyState === WebSocket.OPEN) {
         clientSocket.send(event.data);
       }
     };
 
-    // Handle Deepgram connection open
     deepgramSocket.onopen = () => {
       console.log('Connected to Deepgram');
     };
 
-    // Handle errors
     deepgramSocket.onerror = (error) => {
       console.error('Deepgram error:', error);
       if (clientSocket.readyState === WebSocket.OPEN) {
@@ -76,7 +69,6 @@ Deno.serve(async (req: Request) => {
       }
     };
 
-    // Handle closures
     deepgramSocket.onclose = () => {
       console.log('Deepgram connection closed');
       if (clientSocket.readyState === WebSocket.OPEN) {
