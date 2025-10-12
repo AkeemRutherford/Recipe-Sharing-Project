@@ -133,7 +133,7 @@ export default function IngredientBuilder({ ingredients, onChange }: IngredientB
         <button
           type="button"
           onClick={addIngredient}
-          className="flex items-center space-x-1 px-3 py-1 bg-amber-100 text-amber-700 rounded-full hover:bg-amber-200 transition text-sm font-semibold"
+          className="flex items-center space-x-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition text-sm font-semibold"
         >
           <PlusIcon />
           <span>Add Ingredient</span>

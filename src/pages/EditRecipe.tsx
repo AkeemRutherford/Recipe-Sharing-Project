@@ -321,7 +321,7 @@ export default function EditRecipe() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white font-semibold rounded-full hover:from-amber-700 hover:to-orange-600 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-airbnb-rausch text-white font-semibold rounded-full hover:bg-airbnb-rausch-dark transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>

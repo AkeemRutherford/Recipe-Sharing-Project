@@ -334,7 +334,7 @@ export default function RecipeDetail() {
     switch(type) {
       case 'suggestion': return 'border-blue-400 bg-blue-50';
       case 'tip': return 'border-yellow-400 bg-yellow-50';
-      case 'question': return 'border-purple-400 bg-purple-50';
+      case 'question': return 'border-gray-300 bg-gray-50';
       default: return 'border-gray-200 bg-white';
     }
   };
@@ -577,16 +577,16 @@ export default function RecipeDetail() {
               <p className="text-gray-600 mb-6">See how others have adapted this recipe</p>
 
               {aggregatedSuggestions.length > 0 && (
-                <div className="mb-8 p-6 bg-gradient-to-br from-purple-50 via-pink-50 to-gray-50 rounded-xl border-2 border-purple-200 shadow-lg">
-                  <h4 className="text-2xl font-bold text-purple-900 mb-4 flex items-center">
+                <div className="mb-8 p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl border-2 border-gray-200 shadow-lg">
+                  <h4 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
                     <span className="text-3xl mr-2">🔥</span>
                     Popular Modifications
                   </h4>
                   <div className="space-y-3">
                     {aggregatedSuggestions.map((agg: any, index: number) => (
-                      <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition border border-purple-100">
+                      <div key={index} className="bg-white rounded-lg p-4 shadow-md hover:shadow-lg transition border border-gray-200">
                         <div className="flex items-start">
-                          <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3 flex-shrink-0">
+                          <span className="bg-airbnb-rausch text-white rounded-full h-8 w-8 text-sm flex items-center justify-center font-bold mr-3 flex-shrink-0">
                             {agg.count}
                           </span>
                           <div className="flex-1">
@@ -627,7 +627,7 @@ export default function RecipeDetail() {
                     <button
                       type="button"
                       onClick={() => setCommentType('question')}
-                      className={`px-4 py-2 rounded-full font-medium transition ${commentType === 'question' ? 'bg-purple-500 text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition ${commentType === 'question' ? 'bg-airbnb-rausch text-white' : 'bg-white text-gray-600 border border-gray-300'}`}
                     >
                       Question
                     </button>

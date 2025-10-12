@@ -99,7 +99,7 @@ export default function SavedRecipes() {
                   {recipe.image_url ? (
                     <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
                       <span className="text-6xl">🍳</span>
                     </div>
                   )}

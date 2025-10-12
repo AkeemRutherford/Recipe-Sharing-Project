@@ -12,7 +12,7 @@ export default function CookingModal({ isOpen }: CookingModalProps) {
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 text-center">
         <div className="mb-6">
           <div className="relative inline-block">
-            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-orange-400 via-amber-400 to-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+            <div className="w-32 h-32 mx-auto bg-gradient-to-br from-airbnb-rausch via-airbnb-rausch-dark to-airbnb-rausch rounded-full flex items-center justify-center shadow-lg animate-pulse">
               <svg
                 className="w-20 h-20 text-white animate-bounce"
                 fill="currentColor"
@@ -22,9 +22,9 @@ export default function CookingModal({ isOpen }: CookingModalProps) {
               </svg>
             </div>
 
-            <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full animate-ping opacity-75"></div>
-            <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-yellow-500 rounded-full animate-ping opacity-75" style={{ animationDelay: '0.3s' }}></div>
-            <div className="absolute -top-2 -left-2 w-7 h-7 bg-orange-500 rounded-full animate-ping opacity-75" style={{ animationDelay: '0.6s' }}></div>
+            <div className="absolute -top-2 -right-2 w-8 h-8 bg-airbnb-rausch rounded-full animate-ping opacity-75"></div>
+            <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-airbnb-rausch-dark rounded-full animate-ping opacity-75" style={{ animationDelay: '0.3s' }}></div>
+            <div className="absolute -top-2 -left-2 w-7 h-7 bg-airbnb-rausch rounded-full animate-ping opacity-75" style={{ animationDelay: '0.6s' }}></div>
           </div>
         </div>
 
@@ -37,13 +37,13 @@ export default function CookingModal({ isOpen }: CookingModalProps) {
         </p>
 
         <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 rounded-full animate-pulse shadow-lg" style={{ width: '100%' }}></div>
+          <div className="h-full bg-gradient-to-r from-airbnb-rausch via-airbnb-rausch-dark to-airbnb-rausch rounded-full animate-pulse shadow-lg" style={{ width: '100%' }}></div>
         </div>
 
         <div className="mt-6 flex justify-center space-x-2">
-          <div className="w-3 h-3 bg-orange-500 rounded-full animate-bounce"></div>
-          <div className="w-3 h-3 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          <div className="w-3 h-3 bg-airbnb-rausch rounded-full animate-bounce"></div>
+          <div className="w-3 h-3 bg-airbnb-rausch-dark rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-3 h-3 bg-airbnb-rausch rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
         </div>
       </div>
     </div>

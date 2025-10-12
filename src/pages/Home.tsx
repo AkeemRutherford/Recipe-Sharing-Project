@@ -22,8 +22,8 @@ function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick }: { 
         {recipe.image_url ? (
           <img src={recipe.image_url} alt={recipe.title} className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center">
-            <span className="text-4xl font-bold text-white">No Image</span>
+          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+            <span className="text-4xl font-bold text-gray-600">No Image</span>
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -487,8 +487,8 @@ export default function Home() {
             onClick={() => handleFilterChange('trending')}
             className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
               selectedFilters.includes('trending')
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-105'
-                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400'
+                ? 'bg-airbnb-rausch text-white shadow-md scale-105'
+                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-airbnb-rausch'
             }`}
           >
             {trendingFilter.label}
@@ -497,7 +497,7 @@ export default function Home() {
           <div className="relative flex-1">
             <button
               onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full px-5 py-2 rounded-full font-semibold transition-all bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-400 flex items-center justify-between"
+              className="w-full px-5 py-2 rounded-full font-semibold transition-all bg-white border-2 border-gray-300 text-gray-700 hover:border-airbnb-rausch flex items-center justify-between"
             >
               <span>Categories</span>
               <ChevronDownIcon />
@@ -517,7 +517,7 @@ export default function Home() {
                         value={categorySearchQuery}
                         onChange={(e) => setCategorySearchQuery(e.target.value)}
                         placeholder="Search categories..."
-                        className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                        className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent"
                         onClick={(e) => e.stopPropagation()}
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -541,8 +541,8 @@ export default function Home() {
                           }}
                           className={`w-full text-left px-4 py-2.5 rounded-lg font-medium transition-colors ${
                             selectedFilters.includes(filter.id)
-                              ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
-                              : 'text-gray-700 hover:bg-amber-50'
+                              ? 'bg-airbnb-rausch text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
                           }`}
                         >
                           {filter.label}
