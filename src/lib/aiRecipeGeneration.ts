@@ -28,8 +28,12 @@ export async function analyzeImage(imageFile: File): Promise<string> {
   const base64Image = await fileToBase64(imageFile);
   const base64Data = base64Image.split(',')[1];
 
+  if (!base64Data) {
+    throw new Error('Failed to convert image to base64');
+  }
+
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: {
@@ -42,8 +46,8 @@ export async function analyzeImage(imageFile: File): Promise<string> {
               text: "Analyze this food image and provide a detailed description of the dish, including what it appears to be, key ingredients you can identify, cooking method, and presentation style. Be specific and focus on culinary details."
             },
             {
-              inline_data: {
-                mime_type: imageFile.type,
+              inlineData: {
+                mimeType: imageFile.type,
                 data: base64Data
               }
             }
