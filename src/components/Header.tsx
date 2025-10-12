@@ -61,7 +61,7 @@ export default function Header() {
             onClick={() => navigate('/')}
             className="cursor-pointer hover:opacity-90 transition flex-shrink-0"
           >
-            <img src="/forklore-logo.svg" alt="Forklore" className="w-10 h-10" />
+            <img src="/Forklore_logo.svg" alt="Forklore" className="h-10 w-auto" />
           </div>
 
           <div className="flex items-center gap-3 flex-1 max-w-2xl">
