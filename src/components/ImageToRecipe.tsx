@@ -18,7 +18,6 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
   const handleFileSelect = async (file: File) => {
     setError(null);
 
-    // Validate file
     const validation = validateImageFile(file);
     if (!validation.valid) {
       setError(validation.error!);
@@ -26,7 +25,6 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
     }
 
     try {
-      // Show preview
       const previewUrl = await getImagePreview(file);
       setPreview(previewUrl);
       setSelectedFile(file);
@@ -76,7 +74,6 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
     setStep('analyzing');
 
     try {
-      // Simulate progress for better UX
       setTimeout(() => setStep('generating'), 2000);
 
       const recipe = await generateRecipeFromImage(selectedFile);
@@ -115,9 +112,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
 
       {!preview ? (
         <div
-          className={`border-2 border-dashed rounded-xl p-12 transition cursor-pointer ${
-            dragActive ? 'scale-105' : ''
-          }`}
+          className={`border-2 border-dashed rounded-xl p-12 transition cursor-pointer ${dragActive ? 'scale-105' : ''}`}
           style={{
             borderColor: dragActive ? 'var(--forklore-burnt-orange)' : 'var(--forklore-warm-brown)',
             background: dragActive ? 'rgba(212, 118, 74, 0.1)' : 'rgba(245, 230, 211, 0.5)'
@@ -137,20 +132,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
           />
 
           <div className="text-center">
-            <svg
-              className="mx-auto h-16 w-16 mb-4"
-              stroke="currentColor"
-              fill="none"
-              viewBox="0 0 48 48"
-              style={{ color: 'var(--forklore-burnt-orange)' }}
-            >
-              <path
-                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <div className="text-6xl mb-4" style={{ color: 'var(--forklore-burnt-orange)' }}>📷</div>
             <p className="text-lg mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
               <span className="font-semibold">Click to upload</span> or drag and drop
             </p>
@@ -170,13 +152,9 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
             {processing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70">
                 <div className="text-white text-center">
-                  <div className="text-4xl mb-4 animate-pulse">
-                    {step === 'analyzing' ? '🔍' : '✨'}
+                  <div className="text-2xl font-bold mb-4 animate-pulse">
+                    {step === 'analyzing' ? 'Analyzing Image...' : 'Generating Recipe...'}
                   </div>
-                  <p className="text-xl font-semibold mb-2">
-                    {step === 'analyzing' && 'Analyzing your dish...'}
-                    {step === 'generating' && 'Generating recipe...'}
-                  </p>
                   <p className="text-sm opacity-80">This may take a moment</p>
                 </div>
               </div>
@@ -197,14 +175,14 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
 
       <div className="bg-white p-4 rounded-lg mb-6" style={{ border: '1px solid var(--forklore-warm-brown)' }}>
         <h4 className="font-semibold mb-2" style={{ color: 'var(--forklore-forest-green)' }}>
-          💡 Tips for best results:
+          Tips for best results:
         </h4>
         <ul className="text-sm space-y-1" style={{ color: 'var(--forklore-warm-brown)' }}>
-          <li>• Use clear, well-lit photos of the finished dish</li>
-          <li>• Show the full dish, not just a portion</li>
-          <li>• Avoid images with multiple dishes</li>
-          <li>• Photos of plated food work better than cooking process</li>
-          <li>• You can edit all details after AI generates the recipe</li>
+          <li>Use clear, well-lit photos of the finished dish</li>
+          <li>Show the full dish, not just a portion</li>
+          <li>Avoid images with multiple dishes</li>
+          <li>Photos of plated food work better than cooking process</li>
+          <li>You can edit all details after AI generates the recipe</li>
         </ul>
       </div>
 
@@ -223,14 +201,7 @@ export default function ImageToRecipe({ onRecipeGenerated, onCancel }: ImageToRe
           disabled={!selectedFile || processing}
           className="btn-primary px-8 py-3 rounded-lg font-semibold flex-1 flex items-center justify-center"
         >
-          {processing ? (
-            <>
-              <span className="animate-spin mr-2">⏳</span>
-              Generating...
-            </>
-          ) : (
-            <>✨ Generate Recipe</>
-          )}
+          {processing ? 'Generating...' : 'Generate Recipe'}
         </button>
       </div>
     </div>

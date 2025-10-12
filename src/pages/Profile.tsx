@@ -3,14 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatTimeAgo, groupActivitiesByDate } from '../lib/timeAgo';
+import EditProfile from '../components/EditProfile';
 
 const HeartIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
 const ChatIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
 const EditIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>;
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const SettingsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m5.2-13.2-4.2 4.2m-6 6-4.2 4.2M1 12h6m6 0h6m-13.2 5.2 4.2-4.2m6-6 4.2-4.2"/></svg>;
-const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
-const ChevronUpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"/></svg>;
 
 interface ProfileData {
   id: string;
@@ -45,7 +43,7 @@ export default function Profile() {
   });
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following' | 'settings'>('recipes');
+  const [activeTab, setActiveTab] = useState<'recipes' | 'activity' | 'followers' | 'following'>('recipes');
   const [loading, setLoading] = useState(true);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activities, setActivities] = useState<any[]>([]);
@@ -55,12 +53,6 @@ export default function Profile() {
   const [editBio, setEditBio] = useState('');
   const [editProfilePic, setEditProfilePic] = useState('');
   const [editFavoriteTags, setEditFavoriteTags] = useState<string[]>([]);
-
-  const [settingsExpanded, setSettingsExpanded] = useState(false);
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [recipeUpdates, setRecipeUpdates] = useState(false);
-  const [measurementUnits, setMeasurementUnits] = useState('imperial');
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const availableTags = ['Vegan', 'Vegetarian', 'Gluten-Free', 'Dairy-Free', 'Quick', 'Easy', 'Healthy', 'Comfort Food', 'Italian', 'Mexican', 'Asian', 'Mediterranean', 'Breakfast', 'Lunch', 'Dinner', 'Dessert', 'Snack', 'Holiday', 'Weeknight', 'Kosher'];
 
@@ -99,10 +91,6 @@ export default function Profile() {
         loadStats(profileData.id),
         loadFollowStatus(profileData.id),
       ]);
-
-      if (isOwnProfile) {
-        loadUserPreferences();
-      }
     } catch (err) {
       console.error('Error loading profile:', err);
     } finally {
@@ -275,97 +263,10 @@ export default function Profile() {
     );
   };
 
-  const loadUserPreferences = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        setEmailNotifications(data.email_notifications);
-        setRecipeUpdates(data.recipe_updates);
-        setMeasurementUnits(data.measurement_units);
-      }
-    } catch (err) {
-      console.error('Error loading preferences:', err);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-    if (!user) return;
-
-    try {
-      const { data: existing } = await supabase
-        .from('user_preferences')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (existing) {
-        const { error } = await supabase
-          .from('user_preferences')
-          .update({
-            email_notifications: emailNotifications,
-            recipe_updates: recipeUpdates,
-            measurement_units: measurementUnits,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('user_preferences')
-          .insert({
-            user_id: user.id,
-            email_notifications: emailNotifications,
-            recipe_updates: recipeUpdates,
-            measurement_units: measurementUnits,
-          });
-
-        if (error) throw error;
-      }
-
-      alert('Settings saved successfully!');
-    } catch (err: any) {
-      console.error('Error saving settings:', err);
-      alert(`Failed to save settings: ${err.message}`);
-    }
-  };
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigate('/login');
-    } catch (err) {
-      console.error('Error signing out:', err);
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!user) return;
-
-    try {
-      const { error } = await supabase.auth.admin.deleteUser(user.id);
-      if (error) throw error;
-      navigate('/login');
-    } catch (err: any) {
-      console.error('Error deleting account:', err);
-      alert(`Failed to delete account: ${err.message}`);
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-xl text-airbnb-dark-gray">Loading profile...</div>
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 flex items-center justify-center">
+        <div className="text-xl text-gray-600">Loading profile...</div>
       </div>
     );
   }
@@ -375,11 +276,11 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 py-8">
       <div className="max-w-6xl mx-auto px-4">
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
-          <div className="h-32 bg-gradient-to-r from-gray-100 to-gray-200"></div>
+          <div className="h-32 bg-gradient-to-r from-amber-400 to-orange-500"></div>
           <div className="px-8 pb-8">
             <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
               <div className="flex items-end space-x-6">
@@ -390,7 +291,7 @@ export default function Profile() {
                     className="w-32 h-32 rounded-full border-4 border-white shadow-lg object-cover"
                   />
                 ) : (
-                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gray-200 flex items-center justify-center text-4xl font-bold text-gray-700">
+                  <div className="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-amber-200 flex items-center justify-center text-4xl font-bold text-amber-700">
                     {profile.username.charAt(0).toUpperCase()}
                   </div>
                 )}
@@ -408,7 +309,7 @@ export default function Profile() {
                 {isOwnProfile ? (
                   <button
                     onClick={() => setEditModalOpen(true)}
-                    className="btn-primary flex items-center space-x-2 px-6 py-3 text-white rounded-lg font-semibold"
+                    className="flex items-center space-x-2 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
                   >
                     <EditIcon />
                     <span>Edit Profile</span>
@@ -419,7 +320,7 @@ export default function Profile() {
                     className={`px-6 py-3 rounded-lg font-semibold transition ${
                       isFollowing
                         ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        : 'btn-primary text-white'
+                        : 'bg-amber-500 text-white hover:bg-amber-600'
                     }`}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
@@ -435,7 +336,7 @@ export default function Profile() {
             {profile.favorite_tags && profile.favorite_tags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {profile.favorite_tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-semibold">
+                  <span key={tag} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm font-semibold">
                     {tag}
                   </span>
                 ))}
@@ -450,15 +351,15 @@ export default function Profile() {
             onClick={() => setActiveTab('recipes')}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.recipesCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.recipesCount}</div>
             <div className="text-sm text-gray-600 mt-1">Recipes</div>
           </button>
           <div className="bg-white rounded-xl p-6 text-center shadow-md">
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.likesReceived}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.likesReceived}</div>
             <div className="text-sm text-gray-600 mt-1">Likes</div>
           </div>
           <div className="bg-white rounded-xl p-6 text-center shadow-md">
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.commentsCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.commentsCount}</div>
             <div className="text-sm text-gray-600 mt-1">Comments</div>
           </div>
           <button
@@ -468,7 +369,7 @@ export default function Profile() {
             }}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.followersCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.followersCount}</div>
             <div className="text-sm text-gray-600 mt-1">Followers</div>
           </button>
           <button
@@ -478,7 +379,7 @@ export default function Profile() {
             }}
             className="bg-white rounded-xl p-6 text-center shadow-md hover:shadow-lg transition cursor-pointer"
           >
-            <div className="text-3xl font-bold text-airbnb-rausch">{stats.followingCount}</div>
+            <div className="text-3xl font-bold text-amber-600">{stats.followingCount}</div>
             <div className="text-sm text-gray-600 mt-1">Following</div>
           </button>
         </div>
@@ -490,7 +391,7 @@ export default function Profile() {
               onClick={() => setActiveTab('recipes')}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'recipes'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -503,7 +404,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'activity'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -516,7 +417,7 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'followers'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
@@ -529,24 +430,12 @@ export default function Profile() {
               }}
               className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
                 activeTab === 'following'
-                  ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
+                  ? 'text-amber-600 border-b-2 border-amber-600'
                   : 'text-gray-600 hover:text-gray-800'
               }`}
             >
               Following ({stats.followingCount})
             </button>
-            {isOwnProfile && (
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`pb-4 px-6 font-semibold transition whitespace-nowrap ${
-                  activeTab === 'settings'
-                    ? 'text-airbnb-rausch border-b-2 border-airbnb-rausch'
-                    : 'text-gray-600 hover:text-gray-800'
-                }`}
-              >
-                Settings
-              </button>
-            )}
           </div>
 
           {activeTab === 'recipes' && (
@@ -556,8 +445,8 @@ export default function Profile() {
                   <p className="text-xl text-gray-500">No recipes yet</p>
                   {isOwnProfile && (
                     <button
-                      onClick={() => navigate('/add-recipe')}
-                      className="btn-primary mt-4 px-6 py-3 text-white rounded-lg font-semibold"
+                      onClick={() => navigate('/create-recipe-method')}
+                      className="mt-4 px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition font-semibold"
                     >
                       Create Your First Recipe
                     </button>
@@ -629,7 +518,7 @@ export default function Profile() {
                                       Posted recipe{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -640,7 +529,7 @@ export default function Profile() {
                                       Commented on{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -651,7 +540,7 @@ export default function Profile() {
                                       Liked{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -662,7 +551,7 @@ export default function Profile() {
                                       Saved{' '}
                                       <button
                                         onClick={() => navigate(`/recipe/${activity.recipe_id}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.recipes?.title}
                                       </button>
@@ -673,7 +562,7 @@ export default function Profile() {
                                       Started following{' '}
                                       <button
                                         onClick={() => navigate(`/profile/${activity.profiles?.username}`)}
-                                        className="font-semibold text-airbnb-rausch hover:underline"
+                                        className="font-semibold text-amber-600 hover:underline"
                                       >
                                         {activity.profiles?.username}
                                       </button>
@@ -710,7 +599,7 @@ export default function Profile() {
                       {follower.profile_pic_url ? (
                         <img src={follower.profile_pic_url} alt={follower.username} className="w-12 h-12 rounded-full" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-700">
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
                           {follower.username.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -744,7 +633,7 @@ export default function Profile() {
                       {followed.profile_pic_url ? (
                         <img src={followed.profile_pic_url} alt={followed.username} className="w-12 h-12 rounded-full" />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-700">
+                        <div className="w-12 h-12 rounded-full bg-amber-200 flex items-center justify-center text-xl font-bold text-amber-700">
                           {followed.username.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -760,206 +649,18 @@ export default function Profile() {
               )}
             </div>
           )}
-
-          {activeTab === 'settings' && isOwnProfile && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <button
-                  onClick={() => setSettingsExpanded(!settingsExpanded)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition"
-                >
-                  <div className="flex items-center space-x-3">
-                    <SettingsIcon />
-                    <h3 className="text-xl font-bold text-gray-800">Account Settings</h3>
-                  </div>
-                  {settingsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
-                </button>
-
-                {settingsExpanded && (
-                  <div className="p-6 pt-0 space-y-6">
-                    <div className="border-t border-gray-200 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Notification Preferences</h4>
-
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-gray-800">Email Notifications</p>
-                            <p className="text-sm text-gray-600">Receive updates via email</p>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={emailNotifications}
-                              onChange={(e) => setEmailNotifications(e.target.checked)}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
-                          </label>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-gray-800">Recipe Updates</p>
-                            <p className="text-sm text-gray-600">Get notified about recipe interactions</p>
-                          </div>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={recipeUpdates}
-                              onChange={(e) => setRecipeUpdates(e.target.checked)}
-                              className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Display Preferences</h4>
-
-                      <div className="p-4 bg-gray-50 rounded-lg">
-                        <label className="block">
-                          <span className="font-medium text-gray-800 mb-2 block">Measurement Units</span>
-                          <select
-                            value={measurementUnits}
-                            onChange={(e) => setMeasurementUnits(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
-                          >
-                            <option value="imperial">Imperial (cups, oz, °F)</option>
-                            <option value="metric">Metric (ml, g, °C)</option>
-                          </select>
-                        </label>
-                      </div>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-6">
-                      <button
-                        onClick={handleSaveSettings}
-                        className="btn-primary w-full px-6 py-3 text-white rounded-lg font-semibold"
-                      >
-                        Save Settings
-                      </button>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-6">
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 transition mb-3"
-                      >
-                        Sign Out
-                      </button>
-
-                      <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="w-full px-6 py-3 bg-red-50 text-red-600 rounded-lg font-semibold hover:bg-red-100 transition"
-                      >
-                        Delete Account
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Delete Account</h2>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to delete your account? This action cannot be undone and all your recipes and data will be permanently deleted.
-            </p>
-            <div className="flex space-x-4">
-              <button
-                onClick={handleDeleteAccount}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-semibold"
-              >
-                Delete Account
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Edit Profile Modal */}
       {editModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Profile</h2>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Profile Picture URL</label>
-                <input
-                  type="text"
-                  value={editProfilePic}
-                  onChange={(e) => setEditProfilePic(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Bio</label>
-                <textarea
-                  value={editBio}
-                  onChange={(e) => setEditBio(e.target.value)}
-                  maxLength={500}
-                  rows={4}
-                  placeholder="Tell us about yourself..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
-                />
-                <p className="text-sm text-gray-500 mt-1">{editBio.length}/500 characters</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Favorite Tags</label>
-                <p className="text-xs text-gray-600 mb-3">Select tags to personalize your feed</p>
-                <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-2 border border-gray-200 rounded-lg">
-                  {availableTags.map(tag => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => toggleFavoriteTag(tag)}
-                      className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
-                        editFavoriteTags.includes(tag)
-                          ? 'bg-airbnb-rausch text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-sm text-gray-500 mt-2">{editFavoriteTags.length} tags selected</p>
-              </div>
-            </div>
-
-            <div className="flex space-x-4 mt-8">
-              <button
-                onClick={handleSaveProfile}
-                className="btn-primary flex-1 px-6 py-3 text-white rounded-lg font-semibold"
-              >
-                Save Changes
-              </button>
-              <button
-                onClick={() => setEditModalOpen(false)}
-                className="flex-1 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditProfile
+          onClose={() => setEditModalOpen(false)}
+          onSaved={() => {
+            loadProfile();
+            setEditModalOpen(false);
+          }}
+        />
       )}
     </div>
   );
