@@ -10,6 +10,7 @@ import EditRecipe from './pages/EditRecipe';
 import MyRecipes from './pages/MyRecipes';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
+import SavedRecipes from './pages/SavedRecipes';
 import Header from './components/Header';
 import Onboarding from './components/Onboarding';
 
@@ -81,7 +82,6 @@ function AppRoutes() {
   return (
     <>
       {showOnboarding && <Onboarding onComplete={() => setShowOnboarding(false)} />}
-      <Header />
       <main className="bg-white min-h-screen">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -90,6 +90,7 @@ function AppRoutes() {
           <Route path="/add-recipe" element={<AddRecipe />} />
           <Route path="/my-recipes" element={<MyRecipes />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/saved" element={<SavedRecipes />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

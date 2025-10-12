@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import Header from '../components/Header';
 
 const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
 const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
@@ -30,7 +31,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
         <div className="absolute top-3 right-3">
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
-            className={`p-2 rounded-full ${isLiked ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
+            className={`p-2 rounded-full ${isLiked ? 'bg-pink-500 text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
           >
             <HeartIcon filled={isLiked} />
           </button>
@@ -64,7 +65,7 @@ function RecipeCard({ recipe, onLike, isLiked, onTagClick }: { recipe: Recipe; o
             <button
               key={tag}
               onClick={(e) => { e.stopPropagation(); onTagClick(tag); }}
-              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-airbnb-hof hover:text-airbnb-rausch transition"
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-pink-50 hover:text-pink-600 transition"
             >
               {tag}
             </button>
@@ -377,40 +378,30 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl text-airbnb-dark-gray">Loading culinary stories...</div>
-      </div>
+      <>
+        <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
+        <div className="min-h-screen flex items-center justify-center bg-white">
+          <div className="text-xl text-gray-600">Loading culinary stories...</div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-      <div className="mb-6">
-        <div className="relative">
-          <input
-            type="text"
-            value={searchQuery}
-            placeholder="Search recipes, ingredients, occasions..."
-            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent shadow-sm text-gray-800 placeholder-gray-500"
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">
-            <SearchIcon />
-          </div>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-4">
-            <h2 className="text-2xl font-bold text-airbnb-black">Discover Recipes</h2>
+    <>
+      <Header onSearchChange={setSearchQuery} searchQuery={searchQuery} />
+      <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-4">
+              <h2 className="text-3xl font-bold text-gray-900">Discover Recipes</h2>
             {user && followingUserIds.size > 0 && (
               <button
                 onClick={() => setShowFollowingOnly(!showFollowingOnly)}
                 className={`px-4 py-2 rounded-lg font-semibold transition text-sm ${
                   showFollowingOnly
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-pink-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-500'
                 }`}
               >
                 {showFollowingOnly ? '✓ ' : ''}Following
@@ -420,7 +411,7 @@ export default function Home() {
           {!selectedFilters.includes('all') && selectedFilters.length > 0 && (
             <button
               onClick={clearFilters}
-              className="flex items-center space-x-2 text-airbnb-rausch hover:text-airbnb-rausch-dark transition font-semibold"
+              className="flex items-center space-x-2 text-pink-500 hover:text-pink-600 transition font-semibold"
             >
               <span>Clear Filters</span>
               <span className="text-xl">×</span>
@@ -433,7 +424,7 @@ export default function Home() {
             <p className="text-sm text-gray-700 mb-2">Active filters:</p>
             <div className="flex flex-wrap gap-2">
               {selectedFilters.map(filter => (
-                <span key={filter} className="px-3 py-1 bg-airbnb-rausch text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
+                <span key={filter} className="px-3 py-1 bg-pink-500 text-white rounded-full text-sm font-semibold capitalize flex items-center space-x-1">
                   <span>{filter}</span>
                   <button onClick={() => handleTagClick(filter)} className="ml-1 hover:opacity-80">×</button>
                 </span>
@@ -524,8 +515,8 @@ export default function Home() {
                 onClick={() => handleFilterChange(filter.id)}
                 className={`px-5 py-2 rounded-full font-semibold transition-all whitespace-nowrap flex-shrink-0 ${
                   selectedFilters.includes(filter.id)
-                    ? 'bg-airbnb-rausch text-white shadow-md scale-105'
-                    : 'bg-white border border-gray-300 text-gray-700 hover:border-airbnb-rausch'
+                    ? 'bg-pink-500 text-white shadow-md scale-105'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:border-pink-400'
                 }`}
               >
                 {filter.label}
@@ -547,8 +538,8 @@ export default function Home() {
                 onClick={() => handleSortChange('recommended')}
                 className={`px-4 py-2 rounded-lg font-semibold transition ${
                   sortBy === 'recommended'
-                    ? 'bg-airbnb-rausch text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                    ? 'bg-pink-500 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
                 }`}
               >
                 Recommended
@@ -558,8 +549,8 @@ export default function Home() {
               onClick={() => handleSortChange('recent')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'recent'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
               }`}
             >
               Recent
@@ -568,8 +559,8 @@ export default function Home() {
               onClick={() => handleSortChange('popular')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'popular'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
               }`}
             >
               Popular
@@ -578,8 +569,8 @@ export default function Home() {
               onClick={() => handleSortChange('trending')}
               className={`px-4 py-2 rounded-lg font-semibold transition ${
                 sortBy === 'trending'
-                  ? 'bg-airbnb-rausch text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-airbnb-rausch'
+                  ? 'bg-pink-500 text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-pink-400'
               }`}
             >
               Trending
@@ -607,5 +598,6 @@ export default function Home() {
         </div>
       )}
     </div>
+    </>
   );
 }

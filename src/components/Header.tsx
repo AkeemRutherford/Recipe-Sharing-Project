@@ -4,27 +4,40 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import Notifications from './Notifications';
 
-
-const UploadIcon = () => (
+const SearchIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-    <polyline points="17 8 12 3 7 8"/>
-    <line x1="12" y1="3" x2="12" y2="15"/>
+    <circle cx="11" cy="11" r="8"/>
+    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
   </svg>
 );
 
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-    <circle cx="12" cy="7" r="4"/>
+const UsersIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
   </svg>
 );
 
-const LogoutIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-    <polyline points="16 17 21 12 16 7"/>
-    <line x1="21" y1="12" x2="9" y2="12"/>
+const BookmarkIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+const UserCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="10" r="3"/>
+    <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"/>
   </svg>
 );
 
@@ -51,18 +64,27 @@ const ForkloreLogoIcon = ({ className = "w-10 h-10" }: { className?: string }) =
   </svg>
 );
 
-export default function Header() {
+interface HeaderProps {
+  onSearchChange?: (query: string) => void;
+  searchQuery?: string;
+}
+
+export default function Header({ onSearchChange, searchQuery = '' }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const { user } = useAuth();
   const [username, setUsername] = useState('');
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
   useEffect(() => {
     if (user) {
       loadUsername();
     }
   }, [user]);
+
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
 
   const loadUsername = async () => {
     try {
@@ -81,126 +103,90 @@ export default function Header() {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/login');
+  const handleSearchChange = (value: string) => {
+    setLocalSearchQuery(value);
+    if (onSearchChange) {
+      onSearchChange(value);
+    }
   };
 
   const isActive = (path: string) => location.pathname === path;
 
+  const showSearchBar = location.pathname === '/' || location.pathname.startsWith('/saved');
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo */}
           <div
             onClick={() => navigate('/')}
-            className="cursor-pointer hover:opacity-90 transition flex items-center space-x-3"
+            className="cursor-pointer hover:opacity-90 transition flex items-center"
           >
-            <ForkloreLogoIcon className="w-10 h-10" style={{ color: 'var(--forklore-warm-red)' }} />
-            <div className="flex flex-col">
-              <h1 className="text-2xl font-bold" style={{ color: 'var(--forklore-forest-green)', fontFamily: 'var(--font-heading)' }}>
-                Forklore
-              </h1>
-              <p className="text-xs uppercase tracking-wide" style={{ color: 'var(--forklore-warm-brown)' }}>
-                Share Your Culinary Journey
-              </p>
-            </div>
+            <ForkloreLogoIcon className="w-8 h-8 md:w-10 md:h-10" style={{ color: '#FF385C' }} />
+            <span className="ml-2 text-lg md:text-xl font-bold hidden sm:inline" style={{ color: '#222' }}>
+              Forklore
+            </span>
           </div>
 
-          <nav className="hidden md:flex items-center space-x-8">
-            <button
-              onClick={() => navigate('/')}
-              className={`font-medium transition ${
-                isActive('/') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
-              }`}
-            >
-              Explore Recipes
-            </button>
+          {/* Search Bar - centered on home page */}
+          {showSearchBar && (
+            <div className="flex-1 max-w-2xl mx-4">
+              <div className="relative">
+                <SearchIcon />
+                <input
+                  type="text"
+                  value={localSearchQuery}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Search recipes..."
+                  className="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:border-gray-400 focus:shadow-md transition"
+                />
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <SearchIcon />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Right side icons */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/users')}
-              className={`font-medium transition ${
-                isActive('/users') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
+              className={`p-2 rounded-full hover:bg-gray-100 transition ${
+                isActive('/users') ? 'text-pink-500' : 'text-gray-600'
               }`}
+              title="Community"
             >
-              Community
+              <UsersIcon />
             </button>
-            <button
-              onClick={() => navigate('/my-recipes')}
-              className={`font-medium transition ${
-                isActive('/my-recipes') ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
-              }`}
-            >
-              My Recipes
-            </button>
-            {username && (
-              <button
-                onClick={() => navigate(`/profile/${username}`)}
-                className={`font-medium transition ${
-                  isActive(`/profile/${username}`) ? 'text-airbnb-black border-b-2 border-airbnb-black pb-1' : 'text-airbnb-dark-gray hover:text-airbnb-black'
-                }`}
-              >
-                My Profile
-              </button>
-            )}
-          </nav>
 
-          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/saved')}
+              className={`p-2 rounded-full hover:bg-gray-100 transition ${
+                isActive('/saved') ? 'text-pink-500' : 'text-gray-600'
+              }`}
+              title="Saved Recipes"
+            >
+              <BookmarkIcon />
+            </button>
+
             <button
               onClick={() => navigate('/add-recipe')}
-              className="btn-primary flex items-center space-x-2 px-4 py-2 rounded-lg font-semibold"
+              className="p-2 rounded-full hover:bg-gray-100 transition text-gray-600"
+              title="Add Recipe"
             >
-              <UploadIcon />
-              <span className="hidden md:inline">Share Recipe</span>
+              <PlusIcon />
             </button>
 
-            <Notifications />
-
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 rounded-full p-2 border border-gray-300 hover:shadow-md transition text-airbnb-dark-gray hover:text-airbnb-black bg-white"
-              >
-                <UserIcon />
-              </button>
-
-              {showUserMenu && (
-                <>
-                  <div
-                    className="fixed inset-0 z-40"
-                    onClick={() => setShowUserMenu(false)}
-                  />
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        if (username) {
-                          navigate(`/profile/${username}`);
-                        }
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100"
-                    >
-                      Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        navigate('/my-recipes');
-                      }}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-100"
-                    >
-                      My Recipes
-                    </button>
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition text-red-600 font-semibold flex items-center space-x-2"
-                    >
-                      <LogoutIcon />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <button
+              onClick={() => username ? navigate(`/profile/${username}`) : navigate('/login')}
+              className={`p-2 rounded-full hover:bg-gray-100 transition ${
+                location.pathname.includes('/profile') ? 'text-pink-500' : 'text-gray-600'
+              }`}
+              title="Profile"
+            >
+              <UserCircleIcon />
+            </button>
           </div>
         </div>
       </div>
