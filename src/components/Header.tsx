@@ -2,42 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-
-const SearchIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <circle cx="11" cy="11" r="8"/>
-    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-  </svg>
-);
-
-const UsersIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-    <circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
-
-const BookmarkIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="12" y1="5" x2="12" y2="19"/>
-    <line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-);
-
-const UserIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-    <circle cx="12" cy="7" r="4"/>
-  </svg>
-);
+import { SearchMagnifyIcon, ChefHatsIcon, CookbookIcon, RecipeBookIcon } from './ForkloreIcons';
 
 
 export default function Header() {
@@ -109,7 +74,7 @@ export default function Header() {
                 className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-airbnb-rausch focus:border-transparent text-sm"
               />
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <SearchIcon />
+                <SearchMagnifyIcon size={20} />
               </div>
             </form>
           </div>
@@ -125,7 +90,7 @@ export default function Header() {
               title="Community"
               aria-label="Community"
             >
-              <UsersIcon />
+              <ChefHatsIcon size={24} />
             </button>
 
             <button
@@ -138,7 +103,7 @@ export default function Header() {
               title="Saved Recipes"
               aria-label="Saved Recipes"
             >
-              <BookmarkIcon />
+              <CookbookIcon size={24} />
             </button>
 
             <button
@@ -151,7 +116,7 @@ export default function Header() {
               title="Add Recipe"
               aria-label="Add Recipe"
             >
-              <PlusIcon />
+              <RecipeBookIcon size={24} />
             </button>
 
             <button
@@ -170,7 +135,7 @@ export default function Header() {
               title={usernameLoading ? 'Loading profile...' : 'My Profile'}
               aria-label="My Profile"
             >
-              <UserIcon />
+              <ChefHatsIcon size={24} />
             </button>
           </div>
         </div>

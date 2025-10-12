@@ -2,13 +2,15 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase, Recipe } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  HourglassIcon,
+  DinnerPlateIcon,
+  HeartSpoonIcon,
+  CookbookIcon,
+  SearchMagnifyIcon
+} from '../components/ForkloreIcons';
 
-const ClockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
-const UsersIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
-const HeartIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>;
-const BookmarkIcon = ({ filled }: { filled: boolean }) => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>;
 const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"/></svg>;
-const SearchIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
 const ShareIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>;
 
 function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick, onShare }: { recipe: Recipe; onLike: (recipeId: string) => void; isLiked: boolean; onSave: (recipeId: string) => void; isSaved: boolean; onTagClick: (tag: string) => void; onShare: (recipeId: string, title: string, description: string) => void }) {
@@ -41,13 +43,13 @@ function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick, onSh
             className={`p-2 rounded-full ${isSaved ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
             title={isSaved ? "Remove from saved" : "Save recipe"}
           >
-            <BookmarkIcon filled={isSaved} />
+            <CookbookIcon size={18} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onLike(recipe.id); }}
             className={`p-2 rounded-full ${isLiked ? 'bg-airbnb-rausch text-white' : 'bg-white/90 text-gray-700 hover:bg-white'} hover:scale-110 transition`}
           >
-            <HeartIcon filled={isLiked} />
+            <HeartSpoonIcon size={20} filled={isLiked} />
           </button>
         </div>
         <div className="absolute bottom-3 left-3 right-3">
@@ -65,11 +67,11 @@ function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick, onSh
       <div className="p-4">
         <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
           <div className="flex items-center space-x-1">
-            <ClockIcon />
+            <HourglassIcon size={20} />
             <span>{recipe.prep_time}</span>
           </div>
           <div className="flex items-center space-x-1">
-            <UsersIcon />
+            <DinnerPlateIcon size={20} />
             <span>{recipe.servings} servings</span>
           </div>
           <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-semibold">{recipe.difficulty}</span>
@@ -87,7 +89,7 @@ function RecipeCard({ recipe, onLike, isLiked, onSave, isSaved, onTagClick, onSh
         </div>
         <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
           <span className="flex items-center space-x-1">
-            <HeartIcon filled={false} />
+            <HeartSpoonIcon size={20} filled={false} />
             <span>{recipe.likes_count}</span>
           </span>
         </div>
@@ -564,7 +566,7 @@ export default function Home() {
                         onClick={(e) => e.stopPropagation()}
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                        <SearchIcon />
+                        <SearchMagnifyIcon size={20} />
                       </div>
                     </div>
                   </div>
