@@ -799,28 +799,35 @@ export default function Profile() {
 
           {activeTab === 'settings' && isOwnProfile && (
             <div className="space-y-6">
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-white rounded-xl border-2 border-blue-500 overflow-hidden">
                 <button
                   onClick={() => setSettingsExpanded(!settingsExpanded)}
                   className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition"
                 >
                   <div className="flex items-center space-x-3">
-                    <SettingsIcon />
-                    <h3 className="text-xl font-bold text-gray-800">Account Settings</h3>
+                    <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+                      <SettingsIcon />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800">Settings</h3>
                   </div>
                   {settingsExpanded ? <ChevronUpIcon /> : <ChevronDownIcon />}
                 </button>
 
                 {settingsExpanded && (
-                  <div className="p-6 pt-0 space-y-6">
-                    <div className="border-t border-gray-200 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Notification Preferences</h4>
+                  <div className="p-6 pt-0 space-y-8">
+                    <div className="pt-6">
+                      <h4 className="text-2xl font-bold text-gray-800 mb-2">Privacy Preferences</h4>
+                      <p className="text-gray-600 mb-6">Manage recipe privacy settings individually when creating or editing recipes.</p>
+                    </div>
+
+                    <div>
+                      <h4 className="text-2xl font-bold text-gray-800 mb-6">Notification Preferences</h4>
 
                       <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-gray-800">Email Notifications</p>
-                            <p className="text-sm text-gray-600">Receive updates via email</p>
+                            <p className="text-lg font-semibold text-gray-800">Email Notifications</p>
+                            <p className="text-sm text-gray-500">Receive updates via email</p>
                           </div>
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -829,14 +836,14 @@ export default function Profile() {
                               onChange={(e) => setEmailNotifications(e.target.checked)}
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
+                            <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-airbnb-rausch"></div>
                           </label>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                           <div>
-                            <p className="font-medium text-gray-800">Recipe Updates</p>
-                            <p className="text-sm text-gray-600">Get notified about recipe interactions</p>
+                            <p className="text-lg font-semibold text-gray-800">Recipe Updates</p>
+                            <p className="text-sm text-gray-500">Get notified about new recipes</p>
                           </div>
                           <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -845,22 +852,22 @@ export default function Profile() {
                               onChange={(e) => setRecipeUpdates(e.target.checked)}
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-airbnb-rausch rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-airbnb-rausch"></div>
+                            <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-airbnb-rausch"></div>
                           </label>
                         </div>
                       </div>
                     </div>
 
                     <div className="border-t border-gray-200 pt-6">
-                      <h4 className="text-lg font-semibold text-gray-800 mb-4">Display Preferences</h4>
+                      <h4 className="text-2xl font-bold text-gray-800 mb-6">Display Preferences</h4>
 
-                      <div className="p-4 bg-gray-50 rounded-lg">
+                      <div>
                         <label className="block">
-                          <span className="font-medium text-gray-800 mb-2 block">Measurement Units</span>
+                          <span className="text-lg font-semibold text-gray-800 mb-3 block">Measurement Units</span>
                           <select
                             value={measurementUnits}
                             onChange={(e) => setMeasurementUnits(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-airbnb-rausch text-gray-800 font-medium bg-white"
                           >
                             <option value="imperial">Imperial (cups, oz, °F)</option>
                             <option value="metric">Metric (ml, g, °C)</option>
@@ -872,7 +879,7 @@ export default function Profile() {
                     <div className="border-t border-gray-200 pt-6">
                       <button
                         onClick={handleSaveSettings}
-                        className="btn-primary w-full px-6 py-3 text-white rounded-full font-semibold"
+                        className="btn-primary w-full px-6 py-4 text-white rounded-xl font-bold text-lg"
                       >
                         Save Settings
                       </button>
@@ -881,14 +888,14 @@ export default function Profile() {
                     <div className="border-t border-gray-200 pt-6">
                       <button
                         onClick={handleSignOut}
-                        className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-full font-semibold hover:bg-gray-200 transition mb-3"
+                        className="w-full px-6 py-4 bg-gray-100 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-200 transition mb-4"
                       >
-                        Sign Out
+                        Logout
                       </button>
 
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="w-full px-6 py-3 bg-red-50 text-red-600 rounded-full font-semibold hover:bg-red-100 transition"
+                        className="w-full px-6 py-4 text-red-600 rounded-xl font-bold text-lg hover:bg-red-50 transition"
                       >
                         Delete Account
                       </button>
