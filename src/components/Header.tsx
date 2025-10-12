@@ -2,7 +2,36 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { SearchMagnifyIcon, ChefHatsIcon, CookbookIcon, RecipeBookIcon } from './ForkloreIcons';
+import { SearchMagnifyIcon } from './ForkloreIcons';
+
+const UsersIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+);
+
+const BookmarkIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+
+const PlusIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <line x1="12" y1="5" x2="12" y2="19"/>
+    <line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+    <circle cx="12" cy="7" r="4"/>
+  </svg>
+);
 
 
 export default function Header() {
@@ -90,7 +119,7 @@ export default function Header() {
               title="Community"
               aria-label="Community"
             >
-              <ChefHatsIcon size={24} />
+              <UsersIcon />
             </button>
 
             <button
@@ -103,7 +132,7 @@ export default function Header() {
               title="Saved Recipes"
               aria-label="Saved Recipes"
             >
-              <CookbookIcon size={24} />
+              <BookmarkIcon />
             </button>
 
             <button
@@ -116,7 +145,7 @@ export default function Header() {
               title="Add Recipe"
               aria-label="Add Recipe"
             >
-              <RecipeBookIcon size={24} />
+              <PlusIcon />
             </button>
 
             <button
@@ -135,7 +164,7 @@ export default function Header() {
               title={usernameLoading ? 'Loading profile...' : 'My Profile'}
               aria-label="My Profile"
             >
-              <ChefHatsIcon size={24} />
+              <UserIcon />
             </button>
           </div>
         </div>
